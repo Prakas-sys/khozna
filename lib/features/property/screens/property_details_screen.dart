@@ -956,16 +956,18 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (k.contains('wifi') || k.contains('internet')) {
       return Icons.wifi_outlined;
     }
-    if (k.contains('water') || k.contains('melamchi') || k.contains('boring')) {
-      if (k.contains('hot_water') || k.contains('hot'))
-        return Icons.hot_tub_outlined;
+    if (k.contains('drinking_water')) {
       return Icons.water_drop_outlined;
+    }
+    if (k.contains('water') || k.contains('melamchi') || k.contains('boring')) {
+      if (k.contains('hot_water') || k.contains('hot')) return Icons.hot_tub_outlined;
+      return Icons.water_damage_outlined;
     }
     if (k.contains('cctv') || k.contains('security')) {
       return Icons.security_rounded;
     }
     if (k.contains('bike')) {
-      return Icons.pedal_bike_outlined;
+      return Icons.two_wheeler_outlined;
     }
     if (k.contains('kitchen')) {
       return Icons.kitchen_outlined;
@@ -973,22 +975,41 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (k.contains('balcony')) {
       return Icons.balcony_outlined;
     }
+    if (k.contains('rooftop')) {
+      return Icons.roofing_outlined;
+    }
     if (k.contains('ac') || k.contains('air cond')) {
       return Icons.ac_unit_outlined;
+    }
+    if (k.contains('laundry') || k.contains('washing')) {
+      return Icons.local_laundry_service_outlined;
+    }
+    if (k.contains('family')) {
+      return Icons.family_restroom_outlined;
+    }
+    if (k.contains('student') || k.contains('school')) {
+      return Icons.school_outlined;
+    }
+    if (k.contains('pet')) {
+      return Icons.pets_outlined;
+    }
+    if (k.contains('cleaning')) {
+      return Icons.cleaning_services_outlined;
+    }
+    if (k.contains('transport') || k.contains('bus')) {
+      return Icons.directions_bus_outlined;
     }
     if (k.contains('furnish')) {
       return Icons.chair_outlined;
     }
     if (k.contains('solar') || k.contains('power') || k.contains('backup')) {
-      return Icons.electric_bolt_outlined;
+      return Icons.solar_power_outlined;
     }
     if (k.contains('elevator') || k.contains('lift')) {
       return Icons.elevator_outlined;
     }
-    if (k.contains('attached') ||
-        k.contains('bathroom') ||
-        k.contains('bath')) {
-      return Icons.bathroom_outlined;
+    if (k.contains('attached') || k.contains('bathroom') || k.contains('bath')) {
+      return Icons.shower_outlined;
     }
     if (k.contains('peaceful')) {
       return Icons.nature_people_outlined;
@@ -1008,14 +1029,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       return 'Car Parking';
     }
     if (k.contains('wifi') || k.contains('internet')) {
-      return 'Wifi';
+      return 'Wi-Fi';
+    }
+    if (k.contains('drinking_water')) {
+      return 'Drinking Water';
     }
     if (k.contains('water') || k.contains('melamchi') || k.contains('boring')) {
       if (k.contains('hot_water') || k.contains('hot')) return 'Hot Water';
-      return 'Water';
+      return '24/7 Water';
     }
     if (k.contains('cctv') || k.contains('security')) {
-      return 'CCTV';
+      return 'Security';
     }
     if (k.contains('bike')) {
       return 'Bike Parking';
@@ -1026,20 +1050,44 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (k.contains('balcony')) {
       return 'Balcony';
     }
+    if (k.contains('rooftop')) {
+      return 'Rooftop';
+    }
     if (k.contains('ac') || k.contains('air cond')) {
-      return 'AC';
+      return 'Air Conditioning';
+    }
+    if (k.contains('laundry') || k.contains('washing')) {
+      return 'Washing Machine';
+    }
+    if (k.contains('family')) {
+      return 'Family Friendly';
+    }
+    if (k.contains('student')) {
+      return 'Student Friendly';
+    }
+    if (k.contains('pet')) {
+      return 'Pets Allowed';
+    }
+    if (k.contains('cleaning')) {
+      return 'Cleaning Service';
+    }
+    if (k.contains('transport') || k.contains('bus')) {
+      return 'Public Transport';
+    }
+    if (k.contains('unfurnish')) {
+      return 'Unfurnished';
     }
     if (k.contains('furnish')) {
       return 'Furnished';
     }
     if (k.contains('solar') || k.contains('power') || k.contains('backup')) {
-      return 'Power Backup';
+      return 'Solar / Backup';
     }
     if (k.contains('elevator') || k.contains('lift')) {
       return 'Elevator';
     }
     if (k.contains('attached') || k.contains('bathroom')) {
-      return 'Attached Bathroom';
+      return 'Bathroom';
     }
     if (k.contains('peaceful')) {
       return 'Peaceful';

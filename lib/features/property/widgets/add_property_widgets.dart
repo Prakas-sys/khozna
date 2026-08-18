@@ -471,7 +471,7 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                     children: [
                       Text(
                         nepaliText,
-                        style: GoogleFonts.notoSansDevanagari(
+                        style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                           color: isSelected ? AppTheme.brandColor : const Color(0xFF1E293B),
@@ -547,7 +547,7 @@ class StepLayout extends StatelessWidget {
           ],
           titleWidget ?? Text(
             title,
-            style: GoogleFonts.notoSansDevanagari(
+            style: GoogleFonts.inter(
               fontSize: 22,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF111827),
@@ -555,12 +555,12 @@ class StepLayout extends StatelessWidget {
             ),
           ),
           if (subtitle.isNotEmpty) ...[
-            const SizedBox(height: 5),
+            const SizedBox(height: 4),
             Text(
               subtitle,
-              style: GoogleFonts.notoSansDevanagari(
+              style: GoogleFonts.inter(
                 fontSize: 14,
-                color: const Color(0xFF9CA3AF),
+                color: const Color(0xFF6B7280),
                 fontWeight: FontWeight.w400,
                 height: 1.4,
               ),
@@ -629,7 +629,7 @@ class PremiumFeatureCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.notoSansDevanagari(
+                      style: GoogleFonts.inter(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF111827),
@@ -638,7 +638,7 @@ class PremiumFeatureCard extends StatelessWidget {
                     ),
                     Text(
                       subtitle,
-                      style: GoogleFonts.notoSansDevanagari(
+                      style: GoogleFonts.inter(
                         fontSize: 12,
                         color: Colors.grey[500],
                         fontWeight: FontWeight.w500,
@@ -701,7 +701,7 @@ class PropertyFormField extends StatelessWidget {
             Flexible(
               child: Text(
                 label,
-                style: GoogleFonts.notoSansDevanagari(
+                style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: const Color(0xFF6B7280),
@@ -733,7 +733,7 @@ class PropertyFormField extends StatelessWidget {
           ),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: GoogleFonts.notoSansDevanagari(
+            hintStyle: GoogleFonts.inter(
               fontSize: 14,
               color: const Color(0xFFD1D5DB),
               fontWeight: FontWeight.w400,
@@ -817,11 +817,12 @@ class CategorizedAmenitiesGrid extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                cat.title,
-                style: GoogleFonts.notoSansDevanagari(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF111827),
+                cat.title.toUpperCase(),
+                style: GoogleFonts.inter(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF94A3B8),
+                  letterSpacing: 0.5,
                 ),
               ),
               const SizedBox(height: 12),
@@ -869,7 +870,7 @@ class CategorizedAmenitiesGrid extends StatelessWidget {
                               textAlign: TextAlign.center,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.notoSansDevanagari(
+                              style: GoogleFonts.inter(
                                 fontSize: 11,
                                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                                 color: isSelected ? Colors.white : const Color(0xFF374151),
@@ -949,7 +950,7 @@ class AmenitiesGrid extends StatelessWidget {
                     labels[key] ?? '',
                     textAlign: TextAlign.center,
                     maxLines: 2,
-                    style: GoogleFonts.notoSansDevanagari(
+                    style: GoogleFonts.inter(
                       fontSize: 11.5,
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                       color: isSelected ? Colors.white : const Color(0xFF6B7280),
@@ -1054,9 +1055,9 @@ class CounterField extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.notoSansDevanagari(
+              style: GoogleFonts.inter(
                 fontSize: 15,
-                fontWeight: FontWeight.w400,
+                fontWeight: FontWeight.w500,
                 color: const Color(0xFF111827),
               ),
             ),
@@ -1147,7 +1148,7 @@ class FloorSelector extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.notoSansDevanagari(
+          style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: const Color(0xFF6B7280),
@@ -1267,7 +1268,7 @@ class PriceInputField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.notoSansDevanagari(
+          style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: const Color(0xFF6B7280),
@@ -1314,7 +1315,7 @@ class PriceInputField extends StatelessWidget {
               ),
               Text(
                 suffix,
-                style: GoogleFonts.notoSansDevanagari(
+                style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
                   color: const Color(0xFF9CA3AF),
