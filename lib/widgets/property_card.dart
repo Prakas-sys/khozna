@@ -273,7 +273,7 @@ class PropertyCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(
                   14,
-                  6,
+                  10, // Shifted down for cleaner separation from image
                   14,
                   0,
                 ), // Bottom padding up to buttons
@@ -313,8 +313,8 @@ class PropertyCard extends StatelessWidget {
                                     offset: const Offset(0, -1.5),
                                     child: SvgPicture.asset(
                                       'assets/icons/vector of ruppes.svg',
-                                      width: 14.5,
-                                      height: 14.5,
+                                      width: 14.0, // 0.5 smaller as requested
+                                      height: 14.0,
                                       colorFilter: const ColorFilter.mode(
                                         AppTheme.brandColor,
                                         BlendMode.srcIn,
@@ -367,7 +367,7 @@ class PropertyCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 5), // Shift location and amenities down
                     _buildAmenityItems(),
                     SizedBox(height: (width == double.infinity) ? 12 : 4),
 

@@ -561,14 +561,6 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.82), // 80% Black Fill
                       borderRadius: BorderRadius.circular(30),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.20),
-                          blurRadius: 12,
-                          spreadRadius: 1,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
