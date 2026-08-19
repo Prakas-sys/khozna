@@ -9,6 +9,7 @@ import 'package:khozna/features/property/screens/booking_status_screen.dart';
 import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
 import 'package:khozna/features/property/screens/payment_choice_screen.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -139,41 +140,60 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         }
       }
 
-      // 2. Synthesize Owner Requests
-      for (final req in ownerRequests) {
+      // 2. Synthesize Owner Requests — fetch real guest profiles in one batch
+      final pendingOwnerRequests = ownerRequests.where((req) =>
+        !combined.any((n) => n['booking_id']?.toString() == req.id || n['id'] == 'synth_owner_${req.id}') &&
+        req.id.isNotEmpty &&
+        !dismissedIds.contains('synth_owner_${req.id}'),
+      ).toList();
+
+      // Batch-fetch real guest profiles for all pending requests
+      Map<String, Map<String, dynamic>> guestProfiles = {};
+      if (pendingOwnerRequests.isNotEmpty) {
+        final guestIds = pendingOwnerRequests.map((r) => r.guestId).where((id) => id.isNotEmpty).toSet().toList();
+        try {
+          final profiles = await Supabase.instance.client
+              .from('profiles')
+              .select('id, full_name, avatar_url, kyc_status, user_type, organization, bio, area_name')
+              .inFilter('id', guestIds);
+          for (final p in profiles as List) {
+            guestProfiles[p['id'].toString()] = Map<String, dynamic>.from(p as Map);
+          }
+        } catch (e) {
+          debugPrint('Error fetching guest profiles: $e');
+        }
+      }
+
+      for (final req in pendingOwnerRequests) {
         final bId = req.id;
         final synthId = 'synth_owner_$bId';
-        final existing = combined.any(
-          (n) => n['booking_id']?.toString() == bId || n['id'] == synthId,
-        );
-        if (!existing && bId.isNotEmpty && !dismissedIds.contains(synthId)) {
-          final propTitle = req.propertyTitle ?? 'Your Property';
-          final status = req.status;
-          final timeStr = req.createdAt.toIso8601String();
+        final propTitle = req.propertyTitle ?? 'Your Property';
+        final status = req.status;
+        final timeStr = req.createdAt.toIso8601String();
+        final guestProfile = guestProfiles[req.guestId] ?? {'id': req.guestId, 'full_name': 'Guest'};
 
-          if (status == 'pending_approval') {
-            combined.add({
-              'id': synthId,
-              'booking_id': bId,
-              'property_id': req.propertyId,
-              'title': 'New Booking Request',
-              'message': 'New visit request received for "$propTitle".',
-              'type': 'booking_request',
-              'sender': {'id': req.guestId, 'full_name': 'Guest'},
-              'created_at': timeStr,
-            });
-          } else if (status == 'paid') {
-            combined.add({
-              'id': synthId,
-              'booking_id': bId,
-              'property_id': req.propertyId,
-              'title': 'Payment Received',
-              'message': 'Payment received for "$propTitle".',
-              'type': 'payment_received',
-              'sender': {'id': req.guestId, 'full_name': 'Guest'},
-              'created_at': timeStr,
-            });
-          }
+        if (status == 'pending_approval') {
+          combined.add({
+            'id': synthId,
+            'booking_id': bId,
+            'property_id': req.propertyId,
+            'title': 'New Booking Request',
+            'message': 'New visit request received for "$propTitle".',
+            'type': 'booking_request',
+            'sender': guestProfile,
+            'created_at': timeStr,
+          });
+        } else if (status == 'paid') {
+          combined.add({
+            'id': synthId,
+            'booking_id': bId,
+            'property_id': req.propertyId,
+            'title': 'Payment Received',
+            'message': 'Payment received for "$propTitle".',
+            'type': 'payment_received',
+            'sender': guestProfile,
+            'created_at': timeStr,
+          });
         }
       }
 
@@ -1851,45 +1871,118 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ],
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
+
+            // Quick identity tags
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (sender['kyc_status'] == 'verified')
+                  _buildGuestTag(
+                    Icons.verified_rounded,
+                    'KYC Verified',
+                    const Color(0xFF0EA5E9),
+                    const Color(0xFFE0F2FE),
+                  )
+                else
+                  _buildGuestTag(
+                    Icons.phone_rounded,
+                    'Phone Verified',
+                    const Color(0xFF64748B),
+                    const Color(0xFFF1F5F9),
+                  ),
+                if ((sender['user_type'] ?? '').toString().isNotEmpty)
+                  _buildGuestTag(
+                    Icons.person_outline_rounded,
+                    sender['user_type'].toString(),
+                    const Color(0xFF7C3AED),
+                    const Color(0xFFF5F3FF),
+                  ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            // Info card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.grey[50],
+                color: const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.grey.shade100),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
               child: Column(
                 children: [
                   _buildGuestInfoRow(
-                    Icons.location_on_outlined,
-                    'Location / Area',
-                    sender['area_name'] ?? 'Not Specified',
+                    Icons.work_outline_rounded,
+                    'Profession',
+                    (sender['user_type'] ?? '').toString().isNotEmpty
+                        ? sender['user_type'].toString()
+                        : 'Not specified',
                   ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 12),
                     child: Divider(height: 1),
                   ),
                   _buildGuestInfoRow(
-                    Icons.badge_outlined,
-                    'Guest Type',
-                    sender['user_type'] ?? 'Not Specified',
+                    Icons.business_outlined,
+                    'Organization',
+                    (sender['organization'] ?? '').toString().isNotEmpty
+                        ? sender['organization'].toString()
+                        : 'Not specified',
                   ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 12),
                     child: Divider(height: 1),
                   ),
                   _buildGuestInfoRow(
-                    Icons.security_outlined,
-                    'Verification Status',
+                    Icons.shield_outlined,
+                    'Verification',
                     sender['kyc_status'] == 'verified'
-                        ? 'KYC Verified Guest'
+                        ? 'KYC & ID Verified'
                         : 'Phone Verified Only',
                   ),
+                  if ((sender['bio'] ?? '').toString().isNotEmpty) ...[
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Divider(height: 1),
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.format_quote_rounded, size: 20, color: Colors.grey[500]),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'About',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: Colors.grey[500],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                sender['bio'].toString(),
+                                style: GoogleFonts.inter(
+                                  fontSize: 13.5,
+                                  color: const Color(0xFF334155),
+                                  height: 1.45,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
-            const SizedBox(height: 32),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -1945,7 +2038,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _buildGuestInfoRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: Colors.grey[600]),
+        Icon(icon, size: 20, color: const Color(0xFF94A3B8)),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
@@ -1955,22 +2048,54 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 label,
                 style: GoogleFonts.inter(
                   fontSize: 11,
-                  color: Colors.grey[500],
+                  color: const Color(0xFF94A3B8),
                   fontWeight: FontWeight.w600,
+                  letterSpacing: 0.4,
                 ),
               ),
+              const SizedBox(height: 2),
               Text(
                 value,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.plusJakartaSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black,
+                  color: const Color(0xFF0F172A),
                 ),
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildGuestTag(
+    IconData icon,
+    String label,
+    Color textColor,
+    Color bgColor,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: textColor),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: textColor,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

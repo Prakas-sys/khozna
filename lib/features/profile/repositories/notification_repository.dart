@@ -87,7 +87,7 @@ class NotificationRepository {
       final response = await _client
           .from('notifications')
           .select(
-            '*, sender:sender_id(full_name, avatar_url, kyc_status, trust_badge, area_name, user_type)',
+          '*, sender:sender_id(full_name, avatar_url, kyc_status, trust_badge, area_name, user_type, organization, bio)',
           )
           .eq('user_id', user.id)
           .order('created_at', ascending: false);

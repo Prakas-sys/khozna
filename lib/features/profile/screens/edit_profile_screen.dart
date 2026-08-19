@@ -334,17 +334,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     } catch (e) {
       debugPrint('Update error: $e');
       if (mounted) {
+        String friendlyMsg = 'Failed to save profile. Please try again.';
+        final errStr = e.toString().toLowerCase();
+        if (errStr.contains('profiles_phone_number_key') ||
+            (errStr.contains('duplicate key') && errStr.contains('phone'))) {
+          friendlyMsg = 'This phone number is already linked to another account. Please use a different number.';
+        } else if (errStr.contains('duplicate key') || errStr.contains('unique constraint')) {
+          friendlyMsg = 'One of your details is already in use by another account.';
+        } else if (errStr.contains('socketexception') || errStr.contains('failed host lookup')) {
+          friendlyMsg = 'Network error. Please check your internet connection.';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Failed to save: $e',
-              style: GoogleFonts.inter(color: Colors.white),
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    friendlyMsg,
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            backgroundColor: Colors.redAccent,
+            backgroundColor: const Color(0xFFE11D48),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            duration: const Duration(seconds: 4),
           ),
         );
       }
