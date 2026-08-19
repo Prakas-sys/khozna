@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -560,30 +561,57 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                 const SizedBox(height: 20),
 
                 // Wishlist / Favourite Button
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.45),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
-                  ),
-                  child: FavouriteButton(
-                    propertyId: widget.property.id,
-                    size: 26,
-                    showShadow: false,
+                GestureDetector(
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 46,
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.45),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 8,
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: FavouriteButton(
+                            propertyId: widget.property.id,
+                            size: 24,
+                            showShadow: false,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        'Save',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 12.0,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.1,
+                          shadows: [
+                            const Shadow(
+                              color: Colors.black87,
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 18),
 
                 // Instant Chat Button
                 _buildSidebarIconButton(
-                  icon: SvgPicture.asset(
-                    'assets/icons/Vectorproepty card meeasge.svg',
-                    width: 22,
-                    height: 22,
-                    colorFilter: const ColorFilter.mode(
-                      Colors.white,
-                      BlendMode.srcIn,
-                    ),
+                  icon: const Icon(
+                    CupertinoIcons.chat_bubble,
+                    color: Colors.white,
+                    size: 20,
                   ),
                   label: 'Chat',
                   onTap: () {
@@ -836,7 +864,6 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
             decoration: BoxDecoration(
               color: Colors.black.withOpacity(0.45),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.3),
