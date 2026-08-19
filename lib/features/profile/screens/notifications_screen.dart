@@ -90,8 +90,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         return copy;
       }).toList();
 
-      // 1. Synthesize Guest Visits
+      final currentUserId = Supabase.instance.client.auth.currentUser?.id ?? '';
+
+      // Remove raw 'visit_request' type DB notifications — these are superseded
+      // by the richer synth_owner_ cards that include Accept / Reject buttons.
+      combined.removeWhere((n) => n['type']?.toString() == 'visit_request');
+
+      // 1. Synthesize Guest Visits — only if the current user is the GUEST
       for (final visit in myVisits) {
+        // Safety: never synthesize a guest card for a booking where we are the owner
+        if (visit.ownerId == currentUserId) continue;
+
         final synthId = 'synth_${visit.id}';
         final existing = combined.any(
           (n) => n['booking_id']?.toString() == visit.id || n['id'] == synthId,
@@ -150,7 +159,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
       // 2. Synthesize Owner Requests — fetch real guest profiles in one batch
       final pendingOwnerRequests = ownerRequests.where((req) =>
-        !combined.any((n) => n['booking_id']?.toString() == req.id || n['id'] == 'synth_owner_${req.id}') &&
+        !combined.any((n) => n['id'] == 'synth_owner_${req.id}') &&
         req.id.isNotEmpty &&
         !dismissedIds.contains('synth_owner_${req.id}'),
       ).toList();
@@ -234,6 +243,156 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     // Mark as read in background without blocking UI load
     SupabaseService.markNotificationsAsRead();
+  }
+
+  /// Shows a delete confirmation bottom sheet for a single notification
+  Future<void> _confirmDelete(String id, int index) async {
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 36, height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE2E8F0),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Icon(Icons.delete_outline_rounded, size: 36, color: Color(0xFFEF4444)),
+            const SizedBox(height: 12),
+            Text(
+              'Delete Notification',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 16, color: const Color(0xFF0F172A)),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'This notification will be removed.',
+              style: GoogleFonts.poppins(fontSize: 13, color: const Color(0xFF64748B)),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                    ),
+                    child: Text('Cancel', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: const Color(0xFF475569))),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFEF4444),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                    ),
+                    child: Text('Delete', style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    if (confirmed == true && mounted) {
+      setState(() => _notifications.removeWhere((n) => n['id']?.toString() == id));
+      _cachedNotifications = List.from(_notifications);
+      await SupabaseService.deleteNotification(id);
+    }
+  }
+
+  /// Confirm and clear all notifications
+  Future<void> _confirmClearAll() async {
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 36, height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE2E8F0),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Icon(Icons.delete_sweep_rounded, size: 36, color: Color(0xFFEF4444)),
+            const SizedBox(height: 12),
+            Text(
+              'Clear All Notifications',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 16, color: const Color(0xFF0F172A)),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'All notifications will be permanently removed.',
+              style: GoogleFonts.poppins(fontSize: 13, color: const Color(0xFF64748B)),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                    ),
+                    child: Text('Cancel', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: const Color(0xFF475569))),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFEF4444),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                    ),
+                    child: Text('Clear All', style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    if (confirmed == true && mounted) {
+      final allIds = _notifications.map((n) => n['id']?.toString() ?? '').toList();
+      setState(() => _notifications.clear());
+      _cachedNotifications = [];
+      await SupabaseService.deleteAllNotifications(allIds);
+    }
   }
 
   String _formatTime(String? timestamp) {
@@ -468,12 +627,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         }
 
                         // -- Standard notification row --
-                        return Dismissible(
+                        return GestureDetector(
+                          onLongPress: () => _confirmDelete(id, index),
+                          child: Dismissible(
                           key: Key(id),
                           direction: DismissDirection.endToStart,
                           onDismissed: (_) async {
                             if (index < _notifications.length) {
-                              setState(() => _notifications.removeAt(index));
+                              setState(() => _notifications.removeWhere((n) => n['id']?.toString() == id));
+                              _cachedNotifications = List.from(_notifications);
                               await SupabaseService.deleteNotification(id);
                             }
                           },
@@ -654,8 +816,58 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     Icons.chevron_right_rounded,
                                     color: Color(0xFFCBD5E1),
                                     size: 18,
-                                  ),
-                                ],
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          RichText(
+                                            text: TextSpan(
+                                              children: [
+                                                TextSpan(
+                                                  text: sender?['full_name'] != null
+                                                      ? '${sender!['full_name']} '
+                                                      : '',
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 13.5,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: const Color(0xFF0F172A),
+                                                    height: 1.3,
+                                                  ),
+                                                ),
+                                                TextSpan(
+                                                  text: note['message'] ?? note['title'] ?? '',
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 13.5,
+                                                    fontWeight: FontWeight.w400,
+                                                    color: const Color(0xFF334155),
+                                                    height: 1.35,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            maxLines: 3,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            _formatTime(note['created_at']),
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 11,
+                                              color: const Color(0xFF94A3B8),
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Icon(
+                                      Icons.chevron_right_rounded,
+                                      color: Color(0xFFCBD5E1),
+                                      size: 18,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -696,107 +908,66 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  /// Senior Ultra UI/UX: Guest Sent Request Card (Read-only status card for Guest)
+  /// Slim emotional "Visit Request Sent" card — compact single-row real-feel UI
   Widget _buildGuestSentRequestCard(
     Map<String, dynamic> note,
     String id,
     int index,
   ) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.025),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        color: const Color(0xFFFFFDF7), // Warm off-white
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFFDE68A).withValues(alpha: 0.6), width: 1),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFFFBEB), // Amber tint
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.hourglass_top_rounded,
-                    color: Color(0xFFD97706),
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Visit Request Sent ⏳',
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                color: const Color(0xFF0F172A),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFFBEB),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFFFDE68A)),
-                            ),
-                            child: Text(
-                              'Pending Review',
-                              style: GoogleFonts.poppins(
-                                fontSize: 10.5,
-                                color: const Color(0xFFD97706),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _formatTime(note['created_at']),
-                        style: GoogleFonts.poppins(
-                          fontSize: 11,
-                          color: const Color(0xFF94A3B8),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          // Small pulsing amber dot indicator
+          Container(
+            width: 8,
+            height: 8,
+            decoration: const BoxDecoration(
+              color: Color(0xFFD97706),
+              shape: BoxShape.circle,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Text(
-              'Your room visit request was sent to the owner and is pending review.',
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-                color: const Color(0xFF475569),
-                height: 1.4,
+          const SizedBox(width: 12),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Request sent ',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF374151),
+                    ),
+                  ),
+                  TextSpan(
+                    text: '— awaiting owner response',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                      color: const Color(0xFF9CA3AF),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(width: 10),
+          Text(
+            _formatTime(note['created_at']),
+            style: GoogleFonts.poppins(
+              fontSize: 11,
+              color: const Color(0xFFD97706),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
