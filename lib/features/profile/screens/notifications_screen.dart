@@ -9,6 +9,7 @@ import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
 import 'package:khozna/features/property/screens/payment_choice_screen.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -18,14 +19,15 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  List<Map<String, dynamic>> _notifications = [];
-  bool _isLoading = true;
+  static List<Map<String, dynamic>>? _cachedNotifications;
+  List<Map<String, dynamic>> _notifications = _cachedNotifications ?? [];
+  bool _isLoading = _cachedNotifications == null;
   String _selectedFilter = 'all';
 
   @override
   void initState() {
     super.initState();
-    _fetchNotifications();
+    _fetchNotifications(showLoading: _cachedNotifications == null);
   }
 
   List<Map<String, dynamic>> get _filteredNotifications {
@@ -61,8 +63,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }).toList();
   }
 
-  Future<void> _fetchNotifications() async {
-    setState(() => _isLoading = true);
+  Future<void> _fetchNotifications({bool showLoading = true}) async {
+    if (showLoading && _notifications.isEmpty) {
+      setState(() => _isLoading = true);
+    }
 
     try {
       // Execute all queries concurrently in parallel for maximum speed
@@ -78,7 +82,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final ownerRequests = results[2] as List<BookingModel>;
       final dismissedIds = results[3] as Set<String>;
 
-      List<Map<String, dynamic>> combined = List<Map<String, dynamic>>.from(data);
+      List<Map<String, dynamic>> combined = data.map((item) {
+        final copy = Map<String, dynamic>.from(item);
+        if (copy['message'] != null) {
+          copy['message'] = _cleanMessage(copy['message'].toString());
+        }
+        return copy;
+      }).toList();
 
       // 1. Synthesize Guest Visits
       for (final visit in myVisits) {
@@ -97,7 +107,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'property_id': visit.propertyId,
               'title': 'Visit Request Approved! 🎉',
               'message':
-                  'Great news! The owner accepted your visit request. Tap to view contact details.',
+                  'Great news! The owner accepted your visit request. Tap to view booking details.',
               'type': 'booking_approved',
               'created_at': timeStr,
             });
@@ -176,7 +186,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             'booking_id': bId,
             'property_id': req.propertyId,
             'title': 'New Visit Request 🏡',
-            'message': '"Hello! I would like to schedule a visit to see $propTitle."',
+            'message': 'Requested a room visit.',
             'type': 'booking_request',
             'sender': guestProfile,
             'created_at': timeStr,
@@ -208,6 +218,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             DateTime.now();
         return bTime.compareTo(aTime);
       });
+
+      _cachedNotifications = List.from(combined);
 
       if (mounted) {
         setState(() {
@@ -364,14 +376,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               final String type = note['type']?.toString() ?? '';
 
                         // -- SPECIAL: Booking Request card with Approve/Reject --
-                        final String msgText = (note['message'] ?? '')
-                            .toString();
-                        final bool isBookingRequest =
-                            type == 'booking_request' ||
-                            msgText.contains('कोठा हेर्न अनुरोध') ||
-                            msgText.contains('visit request');
+                        final titleStr = note['title']?.toString() ?? '';
+                        final msgStr = note['message']?.toString() ?? '';
 
-                        if (isBookingRequest) {
+                        final bool isOwnerBookingRequest =
+                            type == 'booking_request' ||
+                            id.startsWith('synth_owner_');
+
+                        final bool isGuestSentRequest =
+                            !isOwnerBookingRequest &&
+                            (titleStr.contains('Sent') ||
+                                msgStr.contains('sent to the owner') ||
+                                msgStr.contains('Sent'));
+
+                        if (isOwnerBookingRequest) {
                           return GestureDetector(
                             onLongPress: () => _confirmDelete(id, index),
                             child: Padding(
@@ -381,6 +399,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 id,
                                 index,
                                 sender,
+                              ),
+                            ),
+                          );
+                        }
+
+                        if (isGuestSentRequest) {
+                          return GestureDetector(
+                            onLongPress: () => _confirmDelete(id, index),
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _buildGuestSentRequestCard(
+                                note,
+                                id,
+                                index,
                               ),
                             ),
                           );
@@ -400,8 +432,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         }
 
                         // -- SPECIAL: Booking Approved (Guest) card --
-                        final titleStr = note['title']?.toString() ?? '';
-                        final msgStr = note['message']?.toString() ?? '';
                         final isRejected =
                             titleStr.contains('अस्वीकृत') ||
                             msgStr.contains('अस्वीकृत') ||
@@ -666,6 +696,112 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
+  /// Senior Ultra UI/UX: Guest Sent Request Card (Read-only status card for Guest)
+  Widget _buildGuestSentRequestCard(
+    Map<String, dynamic> note,
+    String id,
+    int index,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFFFBEB), // Amber tint
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.hourglass_top_rounded,
+                    color: Color(0xFFD97706),
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Visit Request Sent ⏳',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: const Color(0xFF0F172A),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFFBEB),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFFFDE68A)),
+                            ),
+                            child: Text(
+                              'Pending Review',
+                              style: GoogleFonts.poppins(
+                                fontSize: 10.5,
+                                color: const Color(0xFFD97706),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        _formatTime(note['created_at']),
+                        style: GoogleFonts.poppins(
+                          fontSize: 11,
+                          color: const Color(0xFF94A3B8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Text(
+              'Your room visit request was sent to the owner and is pending review.',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: const Color(0xFF475569),
+                height: 1.4,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+      ),
+    );
+  }
+
   /// Senior Ultra UI/UX: Booking request notification card
   Widget _buildBookingRequestCard(
     Map<String, dynamic> note,
@@ -784,9 +920,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Text(
-              message.isNotEmpty
-                  ? message.replaceAll(' for your property', '').replaceAll(' for your room', '')
-                  : '"Hello! I am interested in viewing this room. Could we schedule a visit?"',
+              _cleanMessage(message),
               style: GoogleFonts.poppins(
                 fontSize: 13.5,
                 color: const Color(0xFF334155),
@@ -969,21 +1103,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        '"Hello! I am interested in viewing this room. Could we schedule a visit?"',
+                        _cleanMessage(message),
                         style: GoogleFonts.poppins(
                           fontSize: 13,
-                          color: const Color(0xFF334155),
-                          fontStyle: FontStyle.italic,
+                          color: const Color(0xFF475569),
                           height: 1.4,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Approving will share your contact number with the guest to finalize the visit.',
-                        style: GoogleFonts.poppins(
-                          fontSize: 11.5,
-                          color: const Color(0xFF64748B),
-                          height: 1.35,
                         ),
                       ),
                     ],
@@ -2000,30 +2124,51 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.amber.shade50,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.amber.shade200),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.info_outline, color: Colors.amber, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'For privacy and safety, phone number will be revealed after room visit request is approved.',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: Colors.amber.shade900,
-                        fontWeight: FontWeight.w500,
+            const SizedBox(height: 24),
+
+            // Primary Direct Chat Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => chat_page.ChatScreen(
+                        ownerId: (sender['id'] ?? '').toString(),
+                        name: (sender['full_name'] ?? 'Guest').toString(),
+                        avatar: (sender['avatar_url'] ?? '').toString(),
+                        online: true,
                       ),
                     ),
+                  );
+                },
+                icon: SvgPicture.asset(
+                  'assets/icons/Message neww.svg',
+                  width: 18,
+                  height: 18,
+                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                ),
+                label: Text(
+                  'Message Guest',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
-                ],
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF25D366), // WhatsApp Green
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
               ),
             ),
+            const SizedBox(height: 16),
             const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
@@ -2114,5 +2259,26 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ],
       ),
     );
+  }
+
+  String _cleanMessage(String input) {
+    if (input.isEmpty) return 'Requested a room visit.';
+    String cleaned = input
+        .replaceAll(RegExp(r'Hello[!.,]?\s*', caseSensitive: false), '')
+        .replaceAll(RegExp(r'Hi[!.,]?\s*', caseSensitive: false), '')
+        .replaceAll(RegExp(r'I would like to\s*', caseSensitive: false), '')
+        .replaceAll(RegExp(r"I'd like to\s*", caseSensitive: false), '')
+        .replaceAll(RegExp(r'for your property', caseSensitive: false), '')
+        .replaceAll(RegExp(r'for your room', caseSensitive: false), '')
+        .trim();
+
+    if (cleaned.isEmpty ||
+        cleaned.toLowerCase() == 'schedule a visit' ||
+        cleaned.toLowerCase() == 'visit' ||
+        cleaned.toLowerCase() == 'requested a room visit.') {
+      return 'Requested a room visit.';
+    }
+
+    return cleaned[0].toUpperCase() + cleaned.substring(1);
   }
 }

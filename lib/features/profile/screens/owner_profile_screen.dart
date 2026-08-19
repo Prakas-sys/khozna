@@ -119,10 +119,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double avgRating = _ownerReviews.isNotEmpty
+    final double? avgRating = _ownerReviews.isNotEmpty
         ? (_ownerReviews.map((e) => e.rating).reduce((a, b) => a + b) /
               _ownerReviews.length)
-        : 4.0;
+        : null;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -282,13 +282,17 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                         color: const Color(0xFFE2E8F0),
                       ),
                       _buildPassportStat(
-                        avgRating.toStringAsFixed(1),
+                        avgRating != null
+                            ? avgRating.toStringAsFixed(1)
+                            : 'New',
                         'Rating',
-                        suffixIcon: const Icon(
-                          Icons.star_rounded,
-                          color: Colors.amber,
-                          size: 16,
-                        ),
+                        suffixIcon: avgRating != null
+                            ? const Icon(
+                                Icons.star_rounded,
+                                color: Colors.amber,
+                                size: 16,
+                              )
+                            : null,
                       ),
                       Container(
                         height: 28,
@@ -547,42 +551,88 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   }
 
   Widget _buildAboutMetaItem(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, color: Colors.grey[600], size: 20),
-        const SizedBox(width: 12),
-        Text(
-          text,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: const Color(0xFF334155),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF1F5F9),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: const Color(0xFF475569), size: 16),
           ),
-        ),
-      ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.poppins(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF334155),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildConfirmedInfoRow(String text, bool isConfirmed) {
-    return Row(
-      children: [
-        Icon(
-          isConfirmed
-              ? Icons.check_circle_rounded
-              : Icons.radio_button_off_rounded,
-          color: isConfirmed ? const Color(0xFF00C853) : Colors.grey[300],
-          size: 20,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+      decoration: BoxDecoration(
+        color: isConfirmed ? const Color(0xFFF0FDF4) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isConfirmed ? const Color(0xFFDCFCE7) : const Color(0xFFE2E8F0),
         ),
-        const SizedBox(width: 12),
-        Text(
-          text,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: isConfirmed ? const Color(0xFF1E293B) : Colors.grey[500],
-            fontWeight: isConfirmed ? FontWeight.bold : FontWeight.w500,
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isConfirmed
+                ? Icons.check_circle_rounded
+                : Icons.radio_button_off_rounded,
+            color: isConfirmed ? const Color(0xFF16A34A) : const Color(0xFF94A3B8),
+            size: 18,
           ),
-        ),
-      ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.poppins(
+                fontSize: 13.5,
+                color: isConfirmed ? const Color(0xFF14532D) : const Color(0xFF64748B),
+                fontWeight: isConfirmed ? FontWeight.w600 : FontWeight.w500,
+              ),
+            ),
+          ),
+          if (isConfirmed)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFF86EFAC)),
+              ),
+              child: Text(
+                'Confirmed',
+                style: GoogleFonts.poppins(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF16A34A),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
