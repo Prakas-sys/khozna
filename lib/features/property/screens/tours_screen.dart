@@ -613,26 +613,6 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                   label: 'Share',
                   onTap: _shareProperty,
                 ),
-                const SizedBox(height: 18),
-
-                // Direct Visit Button
-                _buildSidebarIconButton(
-                  icon: const Icon(
-                    Icons.explore_rounded,
-                    color: AppTheme.brandColor,
-                    size: 24,
-                  ),
-                  label: 'Details',
-                  onTap: () {
-                    HapticFeedback.mediumImpact();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => PropertyDetailsScreen(property: widget.property),
-                      ),
-                    );
-                  },
-                ),
               ],
             ),
           ),
@@ -647,7 +627,7 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(16, 9, 16, 10), // Reduced top padding so upper border is close to title
                   decoration: BoxDecoration(
                     color: const Color(0xFF0D0D12).withOpacity(0.65),
                     borderRadius: BorderRadius.circular(24),
@@ -722,7 +702,7 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 4), // Tightened spacing to bring Title and Location close to Price
 
                       // Price Tag & CTA Button Row
                       Row(
@@ -789,8 +769,8 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 10,
+                                horizontal: 12,
+                                vertical: 7,
                               ),
                               decoration: BoxDecoration(
                                 color: AppTheme.brandColor,
@@ -808,20 +788,20 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                                 children: [
                                   SvgPicture.asset(
                                     'assets/images/view now.svg',
-                                    width: 16.5,
-                                    height: 11,
+                                    width: 15,
+                                    height: 10,
                                     colorFilter: const ColorFilter.mode(
                                       Colors.white,
                                       BlendMode.srcIn,
                                     ),
                                   ),
-                                  const SizedBox(width: 6),
+                                  const SizedBox(width: 5),
                                   Text(
-                                    'View Now',
+                                    'View',
                                     style: GoogleFonts.plusJakartaSans(
                                       color: Colors.white,
-                                      fontSize: 13.5,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                 ],
@@ -866,17 +846,18 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
             ),
             child: Center(child: icon),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 3),
           Text(
             label,
             style: GoogleFonts.plusJakartaSans(
-              color: Colors.white,
-              fontSize: 13.5,
-              fontWeight: FontWeight.w600,
+              color: Colors.white.withOpacity(0.9),
+              fontSize: 12.0, // Minimalistic size
+              fontWeight: FontWeight.w500, // Minimalistic, not bold
+              letterSpacing: 0.1,
               shadows: [
                 const Shadow(
                   color: Colors.black87,
-                  blurRadius: 6,
+                  blurRadius: 4,
                 ),
               ],
             ),
@@ -956,35 +937,32 @@ class _FullImageCarouselState extends State<_FullImageCarousel> {
           ),
         ),
 
-        // Centered Medium-Sized Photo Card
+        // Centered Medium-Height Photo Display (Full Width Edge-to-Edge Fill)
         Center(
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.58, // Medium height (58% screen)
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.58, // Medium height
             width: double.infinity,
-            margin: const EdgeInsets.symmetric(horizontal: 14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.4),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 280),
-                transitionBuilder: (child, animation) => FadeTransition(
-                  opacity: animation,
-                  child: child,
-                ),
-                child: KhoznaImage(
-                  key: ValueKey(_currentIndex),
-                  imageUrl: widget.images[_currentIndex],
-                  fit: BoxFit.cover,
-                ),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 280),
+              layoutBuilder: (currentChild, previousChildren) {
+                return Stack(
+                  fit: StackFit.expand,
+                  children: <Widget>[
+                    ...previousChildren,
+                    if (currentChild != null) currentChild,
+                  ],
+                );
+              },
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: child,
+              ),
+              child: KhoznaImage(
+                key: ValueKey(_currentIndex),
+                imageUrl: widget.images[_currentIndex],
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
               ),
             ),
           ),
