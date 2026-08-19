@@ -568,134 +568,87 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               }
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              color: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 0,
+                              ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      if (sender != null) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                OwnerProfileScreen(
-                                                  ownerId:
-                                                      sender['id']
-                                                          ?.toString() ??
-                                                      '',
-                                                  name:
-                                                      sender['full_name'] ??
-                                                      'Khozna User',
-                                                  avatar:
-                                                      sender['avatar_url'] ??
-                                                      'https://via.placeholder.com/150',
-                                                  location:
-                                                      sender?['area_name'] ??
-                                                      'Kathmandu, Nepal',
-                                                  totalListings: 0,
-                                                ),
+                                  // Real avatar with type badge
+                                  Stack(
+                                    children: [
+                                      _buildAvatar(sender, radius: 26),
+                                      Positioned(
+                                        bottom: 0,
+                                        right: 0,
+                                        child: Container(
+                                          width: 18,
+                                          height: 18,
+                                          decoration: BoxDecoration(
+                                            color: _getTypeColor(note['type']),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(color: Colors.white, width: 1.5),
                                           ),
-                                        );
-                                      }
-                                    },
-                                    child: Stack(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 26,
-                                          backgroundColor: Colors.grey[100],
-                                          backgroundImage:
-                                              sender != null &&
-                                                  sender['avatar_url'] != null
-                                              ? CachedNetworkImageProvider(
-                                                  sender['avatar_url'],
-                                                )
-                                              : null,
-                                          child:
-                                              sender == null ||
-                                                  sender['avatar_url'] == null
-                                              ? Icon(
-                                                  Icons.person,
-                                                  color: Colors.grey[400],
-                                                  size: 28,
-                                                )
-                                              : null,
-                                        ),
-                                        Positioned(
-                                          bottom: 0,
-                                          right: 0,
-                                          child: Container(
-                                            padding: const EdgeInsets.all(3),
-                                            decoration: BoxDecoration(
-                                              color: _getTypeColor(
-                                                note['type'],
-                                              ),
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: Colors.white,
-                                                width: 2,
-                                              ),
-                                            ),
-                                            child: Icon(
-                                              _getTypeIcon(note['type']),
-                                              size: 10,
-                                              color: Colors.white,
-                                            ),
+                                          child: Icon(
+                                            _getTypeIcon(note['type']),
+                                            size: 9,
+                                            color: Colors.white,
                                           ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                   const SizedBox(width: 14),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         RichText(
                                           text: TextSpan(
-                                            style: GoogleFonts.inter(
-                                              fontSize: 14,
-                                              color: Colors.black,
-                                              height: 1.3,
-                                            ),
                                             children: [
                                               TextSpan(
-                                                text: _getHumanMessage(
-                                                  note,
-                                                  sender,
-                                                ),
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
+                                                text: sender?['full_name'] != null
+                                                    ? '${sender!['full_name']} '
+                                                    : '',
+                                                style: GoogleFonts.inter(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w800,
+                                                  color: const Color(0xFF1A1A1A),
+                                                  height: 1.3,
                                                 ),
                                               ),
                                               TextSpan(
-                                                text:
-                                                    note['message'] ??
-                                                    note['title'] ??
-                                                    '',
-                                              ),
-                                              TextSpan(
-                                                text:
-                                                    '  ${_formatTime(note['created_at'])}',
-                                                style: TextStyle(
-                                                  color: Colors.grey[400],
-                                                  fontSize: 12,
+                                                text: note['message'] ?? note['title'] ?? '',
+                                                style: GoogleFonts.inter(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: const Color(0xFF1A1A1A),
+                                                  height: 1.3,
                                                 ),
                                               ),
                                             ],
+                                          ),
+                                          maxLines: 3,
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          _formatTime(note['created_at']),
+                                          style: GoogleFonts.inter(
+                                            fontSize: 12,
+                                            color: const Color(0xFF65676B),
+                                            fontWeight: FontWeight.w500,
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  IconButton(
-                                    onPressed: () => _confirmDelete(id, index),
-                                    icon: Icon(
-                                      Icons.delete_outline,
-                                      color: Colors.red.withValues(alpha: 0.3),
-                                      size: 18,
-                                    ),
+                                  const SizedBox(width: 8),
+                                  const Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: Color(0xFFBCC0C4),
+                                    size: 22,
                                   ),
                                 ],
                               ),
@@ -758,85 +711,86 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return GestureDetector(
       onTap: () => _showRequestActionSheet(context, note, id, index, sender),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+        margin: const EdgeInsets.only(bottom: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: const BoxDecoration(
+          color: Color(0xFFF0F2F5), // unread Facebook-blue tint bg
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildAvatar(sender, radius: 24),
+            // Avatar with notification type badge
+            Stack(
+              children: [
+                _buildAvatar(sender, radius: 26),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    width: 18,
+                    height: 18,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1877F2),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                    child: const Icon(Icons.home_work_rounded, size: 9, color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: guestName,
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 14,
+                            color: const Color(0xFF1A1A1A),
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' sent a room visit request',
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                            color: const Color(0xFF1A1A1A),
+                          ),
+                        ),
+                      ],
+                    ),
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 3),
                   Row(
                     children: [
-                      Flexible(
-                        child: Text(
-                          guestName,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14.5,
-                            color: const Color(0xFF0F172A),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (sender?['kyc_status'] == 'verified') ...[
-                        const SizedBox(width: 4),
-                        const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 14),
-                      ],
-                      const SizedBox(width: 6),
+                      if (sender?['kyc_status'] == 'verified')
+                        const Icon(Icons.verified_rounded, color: Color(0xFF1877F2), size: 12),
+                      if (sender?['kyc_status'] == 'verified') const SizedBox(width: 3),
                       Text(
-                        '• ${_formatTime(note['created_at'])}',
+                        _formatTime(note['created_at']),
                         style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: const Color(0xFF94A3B8),
+                          fontSize: 12,
+                          color: const Color(0xFF1877F2),
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    'Requested room visit for "$propertyTitle"',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: const Color(0xFF475569),
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFF0F172A),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                'Review',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 11.5,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Color(0xFF8A8A8A),
+              size: 22,
             ),
           ],
         ),
