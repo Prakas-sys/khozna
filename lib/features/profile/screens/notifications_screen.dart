@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/models/booking_model.dart';
-import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
 import 'package:khozna/features/property/screens/booking_status_screen.dart';
 import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
 import 'package:khozna/features/property/screens/payment_choice_screen.dart';
@@ -88,18 +87,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           (n) => n['booking_id']?.toString() == visit.id || n['id'] == synthId,
         );
         if (!existing && !dismissedIds.contains(synthId)) {
-          final timeStr =
-              visit.createdAt?.toIso8601String() ??
-              DateTime.now().toIso8601String();
+          final timeStr = visit.createdAt?.toIso8601String()
+              ?? DateTime.now().toIso8601String();
           if (visit.status == 'visit_accepted' ||
               visit.status == 'awaiting_payment') {
             combined.add({
               'id': synthId,
               'booking_id': visit.id,
               'property_id': visit.propertyId,
-              'title': 'Visit Approved',
+              'title': 'Visit Request Approved! 🎉',
               'message':
-                  'Your room visit request was approved by the owner. Complete payment to secure your room.',
+                  'Great news! The owner accepted your visit request. Tap to view contact details.',
               'type': 'booking_approved',
               'created_at': timeStr,
             });
@@ -109,9 +107,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'id': synthId,
               'booking_id': visit.id,
               'property_id': visit.propertyId,
-              'title': 'Payment Proof Submitted',
+              'title': 'Payment Submitted 💳',
               'message':
-                  'Payment proof has been submitted for "${visit.propertyTitle ?? "Property"}". Under review.',
+                  'Payment proof for "${visit.propertyTitle ?? "Property"}" is currently under review.',
               'type': 'booking_alert',
               'created_at': timeStr,
             });
@@ -120,9 +118,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'id': synthId,
               'booking_id': visit.id,
               'property_id': visit.propertyId,
-              'title': 'Booking Confirmed',
+              'title': 'Booking Confirmed! 🎊',
               'message':
-                  'Booking for "${visit.propertyTitle ?? "Property"}" has been successfully confirmed.',
+                  'Congratulations! Your room booking for "${visit.propertyTitle ?? "Property"}" is confirmed.',
               'type': 'booking_alert',
               'created_at': timeStr,
             });
@@ -131,8 +129,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'id': synthId,
               'booking_id': visit.id,
               'property_id': visit.propertyId,
-              'title': 'Request Submitted',
-              'message': 'Awaiting owner approval for room visit.',
+              'title': 'Visit Request Sent ⏳',
+              'message': 'Your room visit request has been sent to the owner for review.',
               'type': 'booking_alert',
               'created_at': timeStr,
             });
@@ -177,8 +175,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             'id': synthId,
             'booking_id': bId,
             'property_id': req.propertyId,
-            'title': 'New Booking Request',
-            'message': 'New visit request received for "$propTitle".',
+            'title': 'New Visit Request 🏡',
+            'message': '"Hello! I would like to schedule a visit to see $propTitle."',
             'type': 'booking_request',
             'sender': guestProfile,
             'created_at': timeStr,
@@ -188,7 +186,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             'id': synthId,
             'booking_id': bId,
             'property_id': req.propertyId,
-            'title': 'Payment Received',
+            'title': 'Payment Received 💳',
             'message': 'Payment received for "$propTitle".',
             'type': 'payment_received',
             'sender': guestProfile,
@@ -240,37 +238,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     } catch (_) {
       return '';
     }
-  }
-
-  String _getHumanMessage(Map<String, dynamic> note, dynamic sender) {
-    final type = note['type']?.toString() ?? '';
-    final String message = (note['message'] ?? note['title'] ?? '').toString();
-    final name = sender?['full_name'] ?? 'Guest';
-
-    if (type == 'booking_request' ||
-        message.contains('request') ||
-        type == 'visit_request') {
-      return '$name requested a room visit.';
-    }
-    if (type == 'booking_approved' ||
-        message.contains('Approved') ||
-        type == 'visit_alert' && message.contains('Approved')) {
-      return 'Your room visit request was approved!';
-    }
-    if (message.contains('Declined') ||
-        message.contains('Rejected') ||
-        type == 'booking_rejected' ||
-        (note['title']?.toString() ?? '').contains('Rejected')) {
-      return 'Visit request declined: ';
-    }
-    if (type == 'chat' || type == 'message') {
-      return 'New message from $name';
-    }
-    if (type == 'payment_received' || message.contains('Payment')) {
-      return 'Payment received from $name';
-    }
-
-    return message.isEmpty ? 'New notification' : message;
   }
 
   Widget _buildFilterBar() {
@@ -335,30 +302,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         scrolledUnderElevation: 0,
         title: Text(
           'Notifications',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.poppins(
             fontSize: 18,
-            fontWeight: FontWeight.w800,
-            color: Colors.black,
-            letterSpacing: 0.2,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF0F172A),
           ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF0F172A), size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           if (_notifications.isNotEmpty)
             IconButton(
               icon: const Icon(
-                Icons.delete_sweep_outlined,
-                color: Colors.red,
-                size: 24,
+                Icons.delete_outline_rounded,
+                color: Color(0xFF64748B),
+                size: 22,
               ),
               tooltip: 'Clear All',
               onPressed: _confirmClearAll,
             ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
         ],
       ),
       body: _isLoading
@@ -568,10 +534,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               }
                             },
                             child: Container(
-                              color: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                                horizontal: 0,
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.02),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -579,13 +554,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   // Real avatar with type badge
                                   Stack(
                                     children: [
-                                      _buildAvatar(sender, radius: 26),
+                                      _buildAvatar(sender, radius: 23),
                                       Positioned(
                                         bottom: 0,
                                         right: 0,
                                         child: Container(
-                                          width: 18,
-                                          height: 18,
+                                          width: 17,
+                                          height: 17,
                                           decoration: BoxDecoration(
                                             color: _getTypeColor(note['type']),
                                             shape: BoxShape.circle,
@@ -600,7 +575,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(width: 14),
+                                  const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -612,32 +587,32 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                                 text: sender?['full_name'] != null
                                                     ? '${sender!['full_name']} '
                                                     : '',
-                                                style: GoogleFonts.inter(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w800,
-                                                  color: const Color(0xFF1A1A1A),
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13.5,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: const Color(0xFF0F172A),
                                                   height: 1.3,
                                                 ),
                                               ),
                                               TextSpan(
                                                 text: note['message'] ?? note['title'] ?? '',
-                                                style: GoogleFonts.inter(
-                                                  fontSize: 14,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13.5,
                                                   fontWeight: FontWeight.w400,
-                                                  color: const Color(0xFF1A1A1A),
-                                                  height: 1.3,
+                                                  color: const Color(0xFF334155),
+                                                  height: 1.35,
                                                 ),
                                               ),
                                             ],
                                           ),
                                           maxLines: 3,
                                         ),
-                                        const SizedBox(height: 3),
+                                        const SizedBox(height: 4),
                                         Text(
                                           _formatTime(note['created_at']),
-                                          style: GoogleFonts.inter(
-                                            fontSize: 12,
-                                            color: const Color(0xFF65676B),
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 11,
+                                            color: const Color(0xFF94A3B8),
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
@@ -647,8 +622,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   const SizedBox(width: 8),
                                   const Icon(
                                     Icons.chevron_right_rounded,
-                                    color: Color(0xFFBCC0C4),
-                                    size: 22,
+                                    color: Color(0xFFCBD5E1),
+                                    size: 18,
                                   ),
                                 ],
                               ),
@@ -682,7 +657,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       backgroundColor: const Color(0xFF0F172A),
       child: Text(
         initial,
-        style: GoogleFonts.plusJakartaSans(
+        style: GoogleFonts.poppins(
           color: Colors.white,
           fontWeight: FontWeight.w700,
           fontSize: radius * 0.75,
@@ -691,109 +666,186 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  /// Booking request notification card — horizontal compact layout
+  /// Senior Ultra UI/UX: Booking request notification card
   Widget _buildBookingRequestCard(
     Map<String, dynamic> note,
     String id,
     int index,
     dynamic sender,
   ) {
-    final String message = note['message']?.toString() ?? '';
-    String propertyTitle = 'Your Property';
-    if (message.contains('"')) {
-      final RegExp titleRegex = RegExp(r'"(.+)"');
-      final match = titleRegex.firstMatch(message);
-      if (match != null) propertyTitle = match.group(1)!;
-    }
-
     final String guestName = sender?['full_name']?.toString() ?? 'Guest';
+    final String message = note['message']?.toString() ?? '';
 
-    return GestureDetector(
-      onTap: () => _showRequestActionSheet(context, note, id, index, sender),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 2),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: const BoxDecoration(
-          color: Color(0xFFF0F2F5), // unread Facebook-blue tint bg
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Avatar with notification type badge
-            Stack(
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _buildAvatar(sender, radius: 26),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    width: 18,
-                    height: 18,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1877F2),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 1.5),
+                Stack(
+                  children: [
+                    _buildAvatar(sender, radius: 24),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        width: 17,
+                        height: 17,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0F172A),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                        child: const Icon(Icons.home_work_rounded, size: 9, color: Colors.white),
+                      ),
                     ),
-                    child: const Icon(Icons.home_work_rounded, size: 9, color: Colors.white),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: guestName,
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 14,
-                            color: const Color(0xFF1A1A1A),
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' sent a room visit request',
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 14,
-                            color: const Color(0xFF1A1A1A),
-                          ),
-                        ),
-                      ],
-                    ),
-                    maxLines: 2,
-                  ),
-                  const SizedBox(height: 3),
-                  Row(
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (sender?['kyc_status'] == 'verified')
-                        const Icon(Icons.verified_rounded, color: Color(0xFF1877F2), size: 12),
-                      if (sender?['kyc_status'] == 'verified') const SizedBox(width: 3),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Text(
+                                  guestName,
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    color: const Color(0xFF0F172A),
+                                  ),
+                                ),
+                                if (sender?['kyc_status'] == 'verified') ...[
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 13),
+                                ],
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.person_outline_rounded, size: 11, color: Color(0xFF475569)),
+                                const SizedBox(width: 3),
+                                Text(
+                                  'Guest Request',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 10.5,
+                                    color: const Color(0xFF475569),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
                       Text(
                         _formatTime(note['created_at']),
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: const Color(0xFF1877F2),
-                          fontWeight: FontWeight.w700,
+                        style: GoogleFonts.poppins(
+                          fontSize: 11,
+                          color: const Color(0xFF94A3B8),
                         ),
                       ),
                     ],
                   ),
-                ],
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Text(
+              message.isNotEmpty
+                  ? message.replaceAll(' for your property', '').replaceAll(' for your room', '')
+                  : '"Hello! I am interested in viewing this room. Could we schedule a visit?"',
+              style: GoogleFonts.poppins(
+                fontSize: 13.5,
+                color: const Color(0xFF334155),
+                height: 1.4,
               ),
             ),
-            const SizedBox(width: 8),
-            const Icon(
-              Icons.chevron_right_rounded,
-              color: Color(0xFF8A8A8A),
-              size: 22,
+          ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => _showRequestActionSheet(context, note, id, index, sender),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      foregroundColor: const Color(0xFF475569),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                    ),
+                    child: Text(
+                      'View Profile',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showRequestActionSheet(context, note, id, index, sender),
+                    icon: const Icon(Icons.arrow_forward_rounded, size: 15),
+                    label: Text(
+                      'Respond',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF25D366), // WhatsApp Green
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -855,8 +907,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             children: [
                               Text(
                                 guestName,
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.w800,
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w700,
                                   fontSize: 17,
                                   color: const Color(0xFF0F172A),
                                 ),
@@ -869,7 +921,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           ),
                           Text(
                             sender?['area_name'] ?? 'Room Visit Request',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.poppins(
                               fontSize: 13,
                               color: const Color(0xFF64748B),
                             ),
@@ -899,8 +951,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Requested Property',
-                        style: GoogleFonts.inter(
+                        'Property',
+                        style: GoogleFonts.poppins(
                           fontSize: 12,
                           color: const Color(0xFF94A3B8),
                           fontWeight: FontWeight.w600,
@@ -909,19 +961,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       const SizedBox(height: 4),
                       Text(
                         propertyTitle,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.poppins(
                           fontSize: 15,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           color: const Color(0xFF0F172A),
                         ),
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'New room visit request received. Approval allows the guest to view contact details and proceed with payment.',
-                        style: GoogleFonts.inter(
+                        '"Hello! I am interested in viewing this room. Could we schedule a visit?"',
+                        style: GoogleFonts.poppins(
                           fontSize: 13,
-                          color: const Color(0xFF475569),
+                          color: const Color(0xFF334155),
+                          fontStyle: FontStyle.italic,
                           height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Approving will share your contact number with the guest to finalize the visit.',
+                        style: GoogleFonts.poppins(
+                          fontSize: 11.5,
+                          color: const Color(0xFF64748B),
+                          height: 1.35,
                         ),
                       ),
                     ],
@@ -956,8 +1018,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 }
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFF1F5F9),
-                                foregroundColor: const Color(0xFF475569),
+                                backgroundColor: const Color(0xFFDC2626), // Clear Crimson Red
+                                foregroundColor: Colors.white,
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
@@ -966,8 +1028,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               ),
                               child: Text(
                                 'Decline',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.w700,
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
                                   fontSize: 14,
                                 ),
                               ),
@@ -995,7 +1057,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 }
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0F172A),
+                                backgroundColor: const Color(0xFF25D366), // Authentic WhatsApp Green
                                 foregroundColor: Colors.white,
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
@@ -1005,8 +1067,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               ),
                               child: Text(
                                 'Approve',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.w700,
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
                                   fontSize: 14,
                                 ),
                               ),
