@@ -320,6 +320,18 @@ class _MainScreenState extends State<MainScreen> {
   void _onTabTapped(int index) {
     HapticFeedback.lightImpact();
 
+    // Re-tapping / double-clicking active tab triggers refresh
+    if (_currentIndex == index) {
+      if (index == 1) {
+        HapticFeedback.mediumImpact();
+        refreshTrigger.value++; // Refetches and scrolls to top of Tours
+      } else if (index == 0) {
+        HapticFeedback.mediumImpact();
+        _homeKey.currentState?.refreshData();
+      }
+      return;
+    }
+
     if (index == 2) {
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) {

@@ -273,7 +273,7 @@ class PropertyCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(
                   14,
-                  10, // Shifted down for cleaner separation from image
+                  6,
                   14,
                   0,
                 ), // Bottom padding up to buttons
@@ -367,9 +367,9 @@ class PropertyCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 5), // Shift location and amenities down
+                    const SizedBox(height: 2),
                     _buildAmenityItems(),
-                    SizedBox(height: (width == double.infinity) ? 12 : 4),
+                    SizedBox(height: (width == double.infinity) ? 16 : 8), // Shifted Message & View Now buttons down
 
                     Row(
                       children: [

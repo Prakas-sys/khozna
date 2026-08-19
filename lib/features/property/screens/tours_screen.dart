@@ -59,6 +59,13 @@ class _ToursScreenState extends State<ToursScreen> {
   void _onGlobalRefresh() {
     if (mounted) {
       debugPrint('ReelsScreen: Global refresh triggered, refetching reels...');
+      if (_pageController.hasClients) {
+        _pageController.animateToPage(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
       _fetchReels();
     }
   }
@@ -164,7 +171,7 @@ class _ToursScreenState extends State<ToursScreen> {
                       child: PageView.builder(
                         controller: _pageController,
                         scrollDirection: Axis.vertical,
-                        physics: const ClampingScrollPhysics(),
+                        physics: const AlwaysScrollableScrollPhysics(),
                         itemCount: displayReels.length,
                         itemBuilder: (context, index) {
                           return _ReelItem(
@@ -949,18 +956,36 @@ class _FullImageCarouselState extends State<_FullImageCarousel> {
           ),
         ),
 
-        // Centered Medium Ratio Image
+        // Centered Medium-Sized Photo Card
         Center(
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 280),
-            transitionBuilder: (child, animation) => FadeTransition(
-              opacity: animation,
-              child: child,
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.58, // Medium height (58% screen)
+            width: double.infinity,
+            margin: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.4),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
-            child: KhoznaImage(
-              key: ValueKey(_currentIndex),
-              imageUrl: widget.images[_currentIndex],
-              fit: BoxFit.contain, // Medium natural aspect ratio
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 280),
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: child,
+                ),
+                child: KhoznaImage(
+                  key: ValueKey(_currentIndex),
+                  imageUrl: widget.images[_currentIndex],
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
         ),

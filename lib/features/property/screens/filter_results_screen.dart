@@ -373,22 +373,31 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                                 ),
                               ),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
                                 margin: const EdgeInsets.only(right: 6),
                                 decoration: BoxDecoration(
                                   color: Colors.black,
                                   borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.12),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
                                 child: Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.tune_rounded, size: 13, color: Colors.white),
-                                    const SizedBox(width: 5),
+                                    const Icon(Icons.tune_rounded, size: 15, color: Colors.white),
+                                    const SizedBox(width: 6),
                                     Text(
                                       'Filter',
                                       style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 11.5,
-                                        fontWeight: FontWeight.w700,
+                                        fontSize: 13.0,
+                                        fontWeight: FontWeight.w800,
                                         color: Colors.white,
+                                        letterSpacing: 0.2,
                                       ),
                                     ),
                                   ],
@@ -493,32 +502,13 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                           if (index == 0) {
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 16),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '${properties.length} ${properties.length == 1 ? 'property' : 'properties'} available',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w800,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.verified_rounded, size: 14, color: AppTheme.brandColor),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        'Khozna Verified',
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w700,
-                                          color: AppTheme.brandColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                              child: Text(
+                                '${properties.length} ${properties.length == 1 ? 'property' : 'properties'} available',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.black87,
+                                ),
                               ),
                             );
                           }
@@ -559,7 +549,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 9),
                     decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.82), // 80% Black Fill
+                      color: Colors.black, // 100% Solid Black
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: Row(
