@@ -159,10 +159,12 @@ class SupabaseService {
       NotificationRepository.saveDeviceToken(token);
   static Future<List<Map<String, dynamic>>> getUserNotifications() =>
       NotificationRepository.getUserNotifications();
+  static Future<Set<String>> getDismissedNotificationIds() =>
+      NotificationRepository.getDismissedNotificationIds();
   static Future<void> deleteNotification(String id) =>
       NotificationRepository.deleteNotification(id);
-  static Future<void> deleteAllNotifications() =>
-      NotificationRepository.deleteAllNotifications();
+  static Future<void> deleteAllNotifications([List<String>? allIds]) =>
+      NotificationRepository.deleteAllNotifications(allIds: allIds);
   static Future<void> markNotificationsAsRead() =>
       NotificationRepository.markNotificationsAsRead();
   static Future<void> fetchUnreadNotificationCount() =>

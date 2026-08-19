@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
+import 'package:khozna/core/models/booking_model.dart';
 import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
 import 'package:khozna/features/property/screens/booking_status_screen.dart';
 import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
@@ -19,6 +20,7 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   List<Map<String, dynamic>> _notifications = [];
   bool _isLoading = true;
+  String _selectedFilter = 'all';
 
   @override
   void initState() {
@@ -26,64 +28,139 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     _fetchNotifications();
   }
 
+  List<Map<String, dynamic>> get _filteredNotifications {
+    if (_selectedFilter == 'all') return _notifications;
+    return _notifications.where((note) {
+      final type = note['type']?.toString() ?? '';
+      final titleStr = (note['title'] ?? '').toString();
+      final msgStr = (note['message'] ?? '').toString();
+
+      final bool isBookingRequest =
+          type == 'booking_request' ||
+          msgStr.contains('कोठा हेर्न अनुरोध') ||
+          msgStr.contains('visit request');
+
+      final bool isApproved =
+          !titleStr.contains('अस्वीकृत') &&
+          !msgStr.contains('अस्वीकृत') &&
+          type != 'booking_rejected' &&
+          (titleStr.contains('स्वीकृत') ||
+              msgStr.contains('स्वीकृत') ||
+              type == 'booking_approved');
+
+      final bool isPayment =
+          type == 'payment_received' ||
+          msgStr.contains('भुक्तानी') ||
+          titleStr.contains('भुक्तानी');
+
+      if (_selectedFilter == 'pending') return isBookingRequest;
+      if (_selectedFilter == 'approved') return isApproved;
+      if (_selectedFilter == 'payments') return isPayment;
+
+      return true;
+    }).toList();
+  }
+
+  int _getCategoryCount(String filterKey) {
+    if (filterKey == 'all') return _notifications.length;
+    return _notifications.where((note) {
+      final type = note['type']?.toString() ?? '';
+      final titleStr = (note['title'] ?? '').toString();
+      final msgStr = (note['message'] ?? '').toString();
+
+      if (filterKey == 'pending') {
+        return type == 'booking_request' ||
+            msgStr.contains('कोठा हेर्न अनुरोध') ||
+            msgStr.contains('visit request');
+      }
+      if (filterKey == 'approved') {
+        return !titleStr.contains('अस्वीकृत') &&
+            !msgStr.contains('अस्वीकृत') &&
+            type != 'booking_rejected' &&
+            (titleStr.contains('स्वीकृत') ||
+                msgStr.contains('स्वीकृत') ||
+                type == 'booking_approved');
+      }
+      if (filterKey == 'payments') {
+        return type == 'payment_received' ||
+            msgStr.contains('भुक्तानी') ||
+            titleStr.contains('भुक्तानी');
+      }
+      return false;
+    }).length;
+  }
+
   Future<void> _fetchNotifications() async {
     setState(() => _isLoading = true);
-    final data = await SupabaseService.getUserNotifications();
-    List<Map<String, dynamic>> combined = List<Map<String, dynamic>>.from(data);
 
     try {
+      // Execute all queries concurrently in parallel for maximum speed
+      final results = await Future.wait([
+        SupabaseService.getUserNotifications(),
+        SupabaseService.getMyVisits(),
+        SupabaseService.getVisitRequestsForOwner(),
+        SupabaseService.getDismissedNotificationIds(),
+      ]);
+
+      final data = results[0] as List<Map<String, dynamic>>;
+      final myVisits = results[1] as List<BookingModel>;
+      final ownerRequests = results[2] as List<BookingModel>;
+      final dismissedIds = results[3] as Set<String>;
+
+      List<Map<String, dynamic>> combined = List<Map<String, dynamic>>.from(data);
+
       // 1. Synthesize Guest Visits
-      final myVisits = await SupabaseService.getMyVisits();
       for (final visit in myVisits) {
+        final synthId = 'synth_${visit.id}';
         final existing = combined.any(
-          (n) => n['booking_id']?.toString() == visit.id,
+          (n) => n['booking_id']?.toString() == visit.id || n['id'] == synthId,
         );
-        if (!existing) {
+        if (!existing && !dismissedIds.contains(synthId)) {
           final timeStr =
               visit.createdAt?.toIso8601String() ??
               DateTime.now().toIso8601String();
           if (visit.status == 'visit_accepted' ||
               visit.status == 'awaiting_payment') {
             combined.add({
-              'id': 'synth_${visit.id}',
+              'id': synthId,
               'booking_id': visit.id,
               'property_id': visit.propertyId,
-              'title': 'अवलोकन स्वीकृत (Visit Approved! Pay Now)',
+              'title': 'Visit Approved',
               'message':
-                  'तपाइँको अनुरोध स्वीकृत भयो। भुक्तानी गरेर कोठा निश्चित गर्नुहोस्।',
+                  'Your room visit request was approved by the owner. Complete payment to secure your room.',
               'type': 'booking_approved',
               'created_at': timeStr,
             });
           } else if (visit.status == 'paid' ||
               visit.status == 'payment_under_review') {
             combined.add({
-              'id': 'synth_${visit.id}',
+              'id': synthId,
               'booking_id': visit.id,
               'property_id': visit.propertyId,
-              'title': 'भुक्तानी प्रमाण पेस भयो (Payment Submitted)',
+              'title': 'Payment Proof Submitted',
               'message':
-                  '${visit.propertyTitle ?? "प्रोपर्टी"} को लागि भुक्तानीको प्रमाण पेस भएको छ। समीक्षा हुँदैछ।',
+                  'Payment proof has been submitted for "${visit.propertyTitle ?? "Property"}". Under review.',
               'type': 'booking_alert',
               'created_at': timeStr,
             });
           } else if (visit.status == 'confirmed') {
             combined.add({
-              'id': 'synth_${visit.id}',
+              'id': synthId,
               'booking_id': visit.id,
               'property_id': visit.propertyId,
-              'title': 'बुकिङ निश्चित भयो (Booking Confirmed! 🎉)',
+              'title': 'Booking Confirmed',
               'message':
-                  '${visit.propertyTitle ?? "प्रोपर्टी"} को बुकिङ सफलतापुर्वक निश्चित भयो।',
+                  'Booking for "${visit.propertyTitle ?? "Property"}" has been successfully confirmed.',
               'type': 'booking_alert',
               'created_at': timeStr,
             });
           } else if (visit.status == 'pending_approval') {
             combined.add({
-              'id': 'synth_${visit.id}',
+              'id': synthId,
               'booking_id': visit.id,
               'property_id': visit.propertyId,
-              'title': 'अनुरोध पेस गरियो (Booking Request Sent)',
-              'message': 'घरधनीबाट स्वीकृतिको पर्खाइमा छ।',
+              'title': 'Request Submitted',
+              'message': 'Awaiting owner approval for room visit.',
               'type': 'booking_alert',
               'created_at': timeStr,
             });
@@ -92,35 +169,35 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       }
 
       // 2. Synthesize Owner Requests
-      final ownerRequests = await SupabaseService.getVisitRequestsForOwner();
       for (final req in ownerRequests) {
         final bId = req.id;
+        final synthId = 'synth_owner_$bId';
         final existing = combined.any(
-          (n) => n['booking_id']?.toString() == bId,
+          (n) => n['booking_id']?.toString() == bId || n['id'] == synthId,
         );
-        if (!existing && bId.isNotEmpty) {
+        if (!existing && bId.isNotEmpty && !dismissedIds.contains(synthId)) {
           final propTitle = req.propertyTitle ?? 'Your Property';
           final status = req.status;
           final timeStr = req.createdAt.toIso8601String();
 
           if (status == 'pending_approval') {
             combined.add({
-              'id': 'synth_owner_$bId',
+              'id': synthId,
               'booking_id': bId,
               'property_id': req.propertyId,
-              'title': 'नयाँ बुकिङ अनुरोध (New Booking Request)',
-              'message': 'नयाँ बुकिङ अनुरोध आयाे "$propTitle" को लागी।',
+              'title': 'New Booking Request',
+              'message': 'New visit request received for "$propTitle".',
               'type': 'booking_request',
               'sender': {'id': req.guestId, 'full_name': 'Guest'},
               'created_at': timeStr,
             });
           } else if (status == 'paid') {
             combined.add({
-              'id': 'synth_owner_$bId',
+              'id': synthId,
               'booking_id': bId,
               'property_id': req.propertyId,
-              'title': 'नयाँ भुक्तानी प्राप्त (Payment Received! 💸)',
-              'message': 'कोठा ("$propTitle") को लागी भुक्तानी प्राप्त भएको छ।',
+              'title': 'Payment Received',
+              'message': 'Payment received for "$propTitle".',
               'type': 'payment_received',
               'sender': {'id': req.guestId, 'full_name': 'Guest'},
               'created_at': timeStr,
@@ -128,29 +205,34 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           }
         }
       }
+
+      // Filter out any dismissed notification IDs
+      combined.removeWhere((n) => dismissedIds.contains(n['id']?.toString()));
+
+      // Sort by timestamp descending
+      combined.sort((a, b) {
+        final aTime =
+            DateTime.tryParse(a['created_at']?.toString() ?? '') ??
+            DateTime.now();
+        final bTime =
+            DateTime.tryParse(b['created_at']?.toString() ?? '') ??
+            DateTime.now();
+        return bTime.compareTo(aTime);
+      });
+
+      if (mounted) {
+        setState(() {
+          _notifications = combined;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       debugPrint('Error synthesizing notifications: $e');
+      if (mounted) setState(() => _isLoading = false);
     }
 
-    // Sort by timestamp descending
-    combined.sort((a, b) {
-      final aTime =
-          DateTime.tryParse(a['created_at']?.toString() ?? '') ??
-          DateTime.now();
-      final bTime =
-          DateTime.tryParse(b['created_at']?.toString() ?? '') ??
-          DateTime.now();
-      return bTime.compareTo(aTime);
-    });
-
-    if (mounted) {
-      setState(() {
-        _notifications = combined;
-        _isLoading = false;
-      });
-    }
-    // Mark all as read when the screen is opened/refreshed
-    await SupabaseService.markNotificationsAsRead();
+    // Mark as read in background without blocking UI load
+    SupabaseService.markNotificationsAsRead();
   }
 
   String _formatTime(String? timestamp) {
@@ -160,14 +242,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final now = DateTime.now();
       final diff = now.difference(date);
 
-      if (diff.inMinutes < 1) return 'भर्खरै (Just now)';
-      if (diff.inMinutes < 60) {
-        return '${diff.inMinutes}मि अघि (${diff.inMinutes}m)';
-      }
-      if (diff.inHours < 24) {
-        return '${diff.inHours}घण्टा अघि (${diff.inHours}h)';
-      }
-      return '${diff.inDays}दिन अघि (${diff.inDays}d)';
+      if (diff.inMinutes < 1) return 'Just now';
+      if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+      if (diff.inHours < 24) return '${diff.inHours}h ago';
+      return '${diff.inDays}d ago';
     } catch (_) {
       return '';
     }
@@ -176,36 +254,88 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   String _getHumanMessage(Map<String, dynamic> note, dynamic sender) {
     final type = note['type']?.toString() ?? '';
     final String message = (note['message'] ?? note['title'] ?? '').toString();
-    final name = sender?['full_name'] ?? 'Someone';
+    final name = sender?['full_name'] ?? 'Guest';
 
     if (type == 'booking_request' ||
-        message.contains('कोठा हेर्न अनुरोध') ||
+        message.contains('request') ||
         type == 'visit_request') {
-      return '$name ले कोठा हेर्न अनुरोध गर्नुभएको छ।';
+      return '$name requested a room visit.';
     }
     if (type == 'booking_approved' ||
-        message.contains('स्वीकृत') ||
-        type == 'visit_alert' && message.contains('स्वीकृत')) {
-      return 'तपाईंको अवलोकन अनुरोध स्वीकृत भयो! (Visit Accepted!)';
+        message.contains('Approved') ||
+        type == 'visit_alert' && message.contains('Approved')) {
+      return 'Your room visit request was approved!';
     }
-    if (message.contains('अस्वीकृत') ||
-        message.contains('सक्नुभएन') ||
+    if (message.contains('Declined') ||
+        message.contains('Rejected') ||
         type == 'booking_rejected' ||
-        (note['title']?.toString() ?? '').contains('अस्वीकृत')) {
-      return 'अवलोकन अस्वीकृत (Visit Rejected): ';
+        (note['title']?.toString() ?? '').contains('Rejected')) {
+      return 'Visit request declined: ';
     }
     if (type == 'chat' || type == 'message') {
-      return '$name बाट नयाँ सन्देश (New Message)';
+      return 'New message from $name';
     }
-    if (type == 'payment_received' || message.contains('भुक्तानी')) {
-      return 'भुक्तानी प्राप्त भयो! (Payment Received from $name)';
+    if (type == 'payment_received' || message.contains('Payment')) {
+      return 'Payment received from $name';
     }
 
-    return message.isEmpty ? 'नयाँ सूचना (New Update)' : message;
+    return message.isEmpty ? 'New notification' : message;
+  }
+
+  Widget _buildFilterBar() {
+    final filters = [
+      {'key': 'all', 'label': 'All'},
+      {'key': 'pending', 'label': 'Requests'},
+      {'key': 'approved', 'label': 'Approved'},
+      {'key': 'payments', 'label': 'Payments'},
+    ];
+
+    return Container(
+      height: 40,
+      margin: const EdgeInsets.only(top: 4, bottom: 12),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: filters.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final item = filters[index];
+          final key = item['key']!;
+          final label = item['label']!;
+          final isSelected = _selectedFilter == key;
+
+          return GestureDetector(
+            onTap: () => setState(() => _selectedFilter = key),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                label,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                  color: isSelected ? Colors.white : const Color(0xFF475569),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final filtered = _filteredNotifications;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -247,30 +377,34 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 strokeWidth: 2,
               ),
             )
-          : RefreshIndicator(
-              onRefresh: _fetchNotifications,
-              color: AppTheme.brandColor,
-              child: _notifications.isEmpty
-                  ? SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Container(
-                        height: MediaQuery.of(context).size.height * 0.75,
-                        alignment: Alignment.center,
-                        child: _buildEmptyStateContent(),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: _notifications.length,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 16,
-                      ),
-                      itemBuilder: (context, index) {
-                        final note = _notifications[index];
-                        final sender = note['sender'];
-                        final String id = note['id'].toString();
-                        final String type = note['type']?.toString() ?? '';
+          : Column(
+              children: [
+                if (_notifications.isNotEmpty) _buildFilterBar(),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _fetchNotifications,
+                    color: AppTheme.brandColor,
+                    child: filtered.isEmpty
+                        ? SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: Container(
+                              height: MediaQuery.of(context).size.height * 0.65,
+                              alignment: Alignment.center,
+                              child: _buildEmptyStateContent(),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: filtered.length,
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 4,
+                              horizontal: 16,
+                            ),
+                            itemBuilder: (context, index) {
+                              final note = filtered[index];
+                              final sender = note['sender'];
+                              final String id = note['id'].toString();
+                              final String type = note['type']?.toString() ?? '';
 
                         // -- SPECIAL: Booking Request card with Approve/Reject --
                         final String msgText = (note['message'] ?? '')
@@ -568,7 +702,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     onPressed: () => _confirmDelete(id, index),
                                     icon: Icon(
                                       Icons.delete_outline,
-                                      color: Colors.red.withOpacity(0.3),
+                                      color: Colors.red.withValues(alpha: 0.3),
                                       size: 18,
                                     ),
                                   ),
@@ -579,6 +713,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         );
                       },
                     ),
+                  ),
+                ),
+              ],
             ),
     );
   }
@@ -591,10 +728,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     dynamic sender,
   ) {
     final String bookingId = note['booking_id']?.toString() ?? '';
-    // Extract property title from message: "$name wants to rent "$title""
     final String message = note['message']?.toString() ?? '';
-    // Extract property title from message if possible, otherwise use a generic one
-    String propertyTitle = 'तपाइँको प्रोपर्टी (Your Property)';
+    String propertyTitle = 'Your Property';
     if (message.contains('"')) {
       final RegExp titleRegex = RegExp(r'"(.+)"');
       final match = titleRegex.firstMatch(message);
@@ -602,280 +737,238 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
     bool acting = false;
 
+    // Real Guest Avatar Fallback
+    final String avatarUrl = (sender != null &&
+            sender['avatar_url'] != null &&
+            sender['avatar_url'].toString().isNotEmpty)
+        ? sender['avatar_url'].toString()
+        : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
+
     return StatefulBuilder(
       builder: (context, setCardState) {
         return Container(
-          margin: const EdgeInsets.only(bottom: 16),
+          margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFF0F0F0), width: 1),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+                color: Colors.black.withValues(alpha: 0.025),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
               ),
             ],
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header Row: Avatar, Name, Property & Status Pill
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Premium Icon Badge
-                    Stack(
+                    GestureDetector(
+                      onTap: () => _showGuestProfile(context, sender),
+                      child: CircleAvatar(
+                        radius: 22,
+                        backgroundColor: const Color(0xFFF1F5F9),
+                        backgroundImage: CachedNetworkImageProvider(avatarUrl),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _showGuestProfile(context, sender),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    sender?['full_name'] ?? 'Guest User',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 15,
+                                      color: const Color(0xFF0F172A),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (sender?['kyc_status'] == 'verified') ...[
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 15),
+                                ],
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              propertyTitle,
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                color: const Color(0xFF64748B),
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Status Pill
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF00A3E1).withOpacity(0.1),
-                            shape: BoxShape.circle,
+                            color: const Color(0xFFFFFBEB),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0xFFFDE68A)),
                           ),
-                          child: const Icon(
-                            Icons.calendar_today_rounded,
-                            color: Color(0xFF00A3E1),
-                            size: 24,
+                          child: Text(
+                            'Pending',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 10.5,
+                              color: const Color(0xFFB45309),
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          child: Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: Colors.redAccent,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                            ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _formatTime(note['created_at']),
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            color: const Color(0xFF94A3B8),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(width: 16),
-                    // Content
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'नयाँ बुकिङ अनुरोध', // New Booking Request
-                                style: GoogleFonts.outfit(
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 16,
-                                  color: Colors.black,
-                                  letterSpacing: -0.2,
-                                ),
-                              ),
-                              Text(
-                                _formatTime(note['created_at']),
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 11,
-                                  color: Colors.grey[500],
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            sender?['full_name'] ?? 'Someone',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 14,
-                              color: Colors.black54,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'विस्तृत जानकारीका लागि तलका विकल्पहरू रोज्नुहोस्।', // Select options below for details
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                              height: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ],
                 ),
               ),
+
+              // Request Description Box
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9FAFB),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'New room visit request received. Booking will proceed after owner approval.',
+                    style: GoogleFonts.inter(
+                      fontSize: 12.5,
+                      color: const Color(0xFF334155),
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 14),
+
+              // Action Buttons
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: acting
                     ? const Center(
                         child: Padding(
                           padding: EdgeInsets.symmetric(vertical: 8),
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.brandColor),
                         ),
                       )
                     : Row(
                         children: [
-                          if (bookingId.isEmpty)
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  if (sender != null) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            chat_page.ChatScreen(
-                                              ownerId:
-                                                  sender['id']?.toString() ??
-                                                  '',
-                                              name:
-                                                  sender['full_name'] ?? 'User',
-                                              avatar:
-                                                  sender['avatar_url'] ?? '',
-                                              online: true,
-                                            ),
-                                      ),
-                                    );
-                                  } else {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const OwnerBookingsScreen(),
-                                      ),
-                                    );
-                                  }
-                                },
-                                icon: const Icon(
-                                  Icons.chat_bubble_outline_rounded,
-                                  size: 18,
-                                ),
-                                label: Text(
-                                  'कुरा गर्नुहोस् (Message)',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF00A3E1),
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(50),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                ),
-                              ),
-                            )
-                          else ...[
-                            // REJECT
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () async {
-                                  final String? reason =
-                                      await _showRejectionReasonPicker(context);
-                                  if (reason == null) return;
+                          // DECLINE BUTTON
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                final String? reason = await _showRejectionReasonPicker(context);
+                                if (reason == null) return;
 
-                                  setCardState(() => acting = true);
-                                  try {
-                                    await SupabaseService.rejectVisit(
-                                      bookingId: bookingId,
-                                      notificationId: id,
-                                      reason: reason,
-                                    );
-                                    if (mounted) {
-                                      setState(
-                                        () => _notifications.removeAt(index),
-                                      );
-                                    }
-                                  } catch (_) {
-                                    setCardState(() => acting = false);
+                                setCardState(() => acting = true);
+                                try {
+                                  await SupabaseService.rejectVisit(
+                                    bookingId: bookingId,
+                                    notificationId: id,
+                                    reason: reason,
+                                  );
+                                  if (mounted) {
+                                    setState(() => _notifications.removeAt(index));
                                   }
-                                },
-                                icon: const Icon(Icons.close_rounded, size: 16),
-                                label: Text(
-                                  'अस्वीकार (Reject)',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 13,
-                                  ),
+                                } catch (_) {
+                                  setCardState(() => acting = false);
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFF1F5F9),
+                                foregroundColor: const Color(0xFF475569),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.red,
-                                  side: const BorderSide(
-                                    color: Colors.red,
-                                    width: 1.5,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(50),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                              child: Text(
+                                'Decline',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13.5,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            // APPROVE
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () async {
-                                  setCardState(() => acting = true);
-                                  final ownerProfile =
-                                      await SupabaseService.getUserProfile(
-                                        SupabaseService.currentUserId,
-                                      );
-                                  final ownerName =
-                                      ownerProfile?.fullName ?? 'The owner';
-                                  try {
-                                    await SupabaseService.approveVisit(
-                                      bookingId: bookingId,
-                                      ownerName: ownerName,
-                                      notificationId: id,
-                                    );
-                                    if (mounted) {
-                                      setState(
-                                        () => _notifications.removeAt(index),
-                                      );
-                                    }
-                                  } catch (_) {
-                                    setCardState(() => acting = false);
+                          ),
+                          const SizedBox(width: 10),
+                          // APPROVE BUTTON
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                setCardState(() => acting = true);
+                                final ownerProfile = await SupabaseService.getUserProfile(
+                                  SupabaseService.currentUserId,
+                                );
+                                final ownerName = ownerProfile?.fullName ?? 'The owner';
+                                try {
+                                  await SupabaseService.approveVisit(
+                                    bookingId: bookingId,
+                                    ownerName: ownerName,
+                                    notificationId: id,
+                                  );
+                                  if (mounted) {
+                                    setState(() => _notifications.removeAt(index));
                                   }
-                                },
-                                icon: const Icon(Icons.check_rounded, size: 16),
-                                label: Text(
-                                  'स्वीकार (Approve)',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 13,
-                                  ),
+                                } catch (_) {
+                                  setCardState(() => acting = false);
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF0F172A),
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF22C55E),
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  side: BorderSide(
-                                    color: Colors.white.withOpacity(
-                                      0.5,
-                                    ), // White glass effect
-                                    width: 2,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(50),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                              child: Text(
+                                'Approve',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13.5,
                                 ),
                               ),
                             ),
-                          ],
+                          ),
                         ],
                       ),
               ),
@@ -907,39 +1000,33 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.brandColor.withOpacity(0.15)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppTheme.brandColor.withOpacity(0.06),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
-              ),
-            ),
+          Padding(
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.12),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFECFDF5),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.check_circle_rounded,
-                    color: Colors.green,
-                    size: 20,
+                    Icons.check_circle_outline_rounded,
+                    color: Color(0xFF047857),
+                    size: 22,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -950,52 +1037,59 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       Text(
                         title,
                         style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 16,
-                          color: Colors.black,
-                          height: 1.2,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: const Color(0xFF0F172A),
                         ),
                       ),
                       Text(
                         _formatTime(note['created_at']),
                         style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: Colors.grey[400],
+                          fontSize: 11.5,
+                          color: const Color(0xFF94A3B8),
                         ),
                       ),
                     ],
                   ),
                 ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFECFDF5),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFA7F3D0)),
+                  ),
+                  child: Text(
+                    'स्वीकृत',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10.5,
+                      color: const Color(0xFF047857),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-          // Body
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               message,
               style: GoogleFonts.inter(
-                fontSize: 14,
-                color: Colors.grey[700],
-                height: 1.4,
+                fontSize: 13.5,
+                color: const Color(0xFF475569),
+                height: 1.45,
               ),
             ),
           ),
-          // Action button
+          const SizedBox(height: 14),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () async {
-                  if (bookingId.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Error: Booking ID missing'),
-                      ),
-                    );
-                    return;
-                  }
+                  if (bookingId.isEmpty) return;
 
                   final booking = await SupabaseService.getVisitById(bookingId);
                   if (booking != null && mounted) {
@@ -1004,19 +1098,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       MaterialPageRoute(
                         builder: (context) => PaymentChoiceScreen(
                           booking: booking,
-                          propertyTitle:
-                              booking.propertyTitle ?? 'Your Property',
+                          propertyTitle: booking.propertyTitle ?? 'Your Property',
                         ),
                       ),
                     );
                   }
                 },
-                icon: const Icon(Icons.payment_rounded, size: 18),
+                icon: const Icon(Icons.credit_card_rounded, size: 18),
                 label: Text(
-                  'अहिले भुक्तानी गर्नुहोस् (Pay Now)',
+                  'अहिले भुक्तानी गर्नुहोस्',
                   style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -1026,7 +1119,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: const EdgeInsets.symmetric(vertical: 13),
                 ),
               ),
             ),
@@ -1056,39 +1149,33 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.red.withOpacity(0.15)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.06),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
-              ),
-            ),
+          Padding(
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.12),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFFF1F2),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.cancel_rounded,
-                    color: Colors.red,
-                    size: 20,
+                    Icons.cancel_outlined,
+                    color: Color(0xFFBE123C),
+                    size: 22,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -1099,43 +1186,57 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       Text(
                         title,
                         style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 16,
-                          color: Colors.red, // Rejected text red
-                          height: 1.2,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: const Color(0xFF0F172A),
                         ),
                       ),
                       Text(
                         _formatTime(note['created_at']),
                         style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: Colors.grey[400],
+                          fontSize: 11.5,
+                          color: const Color(0xFF94A3B8),
                         ),
                       ),
                     ],
                   ),
                 ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF1F2),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFFECDD3)),
+                  ),
+                  child: Text(
+                    'अस्वीकृत',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10.5,
+                      color: const Color(0xFFBE123C),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-          // Body
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               message,
               style: GoogleFonts.inter(
-                fontSize: 14,
-                color: Colors.grey[700],
-                height: 1.4,
+                fontSize: 13.5,
+                color: const Color(0xFF475569),
+                height: 1.45,
               ),
             ),
           ),
-          // Action button (Optional: Chat instead of Pay Now)
+          const SizedBox(height: 14),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: SizedBox(
               width: double.infinity,
-              child: OutlinedButton.icon(
+              child: ElevatedButton.icon(
                 onPressed: () {
                   if (sender != null) {
                     Navigator.push(
@@ -1160,15 +1261,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 },
                 icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
                 label: Text(
-                  'घरधनीसँग कुरा गर्नुहोस् (Message Owner)',
+                  'घरधनीलाई सन्देश पठाउनुहोस्',
                   style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w700,
-                    fontSize: 14,
+                    fontSize: 13.5,
                   ),
                 ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.black87,
-                  side: BorderSide(color: Colors.grey.shade300),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF1F5F9),
+                  foregroundColor: const Color(0xFF334155),
+                  elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -1313,11 +1415,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<String?> _showRejectionReasonPicker(BuildContext context) async {
     final reasons = [
-      'कोठा खाली छैन (Room occupied)',
-      'समय मिलेन (Time unavailable)',
-      'विद्यार्थी मात्र (Students only)',
-      'परिवार मात्र (Family only)',
-      'अन्य (Other reason)',
+      'Room occupied',
+      'Time unavailable',
+      'Students only',
+      'Family only',
+      'Other reason',
     ];
 
     return await showModalBottomSheet<String>(
@@ -1340,8 +1442,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'अस्वीकार गर्नुको कारण (Select Reason)',
-              style: GoogleFonts.notoSansDevanagari(
+              'Select Rejection Reason',
+              style: GoogleFonts.plusJakartaSans(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -1351,7 +1453,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               (reason) => ListTile(
                 title: Text(
                   reason,
-                  style: GoogleFonts.notoSansDevanagari(
+                  style: GoogleFonts.inter(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1407,13 +1509,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
 
     if (confirm == true) {
+      final allIds = _notifications
+          .map((n) => n['id']?.toString() ?? '')
+          .where((id) => id.isNotEmpty)
+          .toList();
       setState(() {
         _notifications.clear();
       });
-      await SupabaseService.deleteAllNotifications();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All notifications cleared')),
-      );
+      await SupabaseService.deleteAllNotifications(allIds);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('All notifications cleared')),
+        );
+      }
     }
   }
 
@@ -1488,38 +1596,33 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.green.withOpacity(0.15)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.06),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
-              ),
-            ),
+          Padding(
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.12),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEFF6FF),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.payments_rounded,
-                    color: Colors.green,
-                    size: 20,
+                    Icons.account_balance_wallet_outlined,
+                    color: Color(0xFF1D4ED8),
+                    size: 22,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -1528,91 +1631,105 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        note['title'] ?? 'Payment Notification',
+                        note['title'] ?? 'Payment Received 💸',
                         style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14,
-                          color: Colors.black,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: const Color(0xFF0F172A),
                         ),
                       ),
                       Text(
                         _formatTime(note['created_at']),
                         style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: Colors.grey[400],
+                          fontSize: 11.5,
+                          color: const Color(0xFF94A3B8),
                         ),
                       ),
                     ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEFF6FF),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFBFDBFE)),
+                  ),
+                  child: Text(
+                    'भुक्तानी',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10.5,
+                      color: const Color(0xFF1D4ED8),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  message,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: Colors.grey[800],
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      // Fetch latest booking for this property
-                      if (propertyId.isNotEmpty) {
-                        final bookings = await SupabaseService.getMyVisits();
-                        final filtered = bookings
-                            .where((b) => b.propertyId == propertyId)
-                            .toList();
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              message,
+              style: GoogleFonts.inter(
+                fontSize: 13.5,
+                color: const Color(0xFF475569),
+                height: 1.45,
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  if (propertyId.isNotEmpty) {
+                    final bookings = await SupabaseService.getMyVisits();
+                    final filtered = bookings
+                        .where((b) => b.propertyId == propertyId)
+                        .toList();
 
-                        if (filtered.isNotEmpty && mounted) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  BookingStatusScreen(booking: filtered.first),
-                            ),
-                          );
-                        } else {
-                          // Try owner dashboard if no guest booking found
-                          if (mounted) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const OwnerBookingsScreen(),
-                              ),
-                            );
-                          }
-                        }
+                    if (filtered.isNotEmpty && mounted) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              BookingStatusScreen(booking: filtered.first),
+                        ),
+                      );
+                    } else {
+                      if (mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const OwnerBookingsScreen(),
+                          ),
+                        );
                       }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'विवरण हेर्नुहोस् (View Details)',
-                      style: GoogleFonts.notoSansDevanagari(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    }
+                  }
+                },
+                icon: const Icon(Icons.receipt_long_rounded, size: 18),
+                label: Text(
+                  'विवरण हेर्नुहोस्',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13.5,
                   ),
                 ),
-              ],
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0F172A),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
             ),
           ),
         ],
@@ -1622,6 +1739,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   void _showGuestProfile(BuildContext context, dynamic sender) {
     if (sender == null) return;
+
+    final String avatarUrl = (sender['avatar_url'] != null &&
+            sender['avatar_url'].toString().isNotEmpty)
+        ? sender['avatar_url'].toString()
+        : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
 
     showModalBottomSheet(
       context: context,
@@ -1647,20 +1769,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             const SizedBox(height: 24),
             CircleAvatar(
               radius: 50,
-              backgroundColor: Colors.grey[100],
-              backgroundImage: sender['avatar_url'] != null
-                  ? CachedNetworkImageProvider(sender['avatar_url'])
-                  : null,
-              child: sender['avatar_url'] == null
-                  ? Icon(Icons.person, size: 50, color: Colors.grey[400])
-                  : null,
+              backgroundColor: const Color(0xFFF1F5F9),
+              backgroundImage: CachedNetworkImageProvider(avatarUrl),
             ),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  sender['full_name'] ?? 'Guest',
+                  sender['full_name'] ?? 'Guest User',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
@@ -1685,7 +1802,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 children: [
                   _buildGuestInfoRow(
                     Icons.location_on_outlined,
-                    'बस्ने ठाउँ (Current Area)',
+                    'Location / Area',
                     sender['area_name'] ?? 'Not Specified',
                   ),
                   const Padding(
@@ -1694,7 +1811,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                   _buildGuestInfoRow(
                     Icons.badge_outlined,
-                    'पेशा / स्थिति (Type)',
+                    'Guest Type',
                     sender['user_type'] ?? 'Not Specified',
                   ),
                   const Padding(
@@ -1703,7 +1820,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                   _buildGuestInfoRow(
                     Icons.security_outlined,
-                    'Verified Status',
+                    'Verification Status',
                     sender['kyc_status'] == 'verified'
                         ? 'KYC Verified Guest'
                         : 'Phone Verified Only',
@@ -1725,8 +1842,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'सुरक्षाको लागि फोन नम्बर अवलोकन स्वीकृत भएपछि मात्र देखाइनेछ। (Phone number hidden for privacy)',
-                      style: GoogleFonts.notoSansDevanagari(
+                      'For privacy and safety, phone number will be revealed after room visit request is approved.',
+                      style: GoogleFonts.inter(
                         fontSize: 12,
                         color: Colors.amber.shade900,
                         fontWeight: FontWeight.w500,
@@ -1775,7 +1892,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             children: [
               Text(
                 label,
-                style: GoogleFonts.notoSansDevanagari(
+                style: GoogleFonts.inter(
                   fontSize: 11,
                   color: Colors.grey[500],
                   fontWeight: FontWeight.w600,
@@ -1783,7 +1900,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ),
               Text(
                 value,
-                style: GoogleFonts.notoSansDevanagari(
+                style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: Colors.black,

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/features/chat/repositories/chat_repository.dart';
 
@@ -98,25 +99,61 @@ class NotificationRepository {
     }
   }
 
-  /// Delete a specific notification
-  static Future<void> deleteNotification(String id) async {
-    if (id.startsWith('synth_'))
-      return; // 🛡 Guard for synthesized notifications
-    final user = _client.auth.currentUser;
-    if (user == null) return;
+  static final Set<String> _dismissedIdsInMemory = {};
+
+  /// Get dismissed notification IDs (persisted locally)
+  static Future<Set<String>> getDismissedNotificationIds() async {
     try {
-      await _client
-          .from('notifications')
-          .delete()
-          .eq('id', id)
-          .eq('user_id', user.id); // 🔐 IDOR Protection
+      final prefs = await SharedPreferences.getInstance();
+      final list = prefs.getStringList('dismissed_notification_ids') ?? [];
+      _dismissedIdsInMemory.addAll(list);
     } catch (e) {
-      debugPrint('Error deleting notification: $e');
+      debugPrint('Error reading dismissed notifications: $e');
+    }
+    return _dismissedIdsInMemory;
+  }
+
+  /// Delete a specific notification (works for both DB and synthesized notifications)
+  static Future<void> deleteNotification(String id) async {
+    _dismissedIdsInMemory.add(id);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(
+        'dismissed_notification_ids',
+        _dismissedIdsInMemory.toList(),
+      );
+    } catch (e) {
+      debugPrint('Error saving dismissed notification ID: $e');
+    }
+
+    if (!id.startsWith('synth_')) {
+      final user = _client.auth.currentUser;
+      if (user == null) return;
+      try {
+        await _client
+            .from('notifications')
+            .delete()
+            .eq('id', id)
+            .eq('user_id', user.id); // 🔐 IDOR Protection
+      } catch (e) {
+        debugPrint('Error deleting notification from Supabase: $e');
+      }
     }
   }
 
   /// Delete all notifications for current user
-  static Future<void> deleteAllNotifications() async {
+  static Future<void> deleteAllNotifications({List<String>? allIds}) async {
+    if (allIds != null && allIds.isNotEmpty) {
+      _dismissedIdsInMemory.addAll(allIds);
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setStringList(
+          'dismissed_notification_ids',
+          _dismissedIdsInMemory.toList(),
+        );
+      } catch (_) {}
+    }
+
     final user = _client.auth.currentUser;
     if (user == null) return;
     try {
