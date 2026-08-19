@@ -801,7 +801,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () => _showRequestActionSheet(context, note, id, index, sender),
+                    onPressed: () => _showGuestProfile(context, sender),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Color(0xFFE2E8F0)),
                       foregroundColor: const Color(0xFF475569),
@@ -1875,14 +1875,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               children: [
                 Text(
                   sender['full_name'] ?? 'Guest',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF0F172A),
                   ),
                 ),
                 if (sender['kyc_status'] == 'verified') ...[
-                  const SizedBox(width: 8),
-                  const Icon(Icons.verified, color: Colors.blue, size: 20),
+                  const SizedBox(width: 6),
+                  const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 18),
                 ],
               ],
             ),
