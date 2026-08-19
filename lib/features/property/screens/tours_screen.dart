@@ -727,8 +727,8 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                             children: [
                               SvgPicture.asset(
                                 'assets/icons/vector of ruppes.svg',
-                                width: 17.0,
-                                height: 17.0,
+                                width: 14.0, // 0.5 number smaller as requested
+                                height: 14.0,
                                 colorFilter: const ColorFilter.mode(
                                   AppTheme.brandColor,
                                   BlendMode.srcIn,
@@ -924,17 +924,44 @@ class _FullImageCarouselState extends State<_FullImageCarousel> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Full-screen image — BoxFit.cover fills screen edge-to-edge
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 280),
-          transitionBuilder: (child, animation) => FadeTransition(
-            opacity: animation,
-            child: child,
+        // Dark Atmospheric Blurred Backdrop
+        Positioned.fill(
+          child: Container(
+            color: const Color(0xFF0F0F14),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                KhoznaImage(
+                  key: ValueKey('bg_$_currentIndex'),
+                  imageUrl: widget.images[_currentIndex],
+                  fit: BoxFit.cover,
+                ),
+                Positioned.fill(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.50),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          child: KhoznaImage(
-            key: ValueKey(_currentIndex),
-            imageUrl: widget.images[_currentIndex],
-            fit: BoxFit.cover,
+        ),
+
+        // Centered Medium Ratio Image
+        Center(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 280),
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: child,
+            ),
+            child: KhoznaImage(
+              key: ValueKey(_currentIndex),
+              imageUrl: widget.images[_currentIndex],
+              fit: BoxFit.contain, // Medium natural aspect ratio
+            ),
           ),
         ),
 

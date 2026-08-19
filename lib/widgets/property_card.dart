@@ -313,8 +313,8 @@ class PropertyCard extends StatelessWidget {
                                     offset: const Offset(0, -1.5),
                                     child: SvgPicture.asset(
                                       'assets/icons/vector of ruppes.svg',
-                                      width: 14.0, // 0.5 smaller as requested
-                                      height: 14.0,
+                                      width: 14.5,
+                                      height: 14.5,
                                       colorFilter: const ColorFilter.mode(
                                         AppTheme.brandColor,
                                         BlendMode.srcIn,
