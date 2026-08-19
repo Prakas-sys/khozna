@@ -61,35 +61,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }).toList();
   }
 
-  int _getCategoryCount(String filterKey) {
-    if (filterKey == 'all') return _notifications.length;
-    return _notifications.where((note) {
-      final type = note['type']?.toString() ?? '';
-      final titleStr = (note['title'] ?? '').toString();
-      final msgStr = (note['message'] ?? '').toString();
-
-      if (filterKey == 'pending') {
-        return type == 'booking_request' ||
-            msgStr.contains('कोठा हेर्न अनुरोध') ||
-            msgStr.contains('visit request');
-      }
-      if (filterKey == 'approved') {
-        return !titleStr.contains('अस्वीकृत') &&
-            !msgStr.contains('अस्वीकृत') &&
-            type != 'booking_rejected' &&
-            (titleStr.contains('स्वीकृत') ||
-                msgStr.contains('स्वीकृत') ||
-                type == 'booking_approved');
-      }
-      if (filterKey == 'payments') {
-        return type == 'payment_received' ||
-            msgStr.contains('भुक्तानी') ||
-            titleStr.contains('भुक्तानी');
-      }
-      return false;
-    }).length;
-  }
-
   Future<void> _fetchNotifications() async {
     setState(() => _isLoading = true);
 
@@ -720,8 +691,141 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  /// Booking request notification card — shown ONLY to the owner
+  Widget _buildAvatar(dynamic sender, {double radius = 22}) {
+    final String? avatarUrl = sender?['avatar_url']?.toString();
+    final String name = sender?['full_name']?.toString() ?? 'Guest';
+    final String initial = name.isNotEmpty ? name[0].toUpperCase() : 'G';
+
+    if (avatarUrl != null && avatarUrl.trim().isNotEmpty) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: const Color(0xFFF1F5F9),
+        backgroundImage: CachedNetworkImageProvider(avatarUrl),
+      );
+    }
+
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: const Color(0xFF0F172A),
+      child: Text(
+        initial,
+        style: GoogleFonts.plusJakartaSans(
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
+          fontSize: radius * 0.75,
+        ),
+      ),
+    );
+  }
+
+  /// Booking request notification card — horizontal compact layout
   Widget _buildBookingRequestCard(
+    Map<String, dynamic> note,
+    String id,
+    int index,
+    dynamic sender,
+  ) {
+    final String message = note['message']?.toString() ?? '';
+    String propertyTitle = 'Your Property';
+    if (message.contains('"')) {
+      final RegExp titleRegex = RegExp(r'"(.+)"');
+      final match = titleRegex.firstMatch(message);
+      if (match != null) propertyTitle = match.group(1)!;
+    }
+
+    final String guestName = sender?['full_name']?.toString() ?? 'Guest';
+
+    return GestureDetector(
+      onTap: () => _showRequestActionSheet(context, note, id, index, sender),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            _buildAvatar(sender, radius: 24),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          guestName,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14.5,
+                            color: const Color(0xFF0F172A),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (sender?['kyc_status'] == 'verified') ...[
+                        const SizedBox(width: 4),
+                        const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 14),
+                      ],
+                      const SizedBox(width: 6),
+                      Text(
+                        '• ${_formatTime(note['created_at'])}',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: const Color(0xFF94A3B8),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    'Requested room visit for "$propertyTitle"',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: const Color(0xFF475569),
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F172A),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                'Review',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11.5,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showRequestActionSheet(
+    BuildContext context,
     Map<String, dynamic> note,
     String id,
     int index,
@@ -735,179 +839,146 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final match = titleRegex.firstMatch(message);
       if (match != null) propertyTitle = match.group(1)!;
     }
+    final String guestName = sender?['full_name']?.toString() ?? 'Guest';
     bool acting = false;
 
-    // Real Guest Avatar Fallback
-    final String avatarUrl = (sender != null &&
-            sender['avatar_url'] != null &&
-            sender['avatar_url'].toString().isNotEmpty)
-        ? sender['avatar_url'].toString()
-        : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
-
-    return StatefulBuilder(
-      builder: (context, setCardState) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.025),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Row: Avatar, Name, Property & Status Pill
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheetState) {
+          return Container(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE2E8F0),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
                   children: [
-                    GestureDetector(
-                      onTap: () => _showGuestProfile(context, sender),
-                      child: CircleAvatar(
-                        radius: 22,
-                        backgroundColor: const Color(0xFFF1F5F9),
-                        backgroundImage: CachedNetworkImageProvider(avatarUrl),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
+                    _buildAvatar(sender, radius: 26),
+                    const SizedBox(width: 14),
                     Expanded(
-                      child: GestureDetector(
-                        onTap: () => _showGuestProfile(context, sender),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    sender?['full_name'] ?? 'Guest User',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 15,
-                                      color: const Color(0xFF0F172A),
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                guestName,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 17,
+                                  color: const Color(0xFF0F172A),
                                 ),
-                                if (sender?['kyc_status'] == 'verified') ...[
-                                  const SizedBox(width: 4),
-                                  const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 15),
-                                ],
-                              ],
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              propertyTitle,
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                color: const Color(0xFF64748B),
-                                fontWeight: FontWeight.w500,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              if (sender?['kyc_status'] == 'verified') ...[
+                                const SizedBox(width: 6),
+                                const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 16),
+                              ],
+                            ],
+                          ),
+                          Text(
+                            sender?['area_name'] ?? 'Room Visit Request',
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: const Color(0xFF64748B),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    // Status Pill
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFFBEB),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: const Color(0xFFFDE68A)),
-                          ),
-                          child: Text(
-                            'Pending',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 10.5,
-                              color: const Color(0xFFB45309),
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _formatTime(note['created_at']),
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            color: const Color(0xFF94A3B8),
-                          ),
-                        ),
-                      ],
+                    IconButton(
+                      icon: const Icon(Icons.info_outline_rounded, color: Color(0xFF64748B)),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _showGuestProfile(context, sender);
+                      },
                     ),
                   ],
                 ),
-              ),
-
-              // Request Description Box
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Container(
+                const SizedBox(height: 20),
+                Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF9FAFB),
-                    borderRadius: BorderRadius.circular(12),
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
                   ),
-                  child: Text(
-                    'New room visit request received. Booking will proceed after owner approval.',
-                    style: GoogleFonts.inter(
-                      fontSize: 12.5,
-                      color: const Color(0xFF334155),
-                      height: 1.4,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Requested Property',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: const Color(0xFF94A3B8),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        propertyTitle,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF0F172A),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'New room visit request received. Approval allows the guest to view contact details and proceed with payment.',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: const Color(0xFF475569),
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 14),
-
-              // Action Buttons
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: acting
+                const SizedBox(height: 24),
+                acting
                     ? const Center(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.brandColor),
+                          padding: EdgeInsets.all(12),
+                          child: CircularProgressIndicator(color: AppTheme.brandColor, strokeWidth: 2),
                         ),
                       )
                     : Row(
                         children: [
-                          // DECLINE BUTTON
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () async {
                                 final String? reason = await _showRejectionReasonPicker(context);
                                 if (reason == null) return;
-
-                                setCardState(() => acting = true);
+                                setSheetState(() => acting = true);
                                 try {
                                   await SupabaseService.rejectVisit(
                                     bookingId: bookingId,
                                     notificationId: id,
                                     reason: reason,
                                   );
-                                  if (mounted) {
-                                    setState(() => _notifications.removeAt(index));
-                                  }
+                                  if (context.mounted) Navigator.pop(context);
+                                  if (mounted) setState(() => _notifications.removeAt(index));
                                 } catch (_) {
-                                  setCardState(() => acting = false);
+                                  setSheetState(() => acting = false);
                                 }
                               },
                               style: ElevatedButton.styleFrom(
@@ -915,25 +986,24 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 foregroundColor: const Color(0xFF475569),
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(14),
                                 ),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
                               ),
                               child: Text(
                                 'Decline',
                                 style: GoogleFonts.plusJakartaSans(
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 13.5,
+                                  fontSize: 14,
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          // APPROVE BUTTON
+                          const SizedBox(width: 12),
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () async {
-                                setCardState(() => acting = true);
+                                setSheetState(() => acting = true);
                                 final ownerProfile = await SupabaseService.getUserProfile(
                                   SupabaseService.currentUserId,
                                 );
@@ -944,11 +1014,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     ownerName: ownerName,
                                     notificationId: id,
                                   );
-                                  if (mounted) {
-                                    setState(() => _notifications.removeAt(index));
-                                  }
+                                  if (context.mounted) Navigator.pop(context);
+                                  if (mounted) setState(() => _notifications.removeAt(index));
                                 } catch (_) {
-                                  setCardState(() => acting = false);
+                                  setSheetState(() => acting = false);
                                 }
                               },
                               style: ElevatedButton.styleFrom(
@@ -956,26 +1025,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 foregroundColor: Colors.white,
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(14),
                                 ),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
                               ),
                               child: Text(
                                 'Approve',
                                 style: GoogleFonts.plusJakartaSans(
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 13.5,
+                                  fontSize: 14,
                                 ),
                               ),
                             ),
                           ),
                         ],
                       ),
-              ),
-            ],
-          ),
-        );
-      },
+                const SizedBox(height: 16),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -1060,7 +1130,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     border: Border.all(color: const Color(0xFFA7F3D0)),
                   ),
                   child: Text(
-                    'स्वीकृत',
+                    'Approved',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 10.5,
                       color: const Color(0xFF047857),
@@ -1106,7 +1176,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 },
                 icon: const Icon(Icons.credit_card_rounded, size: 18),
                 label: Text(
-                  'अहिले भुक्तानी गर्नुहोस्',
+                  'Complete Payment',
                   style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w700,
                     fontSize: 14,
@@ -1209,7 +1279,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     border: Border.all(color: const Color(0xFFFECDD3)),
                   ),
                   child: Text(
-                    'अस्वीकृत',
+                    'Declined',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 10.5,
                       color: const Color(0xFFBE123C),
@@ -1261,7 +1331,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 },
                 icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
                 label: Text(
-                  'घरधनीलाई सन्देश पठाउनुहोस्',
+                  'Message Owner',
                   style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w700,
                     fontSize: 13.5,
@@ -1714,7 +1784,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 },
                 icon: const Icon(Icons.receipt_long_rounded, size: 18),
                 label: Text(
-                  'विवरण हेर्नुहोस्',
+                  'View Details',
                   style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w700,
                     fontSize: 13.5,
@@ -1740,11 +1810,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   void _showGuestProfile(BuildContext context, dynamic sender) {
     if (sender == null) return;
 
-    final String avatarUrl = (sender['avatar_url'] != null &&
-            sender['avatar_url'].toString().isNotEmpty)
-        ? sender['avatar_url'].toString()
-        : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1767,17 +1832,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: const Color(0xFFF1F5F9),
-              backgroundImage: CachedNetworkImageProvider(avatarUrl),
-            ),
+            _buildAvatar(sender, radius: 44),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  sender['full_name'] ?? 'Guest User',
+                  sender['full_name'] ?? 'Guest',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,

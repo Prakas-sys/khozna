@@ -628,8 +628,37 @@ class _VisitRequestScreenState extends State<VisitRequestScreen>
       }
     } catch (e) {
       if (mounted) {
+        String userFriendlyError = 'Failed to submit visit request. Please try again.';
+        final errStr = e.toString().toLowerCase();
+        if (errStr.contains('socketexception') ||
+            errStr.contains('failed host lookup') ||
+            errStr.contains('clientexception')) {
+          userFriendlyError = 'Network error. Please check your internet connection and try again.';
+        } else if (errStr.contains('not authenticated') || errStr.contains('jwt')) {
+          userFriendlyError = 'Please log in to schedule a room visit.';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.redAccent),
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.wifi_off_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    userFriendlyError,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFFE11D48),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.all(16),
+          ),
         );
       }
     } finally {

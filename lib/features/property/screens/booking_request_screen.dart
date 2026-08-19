@@ -310,9 +310,33 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        String userFriendlyError = 'Failed to send request. Please try again.';
+        final errStr = e.toString().toLowerCase();
+        if (errStr.contains('socketexception') ||
+            errStr.contains('failed host lookup') ||
+            errStr.contains('clientexception')) {
+          userFriendlyError = 'Network error. Please check your internet connection and try again.';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.wifi_off_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    userFriendlyError,
+                    style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFFE11D48),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
