@@ -799,101 +799,104 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ],
       ),
       child: InkWell(
-        onTap: () => _showRequestActionSheet(context, note, id, index, sender),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const OwnerBookingsScreen(),
+            ),
+          );
+        },
         borderRadius: BorderRadius.circular(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.all(14),
-              child: InkWell(
-                onTap: () => _showGuestProfile(context, sender),
-                borderRadius: BorderRadius.circular(12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Stack(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Stack(
+                    children: [
+                      _buildAvatar(sender, radius: 24),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          width: 17,
+                          height: 17,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0F172A),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 1.5),
+                          ),
+                          child: const Icon(Icons.home_work_rounded, size: 9, color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildAvatar(sender, radius: 24),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            width: 17,
-                            height: 17,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF0F172A),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 1.5),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text(
+                                    guestName,
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  if (sender?['kyc_status'] == 'verified') ...[
+                                    const SizedBox(width: 4),
+                                    const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 13),
+                                  ],
+                                ],
+                              ),
                             ),
-                            child: const Icon(Icons.home_work_rounded, size: 9, color: Colors.white),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: const Color(0xFFE2E8F0)),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.person_outline_rounded, size: 11, color: Color(0xFF475569)),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    'Guest Request',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 10.5,
+                                      color: const Color(0xFF475569),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _formatTime(note['created_at']),
+                          style: GoogleFonts.poppins(
+                            fontSize: 11,
+                            color: const Color(0xFF94A3B8),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      guestName,
-                                      style: GoogleFonts.poppins(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    if (sender?['kyc_status'] == 'verified') ...[
-                                      const SizedBox(width: 4),
-                                      const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 13),
-                                    ],
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF1F5F9),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.person_outline_rounded, size: 11, color: Color(0xFF475569)),
-                                    const SizedBox(width: 3),
-                                    Text(
-                                      'Guest Request',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 10.5,
-                                        color: const Color(0xFF475569),
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _formatTime(note['created_at']),
-                            style: GoogleFonts.poppins(
-                              fontSize: 11,
-                              color: const Color(0xFF94A3B8),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             Padding(
@@ -913,7 +916,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () => _showRequestActionSheet(context, note, id, index, sender),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const OwnerBookingsScreen(),
+                      ),
+                    );
+                  },
                   icon: const Icon(Icons.arrow_forward_rounded, size: 15),
                   label: Text(
                     'Respond',
@@ -923,7 +933,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF25D366), // WhatsApp Green
+                    backgroundColor: AppTheme.brandColor,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -1842,7 +1852,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     border: Border.all(color: const Color(0xFFBFDBFE)),
                   ),
                   child: Text(
-                    'भुक्तानी',
+                    'Payment',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 10.5,
                       color: const Color(0xFF1D4ED8),
