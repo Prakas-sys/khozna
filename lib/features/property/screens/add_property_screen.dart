@@ -604,92 +604,91 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   }
 
   Widget _buildStepCategory() {
+    final List<Map<String, String>> categories = [
+      {
+        'label': 'Room',
+        'value': 'Room',
+        'imagePath': 'assets/images/room.jpeg',
+      },
+      {
+        'label': 'Flat',
+        'value': 'Flat',
+        'imagePath': 'assets/images/flat.jpeg',
+      },
+      {
+        'label': 'Cottage',
+        'value': 'Cottage',
+        'imagePath': 'assets/images/cottage (2).png',
+      },
+      {
+        'label': 'Villa',
+        'value': 'Villa',
+        'imagePath': 'assets/images/villa.jpeg',
+      },
+      {
+        'label': 'Hotel',
+        'value': 'Hotel',
+        'imagePath': 'assets/images/hotel.jpeg',
+      },
+      {
+        'label': 'Other',
+        'value': 'Other',
+        'imagePath': 'assets/images/other propterty.jpeg',
+      },
+    ];
+
     return StepLayout(
       controller: _mainScrollController,
       title: 'Property Type',
       subtitle: 'Which of these best describes your place?',
       content: [
         const SizedBox(height: 8),
-        Column(
-          children: [
-            CategoryCard(
-              label: 'Room',
-              imagePath: 'assets/images/Room New.png',
-              value: 'Room',
-              imageScale: 1.3,
-              selectedValue: _selectedCategory,
-              onSelect: (v) {
-                setState(() => _selectedCategory = v);
-                HapticFeedback.mediumImpact();
-              },
-            ),
-            const SizedBox(height: 12),
-            CategoryCard(
-              label: 'Flat',
-              imagePath: 'assets/images/flat.png',
-              value: 'Flat',
-              imageScale: 1.3,
-              selectedValue: _selectedCategory,
-              onSelect: (v) {
-                setState(() => _selectedCategory = v);
-                HapticFeedback.mediumImpact();
-              },
-            ),
-            const SizedBox(height: 12),
-            CategoryCard(
-              label: 'Cottage',
-              imagePath: 'assets/images/cottage (2).png',
-              value: 'Cottage',
-              imageScale: 1.3,
-              selectedValue: _selectedCategory,
-              onSelect: (v) {
-                setState(() => _selectedCategory = v);
-                HapticFeedback.mediumImpact();
-              },
-            ),
-            const SizedBox(height: 12),
-            CategoryCard(
-              label: 'Villa',
-              imagePath: 'assets/images/villa.jpeg',
-              value: 'Villa',
-              imageScale: 1.3,
-              selectedValue: _selectedCategory,
-              onSelect: (v) {
-                setState(() => _selectedCategory = v);
-                HapticFeedback.mediumImpact();
-              },
-            ),
-            const SizedBox(height: 12),
-            CategoryCard(
-              label: 'Other',
-              imagePath: 'assets/images/other image.png',
-              value: 'Other',
-              imageScale: 1.1,
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 14,
+            mainAxisSpacing: 14,
+            childAspectRatio: 0.88,
+          ),
+          itemCount: categories.length,
+          itemBuilder: (context, index) {
+            final cat = categories[index];
+            return CategoryCard(
+              label: cat['label']!,
+              imagePath: cat['imagePath']!,
+              value: cat['value']!,
               selectedValue: _selectedCategory,
               onSelect: (v) async {
-                HapticFeedback.lightImpact();
-                final result = await Navigator.push<String>(
-                  context,
-                  MaterialPageRoute(builder: (_) => const OtherCategoryScreen()),
-                );
-                if (result != null && result.isNotEmpty) {
-                  setState(() {
-                    _selectedCategory = 'Other';
-                    _otherCategoryController.text = result;
-                  });
+                if (v == 'Other') {
+                  HapticFeedback.lightImpact();
+                  final result = await Navigator.push<String>(
+                    context,
+                    MaterialPageRoute(builder: (_) => const OtherCategoryScreen()),
+                  );
+                  if (result != null && result.isNotEmpty) {
+                    setState(() {
+                      _selectedCategory = 'Other';
+                      _otherCategoryController.text = result;
+                    });
+                  }
+                } else {
+                  setState(() => _selectedCategory = v);
+                  HapticFeedback.mediumImpact();
                 }
               },
-            ),
-          ],
+            );
+          },
         ),
-        if (_selectedCategory == 'Other') ...[
-          const SizedBox(height: 24),
+        if (_selectedCategory == 'Other' && _otherCategoryController.text.isNotEmpty) ...[
+          const SizedBox(height: 20),
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppTheme.brandColor.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppTheme.brandColor.withOpacity(0.1)),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppTheme.brandColor.withOpacity(0.15)),
             ),
             child: Row(
               children: [
@@ -704,13 +703,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: AppTheme.brandColor.withOpacity(0.6),
+                          color: AppTheme.brandColor.withOpacity(0.7),
                         ),
                       ),
                       Text(
                         _otherCategoryController.text,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 18,
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
                           fontWeight: FontWeight.w800,
                           color: AppTheme.brandColor,
                         ),
@@ -728,7 +727,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       setState(() => _otherCategoryController.text = result);
                     }
                   },
-                  child: const Text('Change'),
+                  child: Text(
+                    'Change',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.brandColor,
+                    ),
+                  ),
                 ),
               ],
             ),

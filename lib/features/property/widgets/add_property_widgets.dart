@@ -405,7 +405,7 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
       vsync: this,
       duration: const Duration(milliseconds: 100),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98).animate(
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
@@ -419,11 +419,6 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     final isSelected = widget.selectedValue == widget.value;
-    
-    // Split label to stylize the slash
-    final parts = widget.label.split(' / ');
-    final nepaliText = parts[0];
-    final englishText = parts.length > 1 ? parts[1] : '';
 
     return GestureDetector(
       onTapDown: (_) => _controller.forward(),
@@ -439,75 +434,87 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
           scale: _scaleAnimation.value,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isSelected ? AppTheme.brandColor.withOpacity(0.03) : Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              color: isSelected ? AppTheme.brandColor.withOpacity(0.04) : Colors.white,
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
-                width: isSelected ? 1.8 : 1.0,
+                width: isSelected ? 2.0 : 1.0,
               ),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 58,
-                  height: 58,
-                  padding: const EdgeInsets.all(7),
-                  decoration: BoxDecoration(
-                    color: isSelected ? AppTheme.brandColor.withOpacity(0.08) : const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.asset(
-                      widget.imagePath,
-                      fit: BoxFit.contain,
+                // ── Image Box Section ──────────────────────────────
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Image.asset(
+                        widget.imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: const Color(0xFFF1F5F9),
+                            child: const Center(
+                              child: Icon(
+                                Icons.home_work_rounded,
+                                color: Color(0xFF94A3B8),
+                                size: 36,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        nepaliText,
+                const SizedBox(height: 10),
+
+                // ── Label & Selection Icon Row ───────────────────
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.label,
                         style: GoogleFonts.inter(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                           color: isSelected ? AppTheme.brandColor : const Color(0xFF1E293B),
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      if (englishText.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          englishText,
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                            color: isSelected ? AppTheme.brandColor.withOpacity(0.8) : const Color(0xFF64748B),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isSelected ? AppTheme.brandColor : Colors.transparent,
-                    border: Border.all(
-                      color: isSelected ? AppTheme.brandColor : const Color(0xFFCBD5E1),
-                      width: 1.8,
                     ),
-                  ),
-                  child: isSelected
-                      ? const Icon(Icons.check_rounded, size: 15, color: Colors.white)
-                      : null,
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isSelected ? AppTheme.brandColor : Colors.transparent,
+                        border: Border.all(
+                          color: isSelected ? AppTheme.brandColor : const Color(0xFFCBD5E1),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: isSelected
+                          ? const Icon(
+                              Icons.check_rounded,
+                              size: 14,
+                              color: Colors.white,
+                            )
+                          : null,
+                    ),
+                  ],
                 ),
               ],
             ),
