@@ -51,10 +51,19 @@ class _MainScreenState extends State<MainScreen> {
     lastKycNotification.addListener(_handleKycStatusUpdate);
     // Listen for regular real-time notifications to show Airbnb-style toasts
     lastRealtimeNotification.addListener(_handleRealtimeNotification);
+    selectedTabNotifier.addListener(_onExternalTabChange);
+  }
+
+  void _onExternalTabChange() {
+    if (!mounted) return;
+    if (_currentIndex != selectedTabNotifier.value) {
+      _onTabTapped(selectedTabNotifier.value);
+    }
   }
 
   @override
   void dispose() {
+    selectedTabNotifier.removeListener(_onExternalTabChange);
     lastKycNotification.removeListener(_handleKycStatusUpdate);
     lastRealtimeNotification.removeListener(_handleRealtimeNotification);
     reelsTabActive.value = false;
@@ -348,6 +357,9 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       _currentIndex = index;
     });
+    if (selectedTabNotifier.value != index) {
+      selectedTabNotifier.value = index;
+    }
     // Pause/resume tour videos based on tab visibility
     reelsTabActive.value = (index == 1);
     if (index == 2) messageBadgeCount.value = 0;
@@ -369,7 +381,7 @@ class _MainScreenState extends State<MainScreen> {
           onPopInvokedWithResult: (didPop, result) {
             if (didPop) return;
             if (_currentIndex != 0) {
-              setState(() => _currentIndex = 0);
+              _onTabTapped(0);
             } else {
               final now = DateTime.now();
               if (_lastPressedAt == null ||

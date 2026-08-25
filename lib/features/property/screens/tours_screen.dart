@@ -201,7 +201,13 @@ class _ToursScreenState extends State<ToursScreen> {
                     // Back button
                     _buildBlurIconButton(
                       icon: Icons.arrow_back_ios_new_rounded,
-                      onTap: () => Navigator.pop(context),
+                      onTap: () {
+                        if (Navigator.canPop(context)) {
+                          Navigator.pop(context);
+                        } else {
+                          selectedTabNotifier.value = 0;
+                        }
+                      },
                     ),
 
                     // Central Photos / Videos Pill Switcher
