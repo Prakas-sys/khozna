@@ -1271,7 +1271,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             height: 180,
             width: double.infinity,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: BorderRadius.zero,
               border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
               boxShadow: [
                 BoxShadow(
@@ -1282,7 +1282,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: BorderRadius.zero,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -1342,7 +1342,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     ),
                   ),
 
-                  // Bottom Right Modern "GO" Navigation Pill
+                  // Bottom Right Modern "OPEN" Navigation Pill
                   Positioned(
                     bottom: 12,
                     right: 12,
@@ -1372,7 +1372,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'GO',
+                            'OPEN',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 13,
                               fontWeight: FontWeight.w900,
