@@ -43,7 +43,6 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   late ScrollController _scrollController;
   late TextEditingController _messageController;
-  late ScrollController _bannerScrollController;
   final List<ChatMessage> _optimisticMessages = [];
 
   String? _activeChatId;
@@ -61,15 +60,11 @@ class _ChatScreenState extends State<ChatScreen> {
     _activeChatId = widget.chatId;
     _scrollController = ScrollController();
     _messageController = TextEditingController();
-    _bannerScrollController = ScrollController();
     _displayName = widget.name;
     _displayAvatar = widget.avatar;
     _displayLocation = 'Kathmandu, Nepal';
     _isOwner = widget.isOwner;
 
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _startBannerAnimation(),
-    );
     if (widget.ownerId.isNotEmpty) {
       _loadOwnerProfile();
       if (_activeChatId == null) {
@@ -106,31 +101,10 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (_) {}
   }
 
-  void _startBannerAnimation() async {
-    while (mounted) {
-      await Future.delayed(const Duration(milliseconds: 500));
-      if (_bannerScrollController.hasClients) {
-        final maxScroll = _bannerScrollController.position.maxScrollExtent;
-        if (maxScroll > 0) {
-          await _bannerScrollController.animateTo(
-            maxScroll,
-            duration: Duration(milliseconds: (maxScroll * 40).toInt()),
-            curve: Curves.linear,
-          );
-          await Future.delayed(const Duration(seconds: 1));
-          if (_bannerScrollController.hasClients) {
-            _bannerScrollController.jumpTo(0);
-          }
-        }
-      }
-    }
-  }
-
   @override
   void dispose() {
     _scrollController.dispose();
     _messageController.dispose();
-    _bannerScrollController.dispose();
     super.dispose();
   }
 
@@ -240,7 +214,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          ChatBanner(controller: _bannerScrollController),
+          const ChatBanner(),
           Expanded(
             child: _activeChatId == null
                 ? Center(

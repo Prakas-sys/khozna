@@ -410,12 +410,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             _fullNameController,
                             focusNode: _focusNodes['name'],
                             prefixIcon: Icons.badge_outlined,
+                            hintText: 'e.g. Ram Bahadur Thapa',
                           ),
                           _buildAirbnbField(
                             'Email Address',
                             _emailController,
                             enabled: false,
                             prefixIcon: Icons.email_outlined,
+                            hintText: 'e.g. ram@example.com',
                           ),
                           _buildAirbnbField(
                             'Phone Number',
@@ -423,6 +425,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             keyboardType: TextInputType.phone,
                             focusNode: _focusNodes['phone'],
                             prefixIcon: Icons.phone_outlined,
+                            hintText: 'e.g. 9800000000',
                           ),
                         ],
                       ),
@@ -438,12 +441,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             _userTypeController,
                             focusNode: _focusNodes['role'],
                             prefixIcon: Icons.work_outline_rounded,
+                            hintText: 'e.g. Property Owner / Student',
                           ),
                           _buildAirbnbField(
                             'Organization',
                             _orgController,
                             focusNode: _focusNodes['org'],
                             prefixIcon: Icons.business_outlined,
+                            hintText: 'e.g. Khozna Properties',
                           ),
                           _buildAirbnbField(
                             'Bio',
@@ -451,6 +456,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             maxLines: 4,
                             focusNode: _focusNodes['bio'],
                             prefixIcon: Icons.notes_rounded,
+                            hintText: 'e.g. Tell us a bit about yourself...',
                           ),
                         ],
                       ),
@@ -460,28 +466,47 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       _buildLocationSection(),
                       const SizedBox(height: 18),
 
-                      // ── 4. Payout Options ──
+                      // ── 4. Receive Money Options ──
                       _buildSectionCard(
-                        title: 'Payout Options',
+                        title: 'Receive Money Options',
                         icon: Icons.account_balance_wallet_outlined,
                         children: [
                           _buildAirbnbField(
                             'eSewa ID',
                             _esewaController,
                             focusNode: _focusNodes['esewa'],
-                            prefixIcon: Icons.account_balance_wallet_outlined,
+                            hintText: 'e.g. 98XXXXXXXX',
+                            prefixWidget: ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: Image.asset(
+                                'assets/images/esewa.webp',
+                                width: 18,
+                                height: 18,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
                           ),
                           _buildAirbnbField(
                             'Khalti ID',
                             _khaltiController,
                             focusNode: _focusNodes['khalti'],
-                            prefixIcon: Icons.payment_rounded,
+                            hintText: 'e.g. 98XXXXXXXX',
+                            prefixWidget: ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: Image.asset(
+                                'assets/images/khalti.png',
+                                width: 18,
+                                height: 18,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
                           ),
                           _buildAirbnbField(
                             'Legal Account Name',
                             _accountNameController,
                             focusNode: _focusNodes['acc'],
                             prefixIcon: Icons.account_box_outlined,
+                            hintText: 'e.g. Ram Bahadur Thapa',
                           ),
                           const SizedBox(height: 8),
                           _buildPremiumMediaGrid(),
@@ -773,6 +798,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     TextInputType keyboardType = TextInputType.text,
     FocusNode? focusNode,
     IconData? prefixIcon,
+    Widget? prefixWidget,
+    String? hintText,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -807,9 +834,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 horizontal: 14,
                 vertical: 13,
               ),
-              prefixIcon: prefixIcon != null
-                  ? Icon(prefixIcon, size: 18, color: enabled ? const Color(0xFF64748B) : const Color(0xFF94A3B8))
-                  : null,
+              hintText: hintText,
+              hintStyle: GoogleFonts.inter(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFF94A3B8),
+              ),
+              prefixIcon: prefixWidget != null
+                  ? Padding(
+                      padding: const EdgeInsets.all(11),
+                      child: prefixWidget,
+                    )
+                  : (prefixIcon != null
+                      ? Icon(prefixIcon, size: 18, color: enabled ? const Color(0xFF64748B) : const Color(0xFF94A3B8))
+                      : null),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: Color(0xFFE2E8F0)),

@@ -6,43 +6,36 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/models/chat_model.dart';
 
 class ChatBanner extends StatelessWidget {
-  final ScrollController controller;
-  const ChatBanner({super.key, required this.controller});
+  const ChatBanner({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 36,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppTheme.brandColor.withOpacity(0.05),
         border: Border(bottom: BorderSide(color: AppTheme.brandColor.withOpacity(0.1))),
       ),
-      child: ListView(
-        controller: controller,
-        scrollDirection: Axis.horizontal,
+      child: Row(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.verified_user_rounded,
-                  color: AppTheme.brandColor,
-                  size: 14,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Your safety is our priority. Messaging is safe on Khozna • खोज्नमा तपाईंको सुरक्षा हाम्रो प्राथमिकता हो!',
-                  style: GoogleFonts.plusJakartaSans(
-                    color: AppTheme.brandColor,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 11,
-                    letterSpacing: 0.2,
-                  ),
-                ),
-                const SizedBox(width: 400), // Gap for the infinite scroll feel
-              ],
+          const Icon(
+            Icons.shield_rounded,
+            color: AppTheme.brandColor,
+            size: 14,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Your safety is our priority. Messaging is safe on Khozna',
+              style: GoogleFonts.plusJakartaSans(
+                color: AppTheme.brandColor,
+                fontWeight: FontWeight.w700,
+                fontSize: 11.5,
+                letterSpacing: -0.2,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

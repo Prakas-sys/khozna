@@ -154,19 +154,19 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Airbnb-style Host Passport Card
+            // Premium Host Passport Card
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(22),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+                border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.04),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
@@ -177,16 +177,12 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       Stack(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(2.5),
-                            decoration: const BoxDecoration(
+                            padding: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: [
-                                  AppTheme.brandColor,
-                                  AppTheme.brandColor,
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+                              border: Border.all(
+                                color: AppTheme.brandColor.withOpacity(0.2),
+                                width: 2,
                               ),
                             ),
                             child: AppTheme.buildAvatarWidget(
@@ -195,14 +191,14 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                       _fetchedAvatar!.isNotEmpty)
                                   ? _fetchedAvatar
                                   : widget.avatar,
-                              radius: 36,
+                              radius: 38,
                               name: widget.name,
                             ),
                           ),
                           if (_isProfileVerified)
                             Positioned(
-                              bottom: 0,
-                              right: 0,
+                              bottom: 2,
+                              right: 2,
                               child: Container(
                                 padding: const EdgeInsets.all(2),
                                 decoration: const BoxDecoration(
@@ -212,13 +208,13 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                 child: const Icon(
                                   Icons.verified_rounded,
                                   color: AppTheme.brandColor,
-                                  size: 18,
+                                  size: 20,
                                 ),
                               ),
                             ),
                         ],
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 18),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,58 +222,62 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                             Text(
                               widget.name,
                               style: GoogleFonts.plusJakartaSans(
-                                fontSize: 19,
+                                fontSize: 21,
                                 fontWeight: FontWeight.w800,
                                 color: const Color(0xFF0F172A),
-                                letterSpacing: -0.4,
+                                letterSpacing: -0.5,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppTheme.brandColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.shield_rounded,
-                                    size: 12,
-                                    color: AppTheme.brandColor,
+                            if (_isProfileVerified)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.brandColor.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: AppTheme.brandColor.withOpacity(0.2),
                                   ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Verified Owner',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.shield_rounded,
+                                      size: 13,
                                       color: AppTheme.brandColor,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      'Verified Host',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppTheme.brandColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 22),
                   const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _buildPassportStat('${_ownerReviews.length}', 'Reviews'),
                       Container(
-                        height: 28,
+                        height: 32,
                         width: 1,
                         color: const Color(0xFFE2E8F0),
                       ),
@@ -295,7 +295,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                             : null,
                       ),
                       Container(
-                        height: 28,
+                        height: 32,
                         width: 1,
                         color: const Color(0xFFE2E8F0),
                       ),
@@ -311,106 +311,55 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             const SizedBox(height: 24),
 
             // About the Owner Section
-            Text(
-              'About ${widget.name}',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF0F172A),
+            if ((_bio != null && _bio!.trim().isNotEmpty) ||
+                (_organization != null && _organization!.isNotEmpty)) ...[
+              Text(
+                'About ${widget.name}',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF0F172A),
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (_bio != null && _bio!.trim().isNotEmpty) ...[
-                    Text(
-                      _bio!,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: const Color(0xFF475569),
-                        height: 1.45,
+              const SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_bio != null && _bio!.trim().isNotEmpty) ...[
+                      Text(
+                        _bio!,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          color: const Color(0xFF475569),
+                          height: 1.45,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    const Divider(color: Color(0xFFF1F5F9)),
-                    const SizedBox(height: 14),
+                      if (_organization != null && _organization!.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        const Divider(color: Color(0xFFF1F5F9)),
+                        const SizedBox(height: 8),
+                      ],
+                    ],
+                    if (_organization != null && _organization!.isNotEmpty)
+                      _buildAboutMetaItem(
+                        Icons.work_outline_rounded,
+                        _organization!,
+                      ),
                   ],
-                  if (_realLocation.isNotEmpty &&
-                      _realLocation != 'Unknown') ...[
-                    _buildAboutMetaItem(
-                      Icons.location_on_outlined,
-                      _realLocation,
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  if (_organization != null && _organization!.isNotEmpty) ...[
-                    _buildAboutMetaItem(
-                      Icons.work_outline_rounded,
-                      _organization!,
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  _buildAboutMetaItem(
-                    Icons.calendar_month_outlined,
-                    'Joined in $_joinedDate',
-                  ),
-                ],
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
+            ],
 
-            // Confirmed Information Section
-            Text(
-              'Confirmed Info',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF0F172A),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
-              ),
-              child: Column(
-                children: [
-                  _buildConfirmedInfoRow('Identity Verified', true),
-                  const SizedBox(height: 14),
-                  _buildConfirmedInfoRow(
-                    'Phone Number Confirmed',
-                    (widget.name.toLowerCase().contains('khozna') ||
-                        (_phoneNumber != null && _phoneNumber!.isNotEmpty)),
-                  ),
-                  const SizedBox(height: 14),
-                  _buildConfirmedInfoRow(
-                    'Email Address Confirmed',
-                    (widget.name.toLowerCase().contains('khozna') ||
-                        (_email != null && _email!.isNotEmpty)),
-                  ),
-                  const SizedBox(height: 14),
-                  _buildConfirmedInfoRow(
-                    'Active Property Listings',
-                    widget.totalListings > 0 ||
-                        widget.name.toLowerCase().contains('khozna'),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 8),
 
             // Send Message & Action Buttons
             Row(
@@ -551,30 +500,18 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   }
 
   Widget _buildAboutMetaItem(IconData icon, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: const BoxDecoration(
-              color: Color(0xFFF1F5F9),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: const Color(0xFF475569), size: 16),
-          ),
+          Icon(icon, color: const Color(0xFF64748B), size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
               style: GoogleFonts.inter(
-                fontSize: 13.5,
-                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
                 color: const Color(0xFF334155),
               ),
             ),
@@ -585,21 +522,12 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   }
 
   Widget _buildConfirmedInfoRow(String text, bool isConfirmed) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-      decoration: BoxDecoration(
-        color: isConfirmed ? const Color(0xFFF0FDF4) : const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isConfirmed ? const Color(0xFFDCFCE7) : const Color(0xFFE2E8F0),
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
           Icon(
-            isConfirmed
-                ? Icons.check_circle_rounded
-                : Icons.radio_button_off_rounded,
+            isConfirmed ? Icons.check_circle_rounded : Icons.cancel_outlined,
             color: isConfirmed ? const Color(0xFF16A34A) : const Color(0xFF94A3B8),
             size: 18,
           ),
@@ -608,29 +536,20 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             child: Text(
               text,
               style: GoogleFonts.inter(
-                fontSize: 13.5,
-                color: isConfirmed ? const Color(0xFF14532D) : const Color(0xFF64748B),
-                fontWeight: isConfirmed ? FontWeight.w600 : FontWeight.w500,
+                fontSize: 14,
+                color: isConfirmed ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                fontWeight: isConfirmed ? FontWeight.w500 : FontWeight.w400,
               ),
             ),
           ),
-          if (isConfirmed)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFF86EFAC)),
-              ),
-              child: Text(
-                'Confirmed',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF16A34A),
-                ),
-              ),
+          Text(
+            isConfirmed ? 'Confirmed' : 'Not Verified',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isConfirmed ? const Color(0xFF16A34A) : const Color(0xFF94A3B8),
             ),
+          ),
         ],
       ),
     );
