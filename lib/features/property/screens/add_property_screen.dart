@@ -618,7 +618,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       {
         'label': 'Cottage',
         'value': 'Cottage',
-        'imagePath': 'assets/images/cottage (2).png',
+        'imagePath': 'assets/images/cottage.jpeg',
       },
       {
         'label': 'Villa',
@@ -1960,7 +1960,6 @@ class _OtherCategoryScreenState extends State<OtherCategoryScreen> {
   final TextEditingController _customController = TextEditingController();
   
   final List<Map<String, String>> _suggestions = [
-    {'name': 'Hotel', 'icon': '🛎️'},
     {'name': 'Office Space', 'icon': '🏢'},
     {'name': 'Godown/Warehouse', 'icon': '📦'},
     {'name': 'Farm Cottage', 'icon': '🌾'},
