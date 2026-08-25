@@ -115,7 +115,7 @@ class SupabaseService {
   }
 
   static Future<void> cancelVisit(String bookingId) =>
-      BookingRepository.rejectRequest(bookingId);
+      BookingRepository.cancelBookingRequestByGuest(bookingId);
   static Future<BookingModel?> getVisitById(String bookingId) =>
       BookingRepository.getBookingById(bookingId);
   static Future<List<BookingModel>> getMyVisits() =>

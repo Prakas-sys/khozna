@@ -152,10 +152,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     if (confirm != true) return;
     setState(() => _isActing = true);
     try {
-      await BookingRepository.rejectWithReason(
-        _booking.id,
-        reason: 'Cancelled by guest',
-      );
+      await BookingRepository.cancelBookingRequestByGuest(_booking.id);
       if (mounted) Navigator.pop(context);
     } catch (_) {
     } finally {
@@ -1633,6 +1630,13 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
           Colors.green,
           'Room Liked! 🎉',
           'कोठा मन पराउनुभयो — अब भुक्तानी गर्न सक्नुहुन्छ',
+        );
+      case 'cancelled':
+        return _StatusConfig(
+          Icons.cancel_outlined,
+          Colors.grey,
+          'Request Cancelled',
+          'तपाईंले अवलोकन अनुरोध रद्द गर्नुभयो',
         );
       case 'rejected':
         return _StatusConfig(

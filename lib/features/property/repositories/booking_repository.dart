@@ -158,6 +158,37 @@ class BookingRepository {
     }
   }
 
+  static Future<void> cancelBookingRequestByGuest(String bookingId) async {
+    try {
+      await _client
+          .from('bookings')
+          .update({
+            'status': 'cancelled',
+            'rejection_reason': 'Cancelled by guest',
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', bookingId);
+
+      final booking = await getBookingById(bookingId);
+      if (booking != null) {
+        final user = _client.auth.currentUser;
+        final String name = user?.userMetadata?['full_name'] ?? 'Guest';
+        await _client.from('notifications').insert({
+          'user_id': booking.ownerId,
+          'sender_id': user?.id,
+          'title': 'अवलोकन अनुरोध रद्द गरियो (Visit Request Cancelled)',
+          'message': '$name ले अवलोकन अनुरोध रद्द गर्नुभयो।',
+          'type': 'visit_cancelled',
+          'property_id': booking.propertyId,
+          'booking_id': bookingId,
+        });
+      }
+    } catch (e) {
+      debugPrint('Cancel booking request error: $e');
+      rethrow;
+    }
+  }
+
   static Future<void> rejectRequest(String bookingId) async {
     return rejectWithReason(bookingId, reason: null);
   }

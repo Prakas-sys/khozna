@@ -2430,23 +2430,26 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               child: Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
+                  color: AppTheme.brandColor,
                   borderRadius: BorderRadius.circular(16),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.brandColor.withOpacity(0.25),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.12),
+                        color: Colors.white.withOpacity(0.2),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
-                        Icons.flash_on_rounded,
+                        Icons.bolt_rounded,
                         color: Colors.white,
                         size: 24,
                       ),
@@ -2462,7 +2465,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                 'Instant Booking',
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w800,
                                   color: Colors.white,
                                 ),
                               ),
@@ -2470,7 +2473,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.15),
+                                  color: Colors.white.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
@@ -2490,7 +2493,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             'Rs. ${PriceFormatter.format(widget.property.priceMonth > 0 ? widget.property.priceMonth.toStringAsFixed(0) : (double.tryParse(widget.property.price) ?? 0).toStringAsFixed(0))} advance to reserve instantly.',
                             style: GoogleFonts.inter(
                               fontSize: 11.5,
-                              color: Colors.white.withOpacity(0.7),
+                              color: Colors.white.withOpacity(0.9),
                             ),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
