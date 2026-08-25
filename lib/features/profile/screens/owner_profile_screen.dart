@@ -572,9 +572,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.poppins(
+              style: GoogleFonts.inter(
                 fontSize: 13.5,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 color: const Color(0xFF334155),
               ),
             ),
@@ -607,7 +607,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.poppins(
+              style: GoogleFonts.inter(
                 fontSize: 13.5,
                 color: isConfirmed ? const Color(0xFF14532D) : const Color(0xFF64748B),
                 fontWeight: isConfirmed ? FontWeight.w600 : FontWeight.w500,
@@ -624,7 +624,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               ),
               child: Text(
                 'Confirmed',
-                style: GoogleFonts.poppins(
+                style: GoogleFonts.inter(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF16A34A),
@@ -870,11 +870,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           children: [
             Expanded(
               child: Text(
-                'पाहुनाहरूको सिफारिस (Guest Recommendations)',
+                'Guest Recommendations',
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 16,
+                  fontSize: 17,
                   fontWeight: FontWeight.w800,
-                  color: Colors.black,
+                  color: const Color(0xFF0F172A),
                 ),
               ),
             ),

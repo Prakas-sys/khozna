@@ -686,9 +686,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.brandColor.withOpacity(0.05),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppTheme.brandColor.withOpacity(0.15)),
+              border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
             ),
             child: Row(
               children: [
@@ -2067,7 +2067,7 @@ class _OtherCategoryScreenState extends State<OtherCategoryScreen> {
                   final bool isTypedMatch = _customController.text.trim().toLowerCase() == name.toLowerCase();
 
                   return Material(
-                    color: isTypedMatch ? AppTheme.brandColor.withOpacity(0.08) : const Color(0xFFF8FAFC),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(14),
                     child: InkWell(
                       onTap: () => Navigator.pop(context, name),

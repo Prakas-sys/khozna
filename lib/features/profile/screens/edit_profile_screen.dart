@@ -393,78 +393,104 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 const SizedBox(height: 32),
 
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildKycHeaderBanner(),
-                      _buildAirbnbHeader('Public profile'),
-                      const SizedBox(height: 24),
-                      _buildAirbnbField(
-                        'Full Name / पूरा नाम',
-                        _fullNameController,
-                        focusNode: _focusNodes['name'],
-                      ),
-                      _buildAirbnbField(
-                        'Email Address',
-                        _emailController,
-                        enabled: false,
-                      ),
-                      _buildAirbnbField(
-                        'Phone Number / फोन नम्बर',
-                        _phoneController,
-                        keyboardType: TextInputType.phone,
-                        focusNode: _focusNodes['phone'],
-                      ),
+                      const SizedBox(height: 4),
 
-                      const SizedBox(height: 24),
-                      _buildAirbnbHeader('Tell your story'),
-                      const SizedBox(height: 24),
-                      _buildAirbnbField(
-                        'Role',
-                        _userTypeController,
-                        focusNode: _focusNodes['role'],
+                      // ── 1. Personal Information ──
+                      _buildSectionCard(
+                        title: 'Personal Information',
+                        icon: Icons.person_outline_rounded,
+                        children: [
+                          _buildAirbnbField(
+                            'Full Name',
+                            _fullNameController,
+                            focusNode: _focusNodes['name'],
+                            prefixIcon: Icons.badge_outlined,
+                          ),
+                          _buildAirbnbField(
+                            'Email Address',
+                            _emailController,
+                            enabled: false,
+                            prefixIcon: Icons.email_outlined,
+                          ),
+                          _buildAirbnbField(
+                            'Phone Number',
+                            _phoneController,
+                            keyboardType: TextInputType.phone,
+                            focusNode: _focusNodes['phone'],
+                            prefixIcon: Icons.phone_outlined,
+                          ),
+                        ],
                       ),
-                      _buildAirbnbField(
-                        'Organization',
-                        _orgController,
-                        focusNode: _focusNodes['org'],
-                      ),
-                      _buildAirbnbField(
-                        'Bio / आफ्नो बारेमा',
-                        _bioController,
-                        maxLines: 4,
-                        focusNode: _focusNodes['bio'],
-                      ),
+                      const SizedBox(height: 18),
 
-                      const SizedBox(height: 24),
+                      // ── 2. About You ──
+                      _buildSectionCard(
+                        title: 'About You',
+                        icon: Icons.auto_stories_outlined,
+                        children: [
+                          _buildAirbnbField(
+                            'Role',
+                            _userTypeController,
+                            focusNode: _focusNodes['role'],
+                            prefixIcon: Icons.work_outline_rounded,
+                          ),
+                          _buildAirbnbField(
+                            'Organization',
+                            _orgController,
+                            focusNode: _focusNodes['org'],
+                            prefixIcon: Icons.business_outlined,
+                          ),
+                          _buildAirbnbField(
+                            'Bio',
+                            _bioController,
+                            maxLines: 4,
+                            focusNode: _focusNodes['bio'],
+                            prefixIcon: Icons.notes_rounded,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+
+                      // ── 3. Location ──
                       _buildLocationSection(),
+                      const SizedBox(height: 18),
+
+                      // ── 4. Payout Options ──
+                      _buildSectionCard(
+                        title: 'Payout Options',
+                        icon: Icons.account_balance_wallet_outlined,
+                        children: [
+                          _buildAirbnbField(
+                            'eSewa ID',
+                            _esewaController,
+                            focusNode: _focusNodes['esewa'],
+                            prefixIcon: Icons.account_balance_wallet_outlined,
+                          ),
+                          _buildAirbnbField(
+                            'Khalti ID',
+                            _khaltiController,
+                            focusNode: _focusNodes['khalti'],
+                            prefixIcon: Icons.payment_rounded,
+                          ),
+                          _buildAirbnbField(
+                            'Legal Account Name',
+                            _accountNameController,
+                            focusNode: _focusNodes['acc'],
+                            prefixIcon: Icons.account_box_outlined,
+                          ),
+                          const SizedBox(height: 8),
+                          _buildPremiumMediaGrid(),
+                        ],
+                      ),
+
                       const SizedBox(height: 32),
-
-                      _buildAirbnbHeader('Payout options'),
-                      const SizedBox(height: 24),
-                      _buildAirbnbField(
-                        'eSewa ID',
-                        _esewaController,
-                        focusNode: _focusNodes['esewa'],
-                      ),
-                      _buildAirbnbField(
-                        'Khalti ID',
-                        _khaltiController,
-                        focusNode: _focusNodes['khalti'],
-                      ),
-                      _buildAirbnbField(
-                        'Legal Name / कानूनी नाम',
-                        _accountNameController,
-                        focusNode: _focusNodes['acc'],
-                      ),
-
-                      const SizedBox(height: 16),
-                      _buildPremiumMediaGrid(),
-
-                      const SizedBox(height: 48),
                       _buildAirbnbSaveButton(),
-                      const SizedBox(height: 80),
+                      const SizedBox(height: 60),
                     ],
                   ),
                 ),
@@ -514,43 +540,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (isVerified) {
       return Container(
-        margin: const EdgeInsets.only(bottom: 24),
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: const Color(0xFFF0FDF4),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(color: const Color(0xFFBBF7D0)),
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: const BoxDecoration(
-                color: Color(0xFF16A34A),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.verified_rounded, color: Colors.white, size: 20),
-            ),
-            const SizedBox(width: 14),
+            const Icon(Icons.verified_rounded, color: Color(0xFF16A34A), size: 22),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Identity Verified ✓',
+                    'Identity Verified (KYC Completed)',
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 15,
+                      fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFF14532D),
                     ),
                   ),
-                  const SizedBox(height: 2),
                   Text(
-                    'Unlimited property listings unlocked. Trusted owner badge active.',
+                    'You can post unlimited property listings.',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: const Color(0xFF166534),
-                      height: 1.3,
+                      fontSize: 11.5,
+                      color: const Color(0xFF15803D),
                     ),
                   ),
                 ],
@@ -563,24 +580,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (isPending) {
       return Container(
-        margin: const EdgeInsets.only(bottom: 24),
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: const Color(0xFFFFFBEB),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(color: const Color(0xFFFDE68A)),
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF59E0B),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.hourglass_top_rounded, color: Colors.white, size: 20),
-            ),
-            const SizedBox(width: 14),
+            const Icon(Icons.hourglass_top_rounded, color: Color(0xFFD97706), size: 20),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -588,18 +598,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   Text(
                     'KYC Verification Pending',
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 15,
+                      fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF92400E),
+                      color: const Color(0xFF78350F),
                     ),
                   ),
-                  const SizedBox(height: 2),
                   Text(
-                    'Your documents are under review (takes up to 48 hrs). You can still post up to 2 free listings.',
+                    'Under review. You can list up to 2 free properties in the meantime.',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 11.5,
                       color: const Color(0xFFB45309),
-                      height: 1.3,
                     ),
                   ),
                 ],
@@ -610,180 +618,149 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       );
     }
 
-    // ── NOT VERIFIED — Standard Brand Policy Banner ──
+    // ── NOT VERIFIED — Medium-Sized, Super Clean & Easy to Understand Card ──
     return Container(
-      margin: const EdgeInsets.only(bottom: 24),
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Top Banner Accent
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppTheme.brandColor.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.shield_outlined,
+              color: AppTheme.brandColor,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Post Up to 2 Free Listings',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                  ),
                 ),
+                const SizedBox(height: 2),
+                Text(
+                  'No KYC required for first 2 listings. Required from 3rd listing.',
+                  style: GoogleFonts.inter(
+                    fontSize: 11.5,
+                    color: const Color(0xFF64748B),
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const KycScreen()),
+              );
+              if (result == true) _loadUserData();
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor,
+                borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.shield_outlined, color: Colors.white, size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'KYC & Property Listing Rules',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  Text(
+                    'Verify',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
                     ),
                   ),
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppTheme.brandColor,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      'Identity Policy',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
+                  const SizedBox(width: 3),
+                  const Icon(
+                    Icons.arrow_forward_rounded,
+                    color: Colors.white,
+                    size: 12,
                   ),
                 ],
               ),
             ),
-            // Body Details
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEFF6FF),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(
-                          Icons.home_work_rounded,
-                          color: AppTheme.brandColor,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Post up to 2 properties without KYC',
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF1E293B),
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'KYC verification is required starting from your 3rd property listing.',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: const Color(0xFF64748B),
-                                height: 1.3,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                  const SizedBox(height: 14),
-                  GestureDetector(
-                    onTap: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const KycScreen()),
-                      );
-                      if (result == true) _loadUserData();
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: AppTheme.brandColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.verified_user_rounded,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Verify Identity Now (KYC)',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.arrow_forward_rounded,
-                            color: Colors.white,
-                            size: 15,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildAirbnbHeader(String title) {
-    return Text(
-      title,
-      style: GoogleFonts.inter(
-        fontSize: 22,
-        fontWeight: FontWeight.w700,
-        color: colorTextPrimary,
-        letterSpacing: -0.5,
+  Widget _buildSectionCard({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppTheme.brandColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: AppTheme.brandColor, size: 18),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          ...children,
+        ],
       ),
     );
   }
@@ -795,21 +772,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     int maxLines = 1,
     TextInputType keyboardType = TextInputType.text,
     FocusNode? focusNode,
+    IconData? prefixIcon,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 24),
+      margin: const EdgeInsets.only(bottom: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 13,
+              fontSize: 12.5,
               fontWeight: FontWeight.w600,
-              color: colorTextSecondary,
+              color: const Color(0xFF475569),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           TextField(
             controller: controller,
             enabled: enabled,
@@ -817,32 +795,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             maxLines: maxLines,
             keyboardType: keyboardType,
             style: GoogleFonts.inter(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: enabled ? colorTextPrimary : colorTextSecondary,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: enabled ? const Color(0xFF0F172A) : const Color(0xFF64748B),
             ),
             decoration: InputDecoration(
               isDense: true,
               filled: true,
-              fillColor: enabled
-                  ? colorPrimary
-                  : colorSecondary.withOpacity(0.5),
+              fillColor: enabled ? Colors.white : const Color(0xFFF8FAFC),
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
+                horizontal: 14,
+                vertical: 13,
               ),
+              prefixIcon: prefixIcon != null
+                  ? Icon(prefixIcon, size: 18, color: enabled ? const Color(0xFF64748B) : const Color(0xFF94A3B8))
+                  : null,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: colorTextPrimary,
+                  color: AppTheme.brandColor,
                   width: 1.5,
                 ),
               ),
@@ -850,7 +829,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ? const Icon(
                       Icons.lock_outline_rounded,
                       size: 16,
-                      color: colorTextSecondary,
+                      color: Color(0xFF94A3B8),
                     )
                   : null,
             ),

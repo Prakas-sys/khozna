@@ -632,7 +632,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                                 style: GoogleFonts.poppins(
                                                   fontSize: 13.5,
                                                   fontWeight: FontWeight.w600,
-                                                  color: const Color(0xFF0F172A),
+                                                  color: Colors.black,
                                                   height: 1.3,
                                                 ),
                                               ),
@@ -641,7 +641,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                                 style: GoogleFonts.poppins(
                                                   fontSize: 13.5,
                                                   fontWeight: FontWeight.w400,
-                                                  color: const Color(0xFF334155),
+                                                  color: Colors.black,
                                                   height: 1.35,
                                                 ),
                                               ),
@@ -719,9 +719,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFDF7), // Warm off-white
+        color: Colors.white, // Removed yellow fill
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFFDE68A).withValues(alpha: 0.6), width: 1),
+        border: Border.all(color: const Color(0xFFF59E0B), width: 1.5), // Yellow border
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -731,7 +731,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             width: 8,
             height: 8,
             decoration: const BoxDecoration(
-              color: Color(0xFFD97706),
+              color: Color(0xFFF59E0B),
               shape: BoxShape.circle,
             ),
           ),
@@ -744,16 +744,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     text: 'Request sent ',
                     style: GoogleFonts.poppins(
                       fontSize: 13.5,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF374151),
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black, // Pure black
                     ),
                   ),
                   TextSpan(
                     text: '— awaiting owner response',
                     style: GoogleFonts.poppins(
                       fontSize: 13,
-                      fontWeight: FontWeight.w400,
-                      color: const Color(0xFF9CA3AF),
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black, // Pure black
                     ),
                   ),
                 ],
@@ -765,8 +765,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             _formatTime(note['created_at']),
             style: GoogleFonts.poppins(
               fontSize: 11,
-              color: const Color(0xFFD97706),
-              fontWeight: FontWeight.w500,
+              color: Colors.black, // Pure black
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -846,7 +846,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       style: GoogleFonts.poppins(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 14,
-                                        color: const Color(0xFF0F172A),
+                                        color: Colors.black,
                                       ),
                                     ),
                                     if (sender?['kyc_status'] == 'verified') ...[
@@ -902,7 +902,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 _cleanMessage(message),
                 style: GoogleFonts.poppins(
                   fontSize: 13.5,
-                  color: const Color(0xFF334155),
+                  color: Colors.black,
                   height: 1.4,
                 ),
               ),
