@@ -139,7 +139,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'property_id': visit.propertyId,
               'title': 'Booking Confirmed! 🎊',
               'message':
-                  'Congratulations! Your room booking for "${visit.propertyTitle ?? "Property"}" is confirmed.',
+                  'Congratulations! Your property booking for "${visit.propertyTitle ?? "Property"}" is confirmed.',
               'type': 'booking_alert',
               'created_at': timeStr,
             });
@@ -149,7 +149,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'booking_id': visit.id,
               'property_id': visit.propertyId,
               'title': 'Visit Request Sent ⏳',
-              'message': 'Your room visit request has been sent to the owner for review.',
+              'message': 'Your property visit request has been sent to the owner for review.',
               'type': 'booking_alert',
               'created_at': timeStr,
             });
@@ -194,8 +194,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             'id': synthId,
             'booking_id': bId,
             'property_id': req.propertyId,
-            'title': 'New Visit Request 🏡',
-            'message': 'Requested a room visit.',
+            'title': 'New Property Visit 🏡',
+            'message': 'Requested a property visit.',
             'type': 'booking_request',
             'sender': guestProfile,
             'created_at': timeStr,
@@ -717,16 +717,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white, // Removed yellow fill
+        color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFF59E0B), width: 1.5), // Yellow border
+        border: Border.all(color: const Color(0xFFF59E0B), width: 1.5),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Small pulsing amber dot indicator
           Container(
             width: 8,
             height: 8,
@@ -741,11 +740,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: 'Request sent ',
+                    text: 'Property visit request sent ',
                     style: GoogleFonts.poppins(
                       fontSize: 13.5,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black, // Pure black
+                      color: Colors.black,
                     ),
                   ),
                   TextSpan(
@@ -753,21 +752,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     style: GoogleFonts.poppins(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: Colors.black, // Pure black
+                      color: Colors.black,
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           Text(
             _formatTime(note['created_at']),
             style: GoogleFonts.poppins(
               fontSize: 11,
-              color: Colors.black, // Pure black
+              color: Colors.black,
               fontWeight: FontWeight.w600,
             ),
+          ),
+          const SizedBox(width: 4),
+          IconButton(
+            icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFF94A3B8), size: 18),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+            onPressed: () => _confirmDelete(id, index),
+            tooltip: 'Delete notification',
           ),
         ],
       ),
@@ -812,7 +819,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.fromLTRB(14, 12, 8, 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -873,7 +880,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   const Icon(Icons.person_outline_rounded, size: 11, color: Color(0xFF475569)),
                                   const SizedBox(width: 3),
                                   Text(
-                                    'Guest Request',
+                                    'Property Visit',
                                     style: GoogleFonts.poppins(
                                       fontSize: 10.5,
                                       color: const Color(0xFF475569),
@@ -896,17 +903,45 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.delete_outline_rounded,
+                      color: Color(0xFF94A3B8),
+                      size: 20,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                    onPressed: () => _confirmDelete(id, index),
+                    tooltip: 'Delete notification',
+                  ),
                 ],
               ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Text(
-                _cleanMessage(message),
-                style: GoogleFonts.poppins(
-                  fontSize: 13.5,
-                  color: Colors.black,
-                  height: 1.4,
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.chat_bubble_outline_rounded, size: 15, color: AppTheme.brandColor),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _cleanMessage(message),
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: const Color(0xFF1E293B),
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -1263,6 +1298,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                ),
+                const SizedBox(width: 6),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFF94A3B8), size: 18),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                  onPressed: () => _confirmDelete(id, index),
+                  tooltip: 'Delete notification',
                 ),
               ],
             ),
