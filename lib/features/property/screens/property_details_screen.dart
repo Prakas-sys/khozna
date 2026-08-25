@@ -2095,6 +2095,21 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       ],
                     ],
                   ),
+                  if (_userHasPendingBooking && _pendingBookingStatus == 'pending_approval') ...[
+                    const SizedBox(height: 3),
+                    GestureDetector(
+                      onTap: _cancelRequest,
+                      child: Text(
+                        'Cancel Request',
+                        style: GoogleFonts.inter(
+                          fontSize: 11.5,
+                          color: const Color(0xFFEF4444),
+                          fontWeight: FontWeight.w700,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -2190,29 +2205,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
     if (_userHasPendingBooking) {
       if (_pendingBookingStatus == 'pending_approval') {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            _buildDisabledButton('Pending Approval'),
-            const SizedBox(height: 6),
-            GestureDetector(
-              onTap: _cancelRequest,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Text(
-                  'Cancel Request',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: Colors.red[400],
-                    fontWeight: FontWeight.w700,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
+        return _buildDisabledButton('Pending Approval');
       }
 
       if (_pendingBookingStatus == 'visit_accepted') {
