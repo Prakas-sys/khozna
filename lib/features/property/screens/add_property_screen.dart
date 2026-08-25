@@ -649,9 +649,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             ),
             const SizedBox(height: 12),
             CategoryCard(
-              label: 'Hostel',
-              imagePath: 'assets/images/Hotel.png',
-              value: 'Hostel',
+              label: 'Villa',
+              imagePath: 'assets/images/villa.jpeg',
+              value: 'Villa',
               imageScale: 1.3,
               selectedValue: _selectedCategory,
               onSelect: (v) {

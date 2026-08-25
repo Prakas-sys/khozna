@@ -1518,7 +1518,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                           {'label': 'All', 'icon': Icons.home_work_rounded},
                           {'label': 'Room', 'icon': Icons.meeting_room_rounded},
                           {'label': 'Flat', 'icon': Icons.apartment_rounded},
-                          {'label': 'Apartment', 'icon': Icons.location_city_rounded},
+                          {'label': 'Villa', 'icon': Icons.villa_rounded},
                           {'label': 'Cottage', 'icon': Icons.gite_rounded},
                           {'label': 'Office', 'icon': Icons.business_center_rounded},
                         ].map((cat) {
