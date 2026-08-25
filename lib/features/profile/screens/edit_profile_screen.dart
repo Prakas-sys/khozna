@@ -109,11 +109,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             .maybeSingle();
 
         if (mounted) {
-          final String profStatus = (profile?['kyc_status'] ?? '').toString();
-          final bool isProfileVerified =
-              profStatus == 'verified' ||
-              profStatus == 'approved' ||
-              (profile?['is_verified'] as bool? ?? false);
+          // ONLY trust kyc_verifications table for banner logic.
+          // Don't use profile['is_verified'] or profile['kyc_status'] — those can
+          // be set for legacy reasons and would incorrectly hide the KYC banner.
+          final String kycTableStatus = (kyc?['status'] ?? '').toString().toLowerCase();
+          final bool kycDocVerified = kycTableStatus == 'verified' || kycTableStatus == 'approved';
 
           setState(() {
             _fullNameController.text = profile?['full_name'] ?? '';
@@ -134,14 +134,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _orgController.text = profile?['organization'] ?? '';
             _studentIdUrl = profile?['student_id_url'];
 
+            // Set _kycStatus only from kyc_verifications table
             if (kyc != null) {
               _latitude = (kyc['latitude'] as num?)?.toDouble();
               _longitude = (kyc['longitude'] as num?)?.toDouble();
-              _kycStatus = (isProfileVerified || kyc['status'] == 'verified')
+              _kycStatus = kycDocVerified
                   ? 'verified'
-                  : (kyc['status'] ?? 'pending');
-            } else if (isProfileVerified) {
-              _kycStatus = 'verified';
+                  : (kycTableStatus.isNotEmpty ? kycTableStatus : 'pending');
+            } else {
+              // No kyc record at all → definitely not verified, show banner
+              _kycStatus = 'not_verified';
             }
           });
         }
@@ -508,36 +510,72 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Widget _buildKycHeaderBanner() {
     final bool isVerified = _kycStatus == 'verified';
-    if (isVerified) return const SizedBox.shrink();
-
     final bool isPending = _kycStatus == 'pending';
+
+    // Colors per state
+    final Color bgColor = isVerified
+        ? const Color(0xFFF0FDF4) // green tint
+        : isPending
+            ? const Color(0xFFFFFBEB) // yellow tint
+            : const Color(0xFFFEF2F2); // red tint
+    final Color borderColor = isVerified
+        ? const Color(0xFFBBF7D0)
+        : isPending
+            ? const Color(0xFFFDE68A)
+            : const Color(0xFFFCA5A5);
+    final Color iconBg = isVerified
+        ? const Color(0xFF16A34A)
+        : isPending
+            ? const Color(0xFFF59E0B)
+            : const Color(0xFFEF4444);
+    final Color titleColor = isVerified
+        ? const Color(0xFF14532D)
+        : isPending
+            ? const Color(0xFF92400E)
+            : const Color(0xFF991B1B);
+    final Color subColor = isVerified
+        ? const Color(0xFF166534)
+        : isPending
+            ? const Color(0xFFB45309)
+            : const Color(0xFFB91C1C);
+
+    final String title = isVerified
+        ? 'Identity Verified ✓'
+        : isPending
+            ? 'KYC Under Review'
+            : 'KYC Verification Required';
+    final String subtitle = isVerified
+        ? 'Your identity is confirmed. Other users can trust you on Khozna.'
+        : isPending
+            ? 'Your documents are being reviewed by admin. We\'ll notify you.'
+            : 'Verify your identity to unlock owner features & instant booking.';
+    final IconData iconData = isVerified
+        ? Icons.verified_rounded
+        : isPending
+            ? Icons.hourglass_top_rounded
+            : Icons.shield_outlined;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isPending ? const Color(0xFFFFFBEB) : const Color(0xFFFEF2F2),
+        color: bgColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isPending ? const Color(0xFFFDE68A) : const Color(0xFFFCA5A5),
-        ),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: isPending ? const Color(0xFFF59E0B) : const Color(0xFFEF4444),
+                  color: iconBg,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  isPending ? Icons.hourglass_top_rounded : Icons.shield_outlined,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                child: Icon(iconData, color: Colors.white, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -545,22 +583,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isPending ? 'KYC Verification Under Review' : 'KYC Verification Required',
+                      title,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: isPending ? const Color(0xFF92400E) : const Color(0xFF991B1B),
+                        color: titleColor,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
                     Text(
-                      isPending
-                          ? 'Your identity documents are currently being reviewed by admin.'
-                          : 'Verify your identity to unlock owner features & instant booking.',
+                      subtitle,
                       style: GoogleFonts.inter(
                         fontSize: 12,
-                        color: isPending ? const Color(0xFFB45309) : const Color(0xFFB91C1C),
-                        height: 1.3,
+                        color: subColor,
+                        height: 1.4,
                       ),
                     ),
                   ],
@@ -568,38 +604,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ],
           ),
-          if (!isPending) ...[
+          if (!isVerified && !isPending) ...[
             const SizedBox(height: 14),
-            SizedBox(
-              width: double.infinity,
-              height: 44,
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const KycScreen()),
-                  );
-                  if (result == true) _loadUserData();
-                },
-                icon: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 18),
-                label: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    'Verify Identity Now (KYC)',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
+            GestureDetector(
+              onTap: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const KycScreen()),
+                );
+                if (result == true) _loadUserData();
+              },
+              child: Container(
+                width: double.infinity,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1A2E), // deep navy — max contrast
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.brandColor,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.verified_user_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Verify Identity Now (KYC)',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: 0.1,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
