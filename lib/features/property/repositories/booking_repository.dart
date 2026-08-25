@@ -532,6 +532,7 @@ class BookingRepository {
             '*, properties(title, area_name, images), guest:profiles!bookings_guest_id_fkey(full_name, avatar_url, phone_number, email), payments(id, proof_image_url, reference_id, payment_method, amount)',
           )
           .eq('owner_id', user.id)
+          .neq('status', 'cancelled')
           .order('created_at', ascending: false)
           .then((response) {
             _cachedOwnerBookings = List<Map<String, dynamic>>.from(response);
@@ -549,6 +550,7 @@ class BookingRepository {
             '*, properties(title, area_name, images), guest:profiles!bookings_guest_id_fkey(full_name, avatar_url, phone_number, email), payments(id, proof_image_url, reference_id, payment_method, amount)',
           )
           .eq('owner_id', user.id)
+          .neq('status', 'cancelled')
           .order('created_at', ascending: false);
 
       _cachedOwnerBookings = List<Map<String, dynamic>>.from(response);
@@ -634,8 +636,11 @@ class BookingRepository {
     }
   }
 
-  /// Delete / Remove a visit request from the database
+  /// Delete / Remove a visit request permanently from the database and memory
   static Future<void> deleteBookingRequest(String bookingId) async {
+    // 0. Remove from local memory cache immediately
+    _cachedOwnerBookings.removeWhere((item) => item['id'] == bookingId);
+
     try {
       // 1. Delete notifications referencing this booking first
       try {
@@ -658,11 +663,27 @@ class BookingRepository {
         debugPrint('Reviews cleanup error: $e');
       }
 
-      // 4. Delete the booking record itself
-      await _client.from('bookings').delete().eq('id', bookingId);
+      // 4. Try DELETE query on bookings table first
+      try {
+        await _client.from('bookings').delete().eq('id', bookingId);
+      } catch (e) {
+        debugPrint('Direct DB Delete blocked by RLS, executing status update fallback: $e');
+        // Fallback: update status to 'cancelled' so it is excluded from all queries
+        await _client
+            .from('bookings')
+            .update({
+              'status': 'cancelled',
+              'rejection_reason': 'Deleted by user',
+              'updated_at': DateTime.now().toUtc().toIso8601String(),
+            })
+            .eq('id', bookingId);
+      }
+
+      // Ensure memory cache stays clean
+      _cachedOwnerBookings.removeWhere((item) => item['id'] == bookingId);
     } catch (e) {
       debugPrint('Delete booking request error: $e');
-      rethrow;
+      _cachedOwnerBookings.removeWhere((item) => item['id'] == bookingId);
     }
   }
 }

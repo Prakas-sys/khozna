@@ -8,6 +8,7 @@ import 'package:khozna/features/property/screens/booking_status_screen.dart';
 import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
 import 'package:khozna/features/property/screens/payment_choice_screen.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
+import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 

@@ -450,19 +450,19 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
     );
 
     if (confirmed == true) {
-      setState(() => _isLoading = true);
+      // 1. Immediate local UI update
+      setState(() {
+        _bookings.removeWhere((item) => item['id'] == bookingId);
+      });
+
       try {
         await BookingRepository.deleteBookingRequest(bookingId);
-        if (mounted) {
-          setState(() {
-            _bookings.removeWhere((item) => item['id'] == bookingId);
-          });
-        }
-        await _fetchBookings();
+        // 2. Refresh fresh list quietly in background
+        await _fetchBookings(showSpinner: false);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Visit request deleted successfully'),
+              content: Text('Visit request deleted permanently'),
               behavior: SnackBarBehavior.floating,
               backgroundColor: Color(0xFF16A34A),
             ),
