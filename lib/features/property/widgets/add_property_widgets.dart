@@ -455,13 +455,13 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                 Container(
                   width: 62,
                   height: 62,
-                  padding: EdgeInsets.all(isPhoto ? 0 : 5),
+                  padding: EdgeInsets.all(isPhoto ? 3.5 : 5),
                   decoration: BoxDecoration(
                     color: isSelected ? AppTheme.brandColor.withOpacity(0.08) : const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                     child: Image.asset(
                       widget.imagePath,
                       fit: isPhoto ? BoxFit.cover : BoxFit.contain,

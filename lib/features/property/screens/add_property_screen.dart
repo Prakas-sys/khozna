@@ -625,8 +625,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             ),
             const SizedBox(height: 12),
             CategoryCard(
-              label: 'Flat / Apartment',
-              imagePath: 'assets/images/flat (2).png',
+              label: 'Flat',
+              imagePath: 'assets/images/flat.png',
               value: 'Flat',
               imageScale: 1.3,
               selectedValue: _selectedCategory,
@@ -637,7 +637,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             ),
             const SizedBox(height: 12),
             CategoryCard(
-              label: 'Cottage / House',
+              label: 'Cottage',
               imagePath: 'assets/images/cottage (2).png',
               value: 'Cottage',
               imageScale: 1.3,
@@ -1955,10 +1955,8 @@ class _OtherCategoryScreenState extends State<OtherCategoryScreen> {
   final TextEditingController _customController = TextEditingController();
   
   final List<Map<String, String>> _suggestions = [
-    {'name': 'Villa', 'icon': '🏰'},
     {'name': 'Hotel', 'icon': '🛎️'},
     {'name': 'Office Space', 'icon': '🏢'},
-    {'name': 'Shutter', 'icon': '🏬'},
     {'name': 'Godown/Warehouse', 'icon': '📦'},
     {'name': 'Farm Cottage', 'icon': '🌾'},
     {'name': 'Event Hall', 'icon': '🏛️'},
@@ -1977,7 +1975,7 @@ class _OtherCategoryScreenState extends State<OtherCategoryScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'অন্য सम्पत्ति प्रकार / Other Type',
+          'Other Type',
           style: GoogleFonts.inter(
             color: const Color(0xFF1E293B),
             fontWeight: FontWeight.w700,
