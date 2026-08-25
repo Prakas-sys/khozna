@@ -516,8 +516,11 @@ class BookingRepository {
   }
 
   static List<Map<String, dynamic>> _cachedOwnerBookings = [];
+  static final Set<String> _deletedBookingIds = {};
 
-  static List<Map<String, dynamic>> get cachedOwnerBookings => _cachedOwnerBookings;
+  static List<Map<String, dynamic>> get cachedOwnerBookings {
+    return _cachedOwnerBookings.where((item) => !_deletedBookingIds.contains(item['id']?.toString())).toList();
+  }
 
   static Future<List<Map<String, dynamic>>> getOwnerBookings({bool forceRefresh = false}) async {
     final user = _client.auth.currentUser;
@@ -525,6 +528,7 @@ class BookingRepository {
 
     // Return cached result immediately if available
     if (_cachedOwnerBookings.isNotEmpty && !forceRefresh) {
+      final filteredCache = _cachedOwnerBookings.where((item) => !_deletedBookingIds.contains(item['id']?.toString())).toList();
       // Refresh in background asynchronously
       _client
           .from('bookings')
@@ -535,12 +539,15 @@ class BookingRepository {
           .neq('status', 'cancelled')
           .order('created_at', ascending: false)
           .then((response) {
-            _cachedOwnerBookings = List<Map<String, dynamic>>.from(response);
+            final fresh = List<Map<String, dynamic>>.from(response)
+                .where((item) => !_deletedBookingIds.contains(item['id']?.toString()))
+                .toList();
+            _cachedOwnerBookings = fresh;
           })
           .catchError((e) {
             debugPrint('Background fetch owner bookings error: $e');
           });
-      return _cachedOwnerBookings;
+      return filteredCache;
     }
 
     try {
@@ -553,11 +560,14 @@ class BookingRepository {
           .neq('status', 'cancelled')
           .order('created_at', ascending: false);
 
-      _cachedOwnerBookings = List<Map<String, dynamic>>.from(response);
+      final fresh = List<Map<String, dynamic>>.from(response)
+          .where((item) => !_deletedBookingIds.contains(item['id']?.toString()))
+          .toList();
+      _cachedOwnerBookings = fresh;
       return _cachedOwnerBookings;
     } catch (e) {
       debugPrint('Get owner bookings error: $e');
-      return _cachedOwnerBookings;
+      return _cachedOwnerBookings.where((item) => !_deletedBookingIds.contains(item['id']?.toString())).toList();
     }
   }
 
@@ -638,8 +648,9 @@ class BookingRepository {
 
   /// Delete / Remove a visit request permanently from the database and memory
   static Future<void> deleteBookingRequest(String bookingId) async {
-    // 0. Remove from local memory cache immediately
-    _cachedOwnerBookings.removeWhere((item) => item['id'] == bookingId);
+    // 0. Remove from local memory cache & mark as deleted in memory permanently
+    _deletedBookingIds.add(bookingId);
+    _cachedOwnerBookings.removeWhere((item) => item['id']?.toString() == bookingId);
 
     try {
       // 1. Delete notifications referencing this booking first
@@ -663,12 +674,8 @@ class BookingRepository {
         debugPrint('Reviews cleanup error: $e');
       }
 
-      // 4. Try DELETE query on bookings table first
+      // 4. ALWAYS update status to 'cancelled' so Supabase UPDATE RLS policy marks it cancelled in DB
       try {
-        await _client.from('bookings').delete().eq('id', bookingId);
-      } catch (e) {
-        debugPrint('Direct DB Delete blocked by RLS, executing status update fallback: $e');
-        // Fallback: update status to 'cancelled' so it is excluded from all queries
         await _client
             .from('bookings')
             .update({
@@ -677,13 +684,24 @@ class BookingRepository {
               'updated_at': DateTime.now().toUtc().toIso8601String(),
             })
             .eq('id', bookingId);
+      } catch (e) {
+        debugPrint('Status update cancellation error: $e');
       }
 
-      // Ensure memory cache stays clean
-      _cachedOwnerBookings.removeWhere((item) => item['id'] == bookingId);
+      // 5. Try direct SQL DELETE as well
+      try {
+        await _client.from('bookings').delete().eq('id', bookingId);
+      } catch (e) {
+        debugPrint('Direct DB Delete error: $e');
+      }
+
+      // 6. Ensure memory cache stays clean
+      _deletedBookingIds.add(bookingId);
+      _cachedOwnerBookings.removeWhere((item) => item['id']?.toString() == bookingId);
     } catch (e) {
       debugPrint('Delete booking request error: $e');
-      _cachedOwnerBookings.removeWhere((item) => item['id'] == bookingId);
+      _deletedBookingIds.add(bookingId);
+      _cachedOwnerBookings.removeWhere((item) => item['id']?.toString() == bookingId);
     }
   }
 }
