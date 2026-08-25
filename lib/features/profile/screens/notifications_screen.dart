@@ -241,7 +241,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       if (mounted) setState(() => _isLoading = false);
     }
 
-    // Mark as read in background without blocking UI load
+    // Pre-warm owner bookings cache & mark as read in background without blocking UI load
+    BookingRepository.getOwnerBookings();
     SupabaseService.markNotificationsAsRead();
   }
 
@@ -929,7 +930,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.chat_bubble_outline_rounded, size: 15, color: AppTheme.brandColor),
+                    SvgPicture.asset(
+                      'assets/icons/Message neww.svg',
+                      width: 15,
+                      height: 15,
+                      colorFilter: const ColorFilter.mode(AppTheme.brandColor, BlendMode.srcIn),
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -985,230 +991,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  void _showRequestActionSheet(
-    BuildContext context,
-    Map<String, dynamic> note,
-    String id,
-    int index,
-    dynamic sender,
-  ) {
-    final String bookingId = note['booking_id']?.toString() ?? '';
-    final String message = note['message']?.toString() ?? '';
-    String propertyTitle = 'Your Property';
-    if (message.contains('"')) {
-      final RegExp titleRegex = RegExp(r'"(.+)"');
-      final match = titleRegex.firstMatch(message);
-      if (match != null) propertyTitle = match.group(1)!;
-    }
-    final String guestName = sender?['full_name']?.toString() ?? 'Guest';
-    bool acting = false;
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setSheetState) {
-          return Container(
-            padding: const EdgeInsets.all(24),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE2E8F0),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    _buildAvatar(sender, radius: 26),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                guestName,
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 17,
-                                  color: const Color(0xFF0F172A),
-                                ),
-                              ),
-                              if (sender?['kyc_status'] == 'verified') ...[
-                                const SizedBox(width: 6),
-                                const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 16),
-                              ],
-                            ],
-                          ),
-                          Text(
-                            sender?['area_name'] ?? 'Room Visit Request',
-                            style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              color: const Color(0xFF64748B),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.info_outline_rounded, color: Color(0xFF64748B)),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        _showGuestProfile(context, sender);
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Property',
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: const Color(0xFF94A3B8),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        propertyTitle,
-                        style: GoogleFonts.poppins(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF0F172A),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        _cleanMessage(message),
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          color: const Color(0xFF475569),
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                acting
-                    ? const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(12),
-                          child: CircularProgressIndicator(color: AppTheme.brandColor, strokeWidth: 2),
-                        ),
-                      )
-                    : Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                final String? reason = await _showRejectionReasonPicker(context);
-                                if (reason == null) return;
-                                setSheetState(() => acting = true);
-                                try {
-                                  await SupabaseService.rejectVisit(
-                                    bookingId: bookingId,
-                                    notificationId: id,
-                                    reason: reason,
-                                  );
-                                  if (context.mounted) Navigator.pop(context);
-                                  if (mounted) setState(() => _notifications.removeAt(index));
-                                } catch (_) {
-                                  setSheetState(() => acting = false);
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFDC2626), // Clear Crimson Red
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                              ),
-                              child: Text(
-                                'Decline',
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                setSheetState(() => acting = true);
-                                final ownerProfile = await SupabaseService.getUserProfile(
-                                  SupabaseService.currentUserId,
-                                );
-                                final ownerName = ownerProfile?.fullName ?? 'The owner';
-                                try {
-                                  await SupabaseService.approveVisit(
-                                    bookingId: bookingId,
-                                    ownerName: ownerName,
-                                    notificationId: id,
-                                  );
-                                  if (context.mounted) Navigator.pop(context);
-                                  if (mounted) setState(() => _notifications.removeAt(index));
-                                } catch (_) {
-                                  setSheetState(() => acting = false);
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF25D366), // Authentic WhatsApp Green
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                              ),
-                              child: Text(
-                                'Approve',
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
 
   /// Booking Approved card — shown to the guest
   Widget _buildBookingApprovedCard(

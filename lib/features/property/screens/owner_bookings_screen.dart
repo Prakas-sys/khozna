@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
@@ -23,20 +24,29 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
   @override
   void initState() {
     super.initState();
+    // Instant 0ms load using in-memory cache if available (React-style instant transition)
+    if (BookingRepository.cachedOwnerBookings.isNotEmpty) {
+      _bookings = List<Map<String, dynamic>>.from(BookingRepository.cachedOwnerBookings);
+      _isLoading = false;
+    }
     _fetchBookings();
   }
 
-  Future<void> _fetchBookings() async {
-    setState(() => _isLoading = true);
+  Future<void> _fetchBookings({bool showSpinner = false}) async {
+    if (_bookings.isEmpty || showSpinner) {
+      setState(() => _isLoading = true);
+    }
     try {
-      final data = await BookingRepository.getOwnerBookings();
-      setState(() {
-        _bookings = data;
-        _isLoading = false;
-      });
+      final data = await BookingRepository.getOwnerBookings(forceRefresh: true);
+      if (mounted) {
+        setState(() {
+          _bookings = data;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       debugPrint('Error fetching owner bookings: $e');
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -397,13 +407,94 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
     }
   }
 
+  Future<void> _confirmDeleteBooking(String bookingId) async {
+    HapticFeedback.lightImpact();
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          'Delete Visit Request',
+          style: GoogleFonts.plusJakartaSans(
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to delete this property visit request?',
+          style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF475569)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.inter(color: Colors.grey[600], fontWeight: FontWeight.w600),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Text(
+              'Delete',
+              style: GoogleFonts.inter(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      setState(() => _isLoading = true);
+      try {
+        await BookingRepository.deleteBookingRequest(bookingId);
+        if (mounted) {
+          setState(() {
+            _bookings.removeWhere((item) => item['id'] == bookingId);
+          });
+        }
+        await _fetchBookings();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Visit request deleted successfully'),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Color(0xFF16A34A),
+            ),
+          );
+        }
+      } catch (e) {
+        final String errStr = e.toString();
+        final String userFriendlyMsg = errStr.contains('SocketException') || errStr.contains('Failed host lookup')
+            ? 'Network error: Please check your internet connection and try again.'
+            : 'Failed to delete visit request. Please try again.';
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(userFriendlyMsg),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.red.shade700,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         title: Text(
-          'Visit Requests',
+          'Property Visits',
           style: GoogleFonts.plusJakartaSans(
             fontWeight: FontWeight.w800,
             fontSize: 18,
@@ -433,7 +524,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
               onRefresh: _fetchBookings,
               color: AppTheme.brandColor,
               child: ListView.builder(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 itemCount: _bookings.length,
                 itemBuilder: (context, index) =>
                     _buildBookingCard(_bookings[index]),
@@ -450,7 +541,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
     final total = booking['total_price'] ?? 0;
     final String? message = booking['message']?.toString();
     final String? guestPhone = guest?['phone_number']?.toString();
-    final String? guestEmail = guest?['email']?.toString();
+    final int visitorCount = booking['guests'] ?? booking['guest_count'] ?? booking['visiting_count'] ?? booking['visitors_count'] ?? 1;
 
     // Extract property image
     String? propertyImg;
@@ -462,50 +553,125 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.025),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top Row: Status Badge & Request Date
+          // Header: Visitor Info + Status Badge + Delete Button
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            padding: const EdgeInsets.fromLTRB(14, 12, 8, 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildStatusBadge(status),
-                Text(
-                  DateFormat('MMM dd, yyyy').format(DateTime.parse(booking['created_at'])),
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: Colors.grey[500],
-                    fontWeight: FontWeight.w500,
+                CircleAvatar(
+                  radius: 18,
+                  backgroundImage: guest?['avatar_url'] != null
+                      ? NetworkImage(guest!['avatar_url'])
+                      : null,
+                  backgroundColor: const Color(0xFFF1F5F9),
+                  child: guest?['avatar_url'] == null
+                      ? const Icon(Icons.person_rounded, size: 20, color: Color(0xFF64748B))
+                      : null,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              guest?['full_name'] ?? 'Visitor',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                color: const Color(0xFF0F172A),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (guest?['kyc_status'] == 'verified') ...[
+                            const SizedBox(width: 4),
+                            const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 13),
+                          ],
+                          const SizedBox(width: 6),
+                          _buildStatusBadge(status),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        DateFormat('MMM dd, yyyy').format(DateTime.parse(booking['created_at'])),
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: const Color(0xFF94A3B8),
+                        ),
+                      ),
+                    ],
                   ),
+                ),
+                // Phone & Chat Icons
+                if (guestPhone != null && guestPhone.isNotEmpty) ...[
+                  IconButton(
+                    icon: const Icon(Icons.phone_rounded, size: 18, color: Color(0xFF16A34A)),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                    onPressed: () => _makePhoneCall(guestPhone),
+                    tooltip: 'Call visitor',
+                  ),
+                ],
+                IconButton(
+                  icon: SvgPicture.asset(
+                    'assets/icons/Message neww.svg',
+                    width: 18,
+                    height: 18,
+                    colorFilter: const ColorFilter.mode(AppTheme.brandColor, BlendMode.srcIn),
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => chat_page.ChatScreen(
+                          ownerId: booking['guest_id'],
+                          name: guest?['full_name'] ?? 'Visitor',
+                          avatar: guest?['avatar_url'] ?? '',
+                          online: true,
+                        ),
+                      ),
+                    );
+                  },
+                  tooltip: 'Chat with visitor',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFF94A3B8), size: 19),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  onPressed: () => _confirmDeleteBooking(booking['id']),
+                  tooltip: 'Delete request',
                 ),
               ],
             ),
           ),
 
+          const Divider(height: 1, color: Color(0xFFF1F5F9)),
+
           // Property Snapshot Card
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
+          Padding(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
             child: Row(
               children: [
                 ClipRRect(
@@ -513,15 +679,15 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                   child: propertyImg != null && propertyImg.isNotEmpty
                       ? KhoznaImage(
                           imageUrl: propertyImg,
-                          width: 50,
-                          height: 50,
+                          width: 46,
+                          height: 46,
                           fit: BoxFit.cover,
                         )
                       : Container(
-                          width: 50,
-                          height: 50,
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.home_outlined, color: Colors.grey),
+                          width: 46,
+                          height: 46,
+                          color: const Color(0xFFF1F5F9),
+                          child: const Icon(Icons.home_outlined, color: Color(0xFF94A3B8)),
                         ),
                 ),
                 const SizedBox(width: 12),
@@ -533,252 +699,125 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                         property?['title'] ?? 'Property',
                         style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w700,
-                          fontSize: 14,
+                          fontSize: 13.5,
                           color: const Color(0xFF0F172A),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (property?['area_name'] != null) ...[
-                        const SizedBox(height: 2),
-                        Row(
-                          children: [
-                            const Icon(Icons.location_on_outlined, size: 12, color: AppTheme.brandColor),
-                            const SizedBox(width: 2),
-                            Text(
-                              property!['area_name'],
-                              style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
-                            ),
-                          ],
+                      const SizedBox(height: 2),
+                      if (property?['area_name'] != null)
+                        Text(
+                          property!['area_name'],
+                          style: GoogleFonts.inter(fontSize: 11.5, color: const Color(0xFF64748B)),
                         ),
-                      ],
                     ],
                   ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      'Rs. ${PriceFormatter.format(total.toString())}',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 15,
-                        color: AppTheme.brandColor,
-                      ),
-                    ),
-                    Text(
-                      'Rent',
-                      style: GoogleFonts.inter(fontSize: 10, color: Colors.grey),
-                    ),
-                  ],
+                Text(
+                  'Rs. ${PriceFormatter.format(total.toString())}',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                    color: AppTheme.brandColor,
+                  ),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(height: 14),
-          const Divider(height: 1, color: Color(0xFFF1F5F9)),
-
-          // Visitor Contact & Info Header
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          // Visit Schedule & Visitor Count Row
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 22,
-                      backgroundImage: guest?['avatar_url'] != null
-                          ? NetworkImage(guest!['avatar_url'])
-                          : null,
-                      backgroundColor: Colors.grey[100],
-                      child: guest?['avatar_url'] == null
-                          ? const Icon(Icons.person_rounded, color: Colors.grey)
-                          : null,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            guest?['full_name'] ?? 'Visitor',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 15,
-                              color: const Color(0xFF0F172A),
-                            ),
-                          ),
-                          if (guestPhone != null && guestPhone.isNotEmpty)
-                            Text(
-                              guestPhone,
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            )
-                          else if (guestEmail != null && guestEmail.isNotEmpty)
-                            Text(
-                              guestEmail,
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Quick Action Buttons: Call & Chat
-                    if (guestPhone != null && guestPhone.isNotEmpty) ...[
-                      InkWell(
-                        onTap: () => _makePhoneCall(guestPhone),
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFDCFCE7),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(Icons.phone_rounded, size: 18, color: Color(0xFF16A34A)),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => chat_page.ChatScreen(
-                              ownerId: booking['guest_id'],
-                              name: guest?['full_name'] ?? 'Visitor',
-                              avatar: guest?['avatar_url'] ?? '',
-                              online: true,
-                            ),
-                          ),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppTheme.brandColor.withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(Icons.chat_bubble_outline_rounded, size: 18, color: AppTheme.brandColor),
-                      ),
-                    ),
-                  ],
+                const Icon(Icons.calendar_today_rounded, size: 13, color: AppTheme.brandColor),
+                const SizedBox(width: 6),
+                Text(
+                  DateFormat('EEE, MMM dd • hh:mm a').format(checkIn),
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF1E293B),
+                  ),
                 ),
-
-                const SizedBox(height: 16),
-
-                // Scheduled Date & Time Detail Box
+                const Spacer(),
                 Container(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9).withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(14),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFCBD5E1)),
                   ),
                   child: Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
+                      const Icon(Icons.people_outline_rounded, size: 12, color: Color(0xFF475569)),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$visitorCount ${visitorCount == 1 ? "Visitor" : "Visitors"}',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF334155),
                         ),
-                        child: const Icon(Icons.calendar_month_rounded, color: AppTheme.brandColor, size: 20),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Scheduled Visit Date',
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                color: Colors.grey[600],
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Text(
-                              DateFormat('EEEE, MMM dd, yyyy').format(checkIn),
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF0F172A),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Time Slot',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Text(
-                            DateFormat('hh:mm a').format(checkIn),
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w800,
-                              color: AppTheme.brandColor,
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),
                 ),
-
-                // Message / Note from Guest
-                if (message != null && message.trim().isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.amber.shade200),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(Icons.notes_rounded, size: 16, color: Colors.amber.shade800),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            message,
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: Colors.amber.shade900,
-                              height: 1.4,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
+
+          // Message / Note from Guest
+          if (message != null && message.trim().isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFBEB),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFFDE68A)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/Message neww.svg',
+                      width: 14,
+                      height: 14,
+                      colorFilter: const ColorFilter.mode(Color(0xFFD97706), BlendMode.srcIn),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        message,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: const Color(0xFF92400E),
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 12),
 
           // Action Buttons: Pending Approval or Paid
           if (status == 'pending_approval' || status == 'paid')
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
               child: Column(
                 children: [
                   if (status == 'pending_approval') ...[
@@ -786,112 +825,93 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                       children: [
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: () {
-                              _showRejectReasonPicker(booking['id']);
-                            },
+                            onPressed: () => _showRejectReasonPicker(booking['id']),
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.red,
-                              side: const BorderSide(color: Colors.red),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              foregroundColor: const Color(0xFFDC2626),
+                              side: const BorderSide(color: Color(0xFFFECDD3)),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(10),
                               ),
                             ),
                             child: Text(
                               'Decline',
-                              style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () =>
-                                _showApproveTimePicker(booking),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.brandColor,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: Text(
-                              'Accept Visit',
-                              style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    OutlinedButton.icon(
-                      onPressed: () =>
-                          _handleAction(booking['id'], 'suggest_time'),
-                      icon: const Icon(Icons.access_time_rounded, size: 16),
-                      label: Text(
-                        'Suggest New Time',
-                        style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w600),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.blueGrey,
-                        side: BorderSide(
-                          color: Colors.blueGrey.withOpacity(0.3),
-                        ),
-                        minimumSize: const Size(double.infinity, 44),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (status == 'paid') ...[
-                    _buildPaymentProofSection(booking),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () =>
-                                _handleAction(booking['id'], 'reject_payment'),
-                            icon: const Icon(Icons.close_rounded, size: 16),
-                            label: Text(
-                              'Reject Payment',
                               style: GoogleFonts.plusJakartaSans(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 13,
                               ),
                             ),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.red,
-                              side: const BorderSide(color: Colors.red),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () => _showApproveTimePicker(booking),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.brandColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 10),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              'Accept Visit',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                      ],
+                    ),
+                  ],
+                  if (status == 'paid') ...[
+                    _buildPaymentProofSection(booking),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () => _handleAction(booking['id'], 'reject_payment'),
+                            icon: const Icon(Icons.close_rounded, size: 16),
+                            label: Text(
+                              'Reject Payment',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12.5,
+                              ),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFFDC2626),
+                              side: const BorderSide(color: Color(0xFFFECDD3)),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () =>
-                                _handleAction(booking['id'], 'confirm_payment'),
+                            onPressed: () => _handleAction(booking['id'], 'confirm_payment'),
                             icon: const Icon(Icons.check_circle_rounded, size: 16),
                             label: Text(
                               'Confirm Payment',
                               style: GoogleFonts.plusJakartaSans(
                                 fontWeight: FontWeight.w800,
-                                fontSize: 13,
+                                fontSize: 12.5,
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF16A34A),
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(10),
                               ),
                               elevation: 0,
                             ),
@@ -914,11 +934,11 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
     switch (status) {
       case 'pending_approval':
         color = Colors.orange;
-        label = 'Visit Requested';
+        label = 'Pending';
         break;
       case 'visit_accepted':
         color = Colors.blue;
-        label = 'Visit Approved';
+        label = 'Approved';
         break;
       case 'awaiting_payment':
         color = Colors.indigo;
@@ -930,11 +950,11 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
         break;
       case 'confirmed':
         color = const Color(0xFF16A34A);
-        label = 'Booking Confirmed';
+        label = 'Confirmed';
         break;
       case 'rejected':
         color = Colors.red;
-        label = 'Visit Declined';
+        label = 'Declined';
         break;
       default:
         color = Colors.grey;

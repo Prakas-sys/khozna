@@ -515,17 +515,48 @@ class BookingRepository {
     return (response as List).map((e) => BookingModel.fromMap(e)).toList();
   }
 
-  static Future<List<Map<String, dynamic>>> getOwnerBookings() async {
+  static List<Map<String, dynamic>> _cachedOwnerBookings = [];
+
+  static List<Map<String, dynamic>> get cachedOwnerBookings => _cachedOwnerBookings;
+
+  static Future<List<Map<String, dynamic>>> getOwnerBookings({bool forceRefresh = false}) async {
     final user = _client.auth.currentUser;
     if (user == null) return [];
-    final response = await _client
-        .from('bookings')
-        .select(
-          '*, properties(title, area_name, images), guest:profiles!bookings_guest_id_fkey(full_name, avatar_url, phone_number, email), payments(id, proof_image_url, reference_id, payment_method, amount)',
-        )
-        .eq('owner_id', user.id)
-        .order('created_at', ascending: false);
-    return List<Map<String, dynamic>>.from(response);
+
+    // Return cached result immediately if available
+    if (_cachedOwnerBookings.isNotEmpty && !forceRefresh) {
+      // Refresh in background asynchronously
+      _client
+          .from('bookings')
+          .select(
+            '*, properties(title, area_name, images), guest:profiles!bookings_guest_id_fkey(full_name, avatar_url, phone_number, email), payments(id, proof_image_url, reference_id, payment_method, amount)',
+          )
+          .eq('owner_id', user.id)
+          .order('created_at', ascending: false)
+          .then((response) {
+            _cachedOwnerBookings = List<Map<String, dynamic>>.from(response);
+          })
+          .catchError((e) {
+            debugPrint('Background fetch owner bookings error: $e');
+          });
+      return _cachedOwnerBookings;
+    }
+
+    try {
+      final response = await _client
+          .from('bookings')
+          .select(
+            '*, properties(title, area_name, images), guest:profiles!bookings_guest_id_fkey(full_name, avatar_url, phone_number, email), payments(id, proof_image_url, reference_id, payment_method, amount)',
+          )
+          .eq('owner_id', user.id)
+          .order('created_at', ascending: false);
+
+      _cachedOwnerBookings = List<Map<String, dynamic>>.from(response);
+      return _cachedOwnerBookings;
+    } catch (e) {
+      debugPrint('Get owner bookings error: $e');
+      return _cachedOwnerBookings;
+    }
   }
 
   /// Guest submits a review after visiting
@@ -600,6 +631,38 @@ class BookingRepository {
     } catch (e) {
       debugPrint('Error fetching owner reviews: $e');
       return [];
+    }
+  }
+
+  /// Delete / Remove a visit request from the database
+  static Future<void> deleteBookingRequest(String bookingId) async {
+    try {
+      // 1. Delete notifications referencing this booking first
+      try {
+        await _client.from('notifications').delete().eq('booking_id', bookingId);
+      } catch (e) {
+        debugPrint('Notification cleanup error: $e');
+      }
+
+      // 2. Delete payments referencing this booking
+      try {
+        await _client.from('payments').delete().eq('booking_id', bookingId);
+      } catch (e) {
+        debugPrint('Payments cleanup error: $e');
+      }
+
+      // 3. Delete reviews referencing this booking
+      try {
+        await _client.from('reviews').delete().eq('booking_id', bookingId);
+      } catch (e) {
+        debugPrint('Reviews cleanup error: $e');
+      }
+
+      // 4. Delete the booking record itself
+      await _client.from('bookings').delete().eq('id', bookingId);
+    } catch (e) {
+      debugPrint('Delete booking request error: $e');
+      rethrow;
     }
   }
 }
