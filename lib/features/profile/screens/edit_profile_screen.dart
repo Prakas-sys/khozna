@@ -395,6 +395,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      _buildKycHeaderBanner(),
                       _buildAirbnbHeader('Public profile'),
                       const SizedBox(height: 24),
                       _buildAirbnbField(
@@ -418,11 +419,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       _buildAirbnbHeader('Tell your story'),
                       const SizedBox(height: 24),
                       _buildAirbnbField(
-                        'Neighborhood / छरछिमेक',
-                        _areaController,
-                        focusNode: _focusNodes['area'],
-                      ),
-                      _buildAirbnbField(
                         'Role',
                         _userTypeController,
                         focusNode: _focusNodes['role'],
@@ -440,7 +436,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
 
                       const SizedBox(height: 24),
-                      _buildSecuritySection(),
+                      _buildLocationSection(),
                       const SizedBox(height: 32),
 
                       _buildAirbnbHeader('Payout options'),
@@ -507,6 +503,109 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         const SizedBox(width: 16),
       ],
+    );
+  }
+
+  Widget _buildKycHeaderBanner() {
+    final bool isVerified = _kycStatus == 'verified';
+    if (isVerified) return const SizedBox.shrink();
+
+    final bool isPending = _kycStatus == 'pending';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isPending ? const Color(0xFFFFFBEB) : const Color(0xFFFEF2F2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isPending ? const Color(0xFFFDE68A) : const Color(0xFFFCA5A5),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: isPending ? const Color(0xFFF59E0B) : const Color(0xFFEF4444),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  isPending ? Icons.hourglass_top_rounded : Icons.shield_outlined,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isPending ? 'KYC Verification Under Review' : 'KYC Verification Required',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: isPending ? const Color(0xFF92400E) : const Color(0xFF991B1B),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      isPending
+                          ? 'Your identity documents are currently being reviewed by admin.'
+                          : 'Verify your identity to unlock owner features & instant booking.',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: isPending ? const Color(0xFFB45309) : const Color(0xFFB91C1C),
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (!isPending) ...[
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              height: 44,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const KycScreen()),
+                  );
+                  if (result == true) _loadUserData();
+                },
+                icon: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 18),
+                label: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'Verify Identity Now (KYC)',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.brandColor,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
@@ -706,10 +805,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildSecuritySection() {
-    // Only trust kyc_status from the database — do NOT treat lat/lng as verification proof
-    final bool isVerified = _kycStatus == 'verified';
-
+  Widget _buildLocationSection() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -722,87 +818,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Text(
-                  'Identity & Trust',
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: colorTextPrimary,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: isVerified
-                      ? AppTheme.brandColor.withOpacity(0.1)
-                      : _kycStatus == 'pending'
-                      ? const Color(0xFFFFF8E1)
-                      : const Color(0xFFFFF1F1),
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isVerified
-                          ? Icons.verified_rounded
-                          : _kycStatus == 'pending'
-                          ? Icons.hourglass_top_rounded
-                          : Icons.info_outline_rounded,
-                      size: 14,
-                      color: isVerified
-                          ? AppTheme.brandColor
-                          : _kycStatus == 'pending'
-                          ? const Color(0xFFF59E0B)
-                          : const Color(0xFFC13511),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      isVerified
-                          ? 'Verified'
-                          : _kycStatus == 'pending'
-                          ? 'Under Review'
-                          : 'Not Verified',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        color: isVerified
-                            ? AppTheme.brandColor
-                            : _kycStatus == 'pending'
-                            ? const Color(0xFFF59E0B)
-                            : const Color(0xFFC13511),
-                      ),
-                    ),
-                  ],
+              const Icon(Icons.location_on_rounded, color: AppTheme.brandColor, size: 22),
+              const SizedBox(width: 10),
+              Text(
+                'Location / ठेगाना',
+                style: GoogleFonts.inter(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: colorTextPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
-            isVerified
-                ? 'Your identity is confirmed. This builds trust with other Khozna users.'
-                : _kycStatus == 'pending'
-                ? 'Your KYC documents are under review. We\'ll notify you once approved.'
-                : 'Submit your citizenship documents, selfie, and location to get verified.',
+            'Pin your exact GPS location to enable distance calculation for guests and nearby services.',
             style: GoogleFonts.inter(
-              fontSize: 14,
+              fontSize: 13,
               color: colorTextSecondary,
-              height: 1.5,
+              height: 1.4,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 20),
-
-          // Location pin button — always available, independent of kyc_status
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
@@ -819,14 +858,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   : Icon(
                       _latitude != null
                           ? Icons.refresh_rounded
-                          : Icons.location_on_rounded,
+                          : Icons.my_location_rounded,
                       size: 18,
                     ),
               label: Text(
                 _isLocating
-                    ? 'Capturing...'
+                    ? 'Capturing GPS...'
                     : (_latitude != null
-                          ? 'Update Location'
+                          ? 'Update GPS Location'
                           : 'Pin My Location'),
               ),
               style: OutlinedButton.styleFrom(
@@ -841,42 +880,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           if (_latitude != null && _longitude != null) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Center(
               child: Text(
                 '📍 Location saved: ${_latitude!.toStringAsFixed(4)}, ${_longitude!.toStringAsFixed(4)}',
                 style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: colorTextSecondary,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ),
-          ],
-
-          // KYC CTA — only show if not yet submitted
-          if (!isVerified && _kycStatus != 'pending') ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => KycScreen()),
-                  );
-                  if (result == true) _loadUserData();
-                },
-                icon: const Icon(Icons.shield_rounded, size: 18),
-                label: const Text('Complete KYC Verification'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.brandColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  textStyle: GoogleFonts.inter(fontWeight: FontWeight.w700),
+                  fontSize: 12,
+                  color: AppTheme.brandColor,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
