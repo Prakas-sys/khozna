@@ -442,6 +442,7 @@ class VerificationCard extends StatelessWidget {
   }
 }
 
+
 class PostPropertyCard extends StatelessWidget {
   final Animation<double> shimmerAnimation;
   final VoidCallback onPost;
