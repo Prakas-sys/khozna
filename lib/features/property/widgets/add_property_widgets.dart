@@ -419,8 +419,6 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     final isSelected = widget.selectedValue == widget.value;
-    final isPhoto = widget.imagePath.toLowerCase().endsWith('.jpeg') ||
-                    widget.imagePath.toLowerCase().endsWith('.jpg');
     
     // Split label to stylize the slash
     final parts = widget.label.split(' / ');
@@ -453,9 +451,9 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
             child: Row(
               children: [
                 Container(
-                  width: 62,
-                  height: 62,
-                  padding: EdgeInsets.all(isPhoto ? 3.5 : 5),
+                  width: 58,
+                  height: 58,
+                  padding: const EdgeInsets.all(7),
                   decoration: BoxDecoration(
                     color: isSelected ? AppTheme.brandColor.withOpacity(0.08) : const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(14),
@@ -464,7 +462,7 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                     borderRadius: BorderRadius.circular(10),
                     child: Image.asset(
                       widget.imagePath,
-                      fit: isPhoto ? BoxFit.cover : BoxFit.contain,
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),
