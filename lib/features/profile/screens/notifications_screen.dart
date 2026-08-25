@@ -905,18 +905,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.delete_outline_rounded,
-                      color: Color(0xFF94A3B8),
-                      size: 20,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                    onPressed: () => _confirmDelete(id, index),
-                    tooltip: 'Delete notification',
-                  ),
+
                 ],
               ),
             ),
@@ -931,13 +920,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ),
                 child: Row(
                   children: [
-                    SvgPicture.asset(
-                      'assets/icons/Message neww.svg',
-                      width: 15,
-                      height: 15,
-                      colorFilter: const ColorFilter.mode(AppTheme.brandColor, BlendMode.srcIn),
-                    ),
-                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         _cleanMessage(message),
@@ -1083,14 +1065,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 6),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFF94A3B8), size: 18),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                  onPressed: () => _confirmDelete(id, index),
-                  tooltip: 'Delete notification',
-                ),
+
               ],
             ),
           ),
@@ -1240,14 +1215,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 6),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFF94A3B8), size: 18),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                  onPressed: () => _confirmDelete(id, index),
-                  tooltip: 'Delete notification',
-                ),
+
               ],
             ),
           ),
