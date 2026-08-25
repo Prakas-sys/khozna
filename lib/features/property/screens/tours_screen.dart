@@ -498,12 +498,12 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                 child: Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF385C).withOpacity(0.2),
+                    color: AppTheme.brandColor.withOpacity(0.2),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.favorite_rounded,
-                    color: Color(0xFFFF385C),
+                    color: AppTheme.brandColor,
                     size: 100,
                   ),
                 ),

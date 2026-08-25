@@ -215,12 +215,12 @@ class _FavouriteButtonState extends State<FavouriteButton> {
       builder: (context, savedIds, _) {
         final bool isLiked = savedIds.contains(widget.propertyId);
         final String strokeColor = isLiked
-            ? '#FF385C'
+            ? '#00A3E1'
             : (widget.color != null
                 ? '#${widget.color!.value.toRadixString(16).padLeft(8, '0').substring(2)}'
                 : '#ffffff');
         final String fillColor = isLiked
-            ? '#FF385C'
+            ? '#00A3E1'
             : (widget.color != null
                 ? 'transparent'
                 : 'rgba(0, 0, 0, 0.4)');
