@@ -146,16 +146,17 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
         for (final kw in keywords) {
           final pattern = '%$kw%';
           conditions.add('area_name.ilike.$pattern');
+          conditions.add('landmark.ilike.$pattern');
+          conditions.add('address.ilike.$pattern');
           conditions.add('title.ilike.$pattern');
           conditions.add('description.ilike.$pattern');
           conditions.add('category.ilike.$pattern');
-          conditions.add('address.ilike.$pattern');
         }
         query = query.or(conditions.join(',')) as dynamic;
       } else {
         final pattern = '%${rawSearchText.replaceAll(RegExp(r'\s+'), '%')}%';
         query = query.or(
-          'area_name.ilike.$pattern,title.ilike.$pattern,description.ilike.$pattern,category.ilike.$pattern,address.ilike.$pattern',
+          'area_name.ilike.$pattern,landmark.ilike.$pattern,address.ilike.$pattern,title.ilike.$pattern,description.ilike.$pattern,category.ilike.$pattern',
         ) as dynamic;
       }
     } else {
@@ -209,23 +210,77 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
       query = query.eq('is_student_friendly', true) as dynamic;
     }
 
+    int calculateRelevance(Map<String, dynamic> p, String searchLower) {
+      int score = 0;
+      final area = (p['area_name'] ?? '').toString().toLowerCase();
+      final landmark = (p['landmark'] ?? '').toString().toLowerCase();
+      final address = (p['address'] ?? '').toString().toLowerCase();
+      final title = (p['title'] ?? '').toString().toLowerCase();
+      final desc = (p['description'] ?? '').toString().toLowerCase();
+      final nearbyLandmarks = (p['nearby_landmarks'] ?? []).toString().toLowerCase();
+
+      final searchTokens = searchLower
+          .split(RegExp(r'\s+'))
+          .where((t) => t.length > 1)
+          .toList();
+
+      for (final token in searchTokens) {
+        if (landmark.contains(token)) score += 50;
+        if (area.contains(token)) score += 40;
+        if (address.contains(token)) score += 30;
+        if (nearbyLandmarks.contains(token)) score += 35;
+        if (title.contains(token)) score += 20;
+        if (desc.contains(token)) score += 10;
+      }
+
+      if (landmark.contains(searchLower) || area.contains(searchLower)) {
+        score += 100;
+      }
+
+      return score;
+    }
+
     try {
       final result = await (query as dynamic)
           .order('is_boosted', ascending: false)
           .order('created_at', ascending: false);
       final list = List<Map<String, dynamic>>.from(result);
 
-      // Smart Fallback: If 0 results found for a location/sentence search, fetch top recommended properties!
+      if (isLocationSearch && rawSearchText.isNotEmpty && list.isNotEmpty) {
+        final searchLower = rawSearchText.toLowerCase();
+        list.sort((a, b) {
+          final scoreA = calculateRelevance(a, searchLower);
+          final scoreB = calculateRelevance(b, searchLower);
+          return scoreB.compareTo(scoreA);
+        });
+      }
+
+      // Smart Deep Sub-location Search Fallback
       if (list.isEmpty && isLocationSearch) {
-        debugPrint('Smart Search Fallback: 0 results for "$rawSearchText", fetching top recommended properties...');
-        final fallbackResult = await Supabase.instance.client
+        debugPrint('Smart Sub-location Search Fallback for "$rawSearchText"...');
+        final allAvailable = await Supabase.instance.client
             .from('properties')
             .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status)')
             .eq('status', 'available')
             .order('is_boosted', ascending: false)
-            .order('created_at', ascending: false)
-            .limit(10);
-        return List<Map<String, dynamic>>.from(fallbackResult);
+            .order('created_at', ascending: false);
+        
+        final allList = List<Map<String, dynamic>>.from(allAvailable);
+        final searchLower = rawSearchText.toLowerCase();
+
+        final subLocationMatches = allList.where((p) {
+          return calculateRelevance(p, searchLower) > 0;
+        }).toList();
+
+        if (subLocationMatches.isNotEmpty) {
+          subLocationMatches.sort((a, b) {
+            return calculateRelevance(b, searchLower).compareTo(calculateRelevance(a, searchLower));
+          });
+          return subLocationMatches;
+        }
+
+        // Final fallback: top recommended properties if no matches exist
+        return allList.take(10).toList();
       }
 
       return list;

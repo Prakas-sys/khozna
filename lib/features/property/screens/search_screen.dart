@@ -1031,14 +1031,14 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
 
       var query = supabase
           .from('properties')
-          .select('id, title, price, area_name, category')
+          .select('id, title, price, area_name, landmark, address, category')
           .eq('status', 'available');
 
       // Simple keyword matching for better context
       if (queryText.isNotEmpty) {
         final doubleQuoteEscaped = '"%$queryText%"';
         query = query.or(
-          'area_name.ilike.$doubleQuoteEscaped,title.ilike.$doubleQuoteEscaped,category.ilike.$doubleQuoteEscaped',
+          'area_name.ilike.$doubleQuoteEscaped,landmark.ilike.$doubleQuoteEscaped,address.ilike.$doubleQuoteEscaped,title.ilike.$doubleQuoteEscaped,category.ilike.$doubleQuoteEscaped',
         );
       }
 

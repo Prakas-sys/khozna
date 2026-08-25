@@ -376,7 +376,7 @@ class PropertyCard extends StatelessWidget {
                         if (!isOwnerView) ...[
                           Expanded(
                             child: SizedBox(
-                              height: 38,
+                              height: (width == double.infinity) ? 48 : 38,
                               child: ElevatedButton(
                                 onPressed: () async {
                                   HapticFeedback.lightImpact();
@@ -413,8 +413,8 @@ class PropertyCard extends StatelessWidget {
                                   children: [
                                     SvgPicture.asset(
                                       'assets/images/view now.svg',
-                                      width: 14,
-                                      height: 10,
+                                      width: (width == double.infinity) ? 16 : 14,
+                                      height: (width == double.infinity) ? 12 : 10,
                                       colorFilter: const ColorFilter.mode(
                                         Colors.white,
                                         BlendMode.srcIn,
@@ -425,7 +425,7 @@ class PropertyCard extends StatelessWidget {
                                       'View Now',
                                       style: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontSize: 13,
+                                        fontSize: (width == double.infinity) ? 14.5 : 13,
                                       ),
                                     ),
                                   ],
@@ -436,7 +436,7 @@ class PropertyCard extends StatelessWidget {
                           SizedBox(width: (width == double.infinity) ? 12 : 8),
                           Expanded(
                             child: SizedBox(
-                              height: 38,
+                              height: (width == double.infinity) ? 48 : 38,
                               child: OutlinedButton(
                                 onPressed: () async {
                                   HapticFeedback.lightImpact();
@@ -479,8 +479,8 @@ class PropertyCard extends StatelessWidget {
                                   children: [
                                     SvgPicture.asset(
                                       'assets/icons/Message neww.svg',
-                                      width: 15,
-                                      height: 15,
+                                      width: (width == double.infinity) ? 17 : 15,
+                                      height: (width == double.infinity) ? 17 : 15,
                                       colorFilter: const ColorFilter.mode(
                                         AppTheme.brandColor,
                                         BlendMode.srcIn,
@@ -491,7 +491,7 @@ class PropertyCard extends StatelessWidget {
                                       'Message',
                                       style: GoogleFonts.inter(
                                         fontWeight: FontWeight.w600,
-                                        fontSize: 13,
+                                        fontSize: (width == double.infinity) ? 14.5 : 13,
                                       ),
                                     ),
                                   ],

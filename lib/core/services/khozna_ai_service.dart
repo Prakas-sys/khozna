@@ -130,7 +130,7 @@ class KhoznaAiService {
 
       if (keywords.isNotEmpty) {
         String filter = keywords
-            .map((k) => 'area_name.ilike.%$k%,title.ilike.%$k%')
+            .map((k) => 'area_name.ilike.%$k%,landmark.ilike.%$k%,address.ilike.%$k%,title.ilike.%$k%,description.ilike.%$k%')
             .join(',');
         query = query.or(filter);
       }
