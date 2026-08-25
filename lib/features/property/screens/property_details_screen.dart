@@ -2128,33 +2128,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       return _buildDisabledButton('Already Booked');
     }
 
-    if (_pendingBookingStatus == 'rejected' ||
-        _pendingBookingStatus == 'visit_completed') {
-      return SizedBox(
-        height: 48,
-        child: ElevatedButton(
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => VisitRequestScreen(property: widget.property),
-            ),
-          ).then((v) => v == true ? _updateBookingStatus() : null),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.brandColor,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(100),
-            ),
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-          ),
-          child: Text(
-            'View Now',
-            style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700),
-          ),
-        ),
-      );
-    }
 
     if (_pendingBookingStatus == 'awaiting_payment') {
       return SizedBox(
@@ -2490,7 +2463,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            'Rs. ${PriceFormatter.format(widget.property.priceMonth > 0 ? widget.property.priceMonth.toStringAsFixed(0) : (double.tryParse(widget.property.price) ?? 0).toStringAsFixed(0))} advance to reserve instantly.',
+                            'Rs. ${PriceFormatter.format(widget.property.priceMonth > 0 ? widget.property.priceMonth.toStringAsFixed(0) : (double.tryParse(widget.property.price) ?? 0).toStringAsFixed(0))} to reserve instantly.',
                             style: GoogleFonts.inter(
                               fontSize: 11.5,
                               color: Colors.white.withOpacity(0.9),

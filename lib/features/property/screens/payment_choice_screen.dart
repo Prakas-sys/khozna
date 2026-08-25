@@ -60,11 +60,28 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   void _initializeData() {
     if (widget.booking != null) {
       _currentBooking = widget.booking!;
-      _currentTitle = widget.propertyTitle ?? 'Property';
+      _currentTitle = widget.propertyTitle ?? _currentBooking.propertyTitle ?? 'Property';
+
+      // Fallback: If totalPrice in booking model is 0, check widget.property
+      if (_currentBooking.totalPrice <= 0 && widget.property != null) {
+        final p = widget.property!;
+        final double pPrice = p.priceMonth > 0
+            ? p.priceMonth
+            : (p.priceNight > 0
+                ? p.priceNight
+                : (double.tryParse(p.price.replaceAll(',', '')) ?? 0));
+        if (pPrice > 0) {
+          _currentBooking = _currentBooking.copyWith(totalPrice: pPrice);
+        }
+      }
     } else if (widget.property != null) {
       final p = widget.property!;
       _currentTitle = p.title;
-      double price = p.priceMonth > 0 ? p.priceMonth : (double.tryParse(p.price) ?? 0);
+      double price = p.priceMonth > 0
+          ? p.priceMonth
+          : (p.priceNight > 0
+              ? p.priceNight
+              : (double.tryParse(p.price.replaceAll(',', '')) ?? 0));
       _currentBooking = BookingModel(
         id: 'draft_${p.id}',
         propertyId: p.id,
@@ -85,6 +102,33 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   Future<void> _loadOwnerPaymentDetails() async {
     try {
       final profile = await SupabaseService.getUserProfile(_currentBooking.ownerId);
+
+      // Extra safeguard: Fetch property price directly from Supabase if totalPrice is still 0
+      if (_currentBooking.totalPrice <= 0 && _currentBooking.propertyId.isNotEmpty) {
+        final propRes = await Supabase.instance.client
+            .from('properties')
+            .select('title, price, price_month, price_night')
+            .eq('id', _currentBooking.propertyId)
+            .maybeSingle();
+
+        if (propRes != null) {
+          final double pm = double.tryParse(propRes['price_month']?.toString() ?? '0') ?? 0;
+          final double pn = double.tryParse(propRes['price_night']?.toString() ?? '0') ?? 0;
+          final double p = double.tryParse(propRes['price']?.toString().replaceAll(',', '') ?? '0') ?? 0;
+
+          final double realPrice = pm > 0 ? pm : (pn > 0 ? pn : p);
+          if (realPrice > 0) {
+            _currentBooking = _currentBooking.copyWith(
+              totalPrice: realPrice,
+              propertyTitle: _currentBooking.propertyTitle ?? propRes['title'],
+            );
+            if (_currentTitle == 'Property' && propRes['title'] != null) {
+              _currentTitle = propRes['title'];
+            }
+          }
+        }
+      }
+
       if (mounted) setState(() { _ownerProfile = profile; _isLoadingOwner = false; });
     } catch (e) {
       if (mounted) setState(() => _isLoadingOwner = false);
@@ -226,11 +270,42 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     }
   }
 
+  bool _isValidPayNumber(String? val) {
+    if (val == null || val.trim().isEmpty) return false;
+    final clean = val.replaceAll(RegExp(r'[^0-9]'), '');
+    if (clean.length < 7) return false;
+    // Check if number is all zeros or repeating single digit (e.g. 00000, 0000000000)
+    if (clean.replaceAll(clean[0], '').isEmpty) return false;
+    return true;
+  }
+
+  String get _ownerEsewaNumber {
+    if (_isValidPayNumber(_ownerProfile?.esewaNumber)) {
+      return _ownerProfile!.esewaNumber!;
+    }
+    if (_isValidPayNumber(_ownerProfile?.phoneNumber)) {
+      return _ownerProfile!.phoneNumber!;
+    }
+    return '';
+  }
+
+  String get _ownerKhaltiNumber {
+    if (_isValidPayNumber(_ownerProfile?.khaltiNumber)) {
+      return _ownerProfile!.khaltiNumber!;
+    }
+    if (_isValidPayNumber(_ownerProfile?.phoneNumber)) {
+      return _ownerProfile!.phoneNumber!;
+    }
+    return '';
+  }
+
   // ── STEP 1 OF 3: CHOOSE PAYMENT PATH (ESCROW VS HOST DIRECT) ──
   Widget _buildStepZeroPathSelection() {
-    final hasHostPayment = _ownerProfile?.esewaNumber?.isNotEmpty == true ||
-        _ownerProfile?.khaltiNumber?.isNotEmpty == true ||
-        _ownerProfile?.qrCodeUrl?.isNotEmpty == true;
+    final hasHostPayment = _ownerEsewaNumber.isNotEmpty ||
+        _ownerKhaltiNumber.isNotEmpty ||
+        (_ownerProfile?.qrCodeUrl != null &&
+            _ownerProfile!.qrCodeUrl!.isNotEmpty &&
+            !_ownerProfile!.qrCodeUrl!.contains('00000'));
 
     return Column(
       children: [
@@ -262,21 +337,21 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                   subtitle: 'Funds are held safely by Khozna & released after you move in. 100% refund protection.',
                   badge: 'RECOMMENDED',
                   icon: Icons.shield_rounded,
-                  iconColor: const Color(0xFF2E7D32),
+                  iconColor: const Color(0xFF25D366),
                 ),
 
                 const SizedBox(height: 12),
 
-                // Option B: Direct to Landlord
+                // Option B: Pay to Owner
                 _buildPathCard(
                   id: 'host_direct',
-                  title: 'Direct to Landlord',
+                  title: 'Pay to Owner',
                   subtitle: hasHostPayment
-                      ? 'Pay directly to host via their eSewa, Khalti, or Bank QR code.'
-                      : 'Host hasn\'t configured direct wallet yet. Use Khozna Escrow.',
+                      ? 'Pay directly to the property owner via eSewa, Khalti, or Bank QR code.'
+                      : 'Owner hasn\'t configured direct wallet yet. Use Khozna Escrow.',
                   badge: 'DIRECT',
-                  icon: Icons.person_rounded,
-                  iconColor: Colors.black87,
+                  icon: Icons.person_pin_rounded,
+                  iconColor: const Color(0xFF2563EB),
                   disabled: !hasHostPayment,
                 ),
               ],
@@ -293,9 +368,9 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             if (_paymentPath == 'khozna_escrow') {
               _selectedMethod = 'khozna_esewa';
             } else {
-              if (_ownerProfile?.esewaNumber?.isNotEmpty == true) {
+              if (_ownerEsewaNumber.isNotEmpty) {
                 _selectedMethod = 'owner_esewa';
-              } else if (_ownerProfile?.khaltiNumber?.isNotEmpty == true) {
+              } else if (_ownerKhaltiNumber.isNotEmpty) {
                 _selectedMethod = 'owner_khalti';
               } else {
                 _selectedMethod = 'owner_qr';
@@ -318,6 +393,9 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     bool disabled = false,
   }) {
     final isSelected = _paymentPath == id;
+    final isEscrow = id == 'khozna_escrow';
+    const whatsappGreen = Color(0xFF25D366);
+    const whatsappDarkGreen = Color(0xFF16A34A);
 
     return GestureDetector(
       onTap: disabled
@@ -333,12 +411,12 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           color: disabled ? const Color(0xFFF1F5F9) : Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected ? Colors.black : Colors.grey[200]!,
+            color: isSelected ? (isEscrow ? whatsappGreen : Colors.black) : Colors.grey[200]!,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isSelected ? 0.04 : 0.01),
+              color: Colors.black.withOpacity(isSelected ? 0.05 : 0.01),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -347,17 +425,38 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: id == 'khozna_escrow' ? const Color(0xFFE8F5E9) : const Color(0xFFF1F5F9),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: 20,
-                color: iconColor,
-              ),
+            Stack(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isEscrow ? const Color(0xFFDCF8C6) : const Color(0xFFEFF6FF),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isEscrow ? Icons.account_balance_wallet_rounded : icon,
+                    size: 22,
+                    color: isEscrow ? whatsappDarkGreen : iconColor,
+                  ),
+                ),
+                if (isEscrow)
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.verified_user_rounded,
+                        size: 14,
+                        color: whatsappDarkGreen,
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -382,8 +481,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
                         decoration: BoxDecoration(
-                          color: id == 'khozna_escrow'
-                              ? const Color(0xFFE8F5E9)
+                          color: isEscrow
+                              ? const Color(0xFFDCF8C6)
                               : const Color(0xFFF1F5F9),
                           borderRadius: BorderRadius.circular(6),
                         ),
@@ -392,8 +491,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                           style: GoogleFonts.inter(
                             fontSize: 9,
                             fontWeight: FontWeight.w800,
-                            color: id == 'khozna_escrow'
-                                ? const Color(0xFF2E7D32)
+                            color: isEscrow
+                                ? whatsappDarkGreen
                                 : const Color(0xFF475569),
                             letterSpacing: 0.5,
                           ),
@@ -410,6 +509,63 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                       height: 1.35,
                     ),
                   ),
+                  if (isEscrow) ...[
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF0FDF4),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFF86EFAC)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.asset('assets/images/esewa.webp', height: 13, width: 13, fit: BoxFit.contain),
+                              const SizedBox(width: 4),
+                              Text('eSewa', style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w700, color: whatsappDarkGreen)),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFAF5FF),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFE1BEE7)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.asset('assets/images/khalti.png', height: 13, width: 13, fit: BoxFit.contain),
+                              const SizedBox(width: 4),
+                              Text('Khalti', style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w700, color: const Color(0xFF5E35B1))),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFCBD5E1)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.qr_code_2_rounded, size: 13, color: Color(0xFF00A3E1)),
+                              const SizedBox(width: 4),
+                              Text('Bank QR', style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w700, color: const Color(0xFF334155))),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -468,25 +624,27 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                     icon: Icons.qr_code_2_rounded,
                   ),
                 ] else ...[
-                  if (_ownerProfile?.esewaNumber?.isNotEmpty == true)
+                  if (_ownerEsewaNumber.isNotEmpty)
                     _buildMethodOptionTile(
                       id: 'owner_esewa',
-                      title: 'Host\'s eSewa Wallet',
-                      subtitle: 'Transfer directly to ${_ownerProfile?.esewaNumber}',
+                      title: 'Owner\'s eSewa Wallet',
+                      subtitle: 'Transfer directly to $_ownerEsewaNumber',
                       logo: 'assets/images/esewa.webp',
                     ),
-                  if (_ownerProfile?.khaltiNumber?.isNotEmpty == true)
+                  if (_ownerKhaltiNumber.isNotEmpty)
                     _buildMethodOptionTile(
                       id: 'owner_khalti',
-                      title: 'Host\'s Khalti Wallet',
-                      subtitle: 'Transfer directly to ${_ownerProfile?.khaltiNumber}',
+                      title: 'Owner\'s Khalti Wallet',
+                      subtitle: 'Transfer directly to $_ownerKhaltiNumber',
                       logo: 'assets/images/khalti.png',
                     ),
-                  if (_ownerProfile?.qrCodeUrl?.isNotEmpty == true)
+                  if (_ownerProfile?.qrCodeUrl != null &&
+                      _ownerProfile!.qrCodeUrl!.isNotEmpty &&
+                      !_ownerProfile!.qrCodeUrl!.contains('00000'))
                     _buildMethodOptionTile(
                       id: 'owner_qr',
-                      title: 'Host\'s Bank QR Code',
-                      subtitle: 'Scan landlord\'s personal QR code',
+                      title: 'Owner\'s Bank QR Code',
+                      subtitle: 'Scan owner\'s personal QR code',
                       icon: Icons.qr_code_scanner_rounded,
                     ),
                 ],
@@ -855,31 +1013,17 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               const SizedBox(height: 16),
 
               Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'TOTAL AMOUNT',
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.grey[500],
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Advance Rent (1 Month)',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      'TOTAL AMOUNT',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.grey[700],
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -965,18 +1109,18 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     if (_selectedMethod == 'owner_esewa') {
       return _buildCopyDetailCard(
         title: 'Owner eSewa Number',
-        number: _ownerProfile?.esewaNumber ?? '',
+        number: _ownerEsewaNumber,
         logo: 'assets/images/esewa.webp',
-        holderName: _ownerProfile?.accountHolderName,
+        holderName: _ownerProfile?.accountHolderName ?? _ownerProfile?.fullName,
         showOpenEsewa: true,
       );
     }
     if (_selectedMethod == 'owner_khalti') {
       return _buildCopyDetailCard(
         title: 'Owner Khalti Number',
-        number: _ownerProfile?.khaltiNumber ?? '',
+        number: _ownerKhaltiNumber,
         logo: 'assets/images/khalti.png',
-        holderName: _ownerProfile?.accountHolderName,
+        holderName: _ownerProfile?.accountHolderName ?? _ownerProfile?.fullName,
         showOpenKhalti: true,
       );
     }

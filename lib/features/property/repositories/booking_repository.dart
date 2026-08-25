@@ -408,6 +408,42 @@ class BookingRepository {
             .update({'status': 'booked'})
             .eq('id', propertyId);
         debugPrint('Long-term property $propertyId marked as BOOKED (Hidden)');
+
+        // 4. Airbnb Logic: Auto-cancel all other pending visit/booking requests for this property
+        try {
+          final pendingOthers = await _client
+              .from('bookings')
+              .select('id, guest_id')
+              .eq('property_id', propertyId)
+              .neq('id', bookingId)
+              .inFilter('status', ['pending_approval', 'visit_accepted', 'awaiting_payment']);
+
+          for (var p in pendingOthers) {
+            final otherBookingId = p['id'].toString();
+            final otherGuestId = p['guest_id'].toString();
+
+            await _client
+                .from('bookings')
+                .update({
+                  'status': 'cancelled',
+                  'rejection_reason': 'Property booked by another guest',
+                  'updated_at': DateTime.now().toUtc().toIso8601String(),
+                })
+                .eq('id', otherBookingId);
+
+            await _client.from('notifications').insert({
+              'user_id': otherGuestId,
+              'sender_id': _client.auth.currentUser?.id,
+              'title': 'प्रोपर्टी बुक भयो (Property Booked)',
+              'message': 'यो कोठा अर्को ग्राहकद्वारा बुक भइसकेको छ।',
+              'type': 'booking_alert',
+              'property_id': propertyId,
+              'booking_id': otherBookingId,
+            });
+          }
+        } catch (e) {
+          debugPrint('Error auto-cancelling other pending bookings: $e');
+        }
       } else {
         debugPrint('Nightly property $propertyId remains AVAILABLE for other dates');
       }
@@ -443,16 +479,26 @@ class BookingRepository {
   static Future<BookingModel?> getBookingById(String bookingId) async {
     final response = await _client
         .from('bookings')
-        .select('*, properties(title)')
+        .select('*, properties(title, price, price_month, price_night)')
         .eq('id', bookingId)
         .maybeSingle();
 
     if (response == null) return null;
 
-    // Add property title to the model if it exists
+    // Add property title and fallback total_price to the model if it exists
     final Map<String, dynamic> data = Map<String, dynamic>.from(response);
     if (data['properties'] != null) {
       data['property_title'] = data['properties']['title'];
+
+      final double pm = double.tryParse(data['properties']['price_month']?.toString() ?? '0') ?? 0;
+      final double pn = double.tryParse(data['properties']['price_night']?.toString() ?? '0') ?? 0;
+      final double p = double.tryParse(data['properties']['price']?.toString().replaceAll(',', '') ?? '0') ?? 0;
+      final double propPrice = pm > 0 ? pm : (pn > 0 ? pn : p);
+
+      final double currentTotal = double.tryParse(data['total_price']?.toString() ?? '0') ?? 0;
+      if (currentTotal <= 0 && propPrice > 0) {
+        data['total_price'] = propPrice;
+      }
     }
 
     return BookingModel.fromMap(data);

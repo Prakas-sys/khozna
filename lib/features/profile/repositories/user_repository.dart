@@ -86,4 +86,37 @@ class UserRepository {
   static Future<void> deleteReport(String reportId) async {
     await _client.from('user_reports').delete().eq('id', reportId);
   }
+
+  static Future<void> submitFeedback({
+    required String category,
+    required String message,
+  }) async {
+    final user = _client.auth.currentUser;
+    final userId = user?.id ?? '';
+    final cleanMsg = SecurityUtils.sanitizeInput(message, maxLength: 1000);
+
+    try {
+      await _client.from('user_reports').insert({
+        'reported_user_id': userId.isNotEmpty ? userId : '00000000-0000-0000-0000-000000000000',
+        'reporter_id': userId.isNotEmpty ? userId : '00000000-0000-0000-0000-000000000000',
+        'reason': '[FEEDBACK - $category] $cleanMsg',
+      });
+    } catch (e) {
+      debugPrint('Error inserting feedback to user_reports: $e');
+    }
+
+    try {
+      if (userId.isNotEmpty) {
+        await _client.from('notifications').insert({
+          'user_id': userId,
+          'title': 'Feedback Received',
+          'message': 'Thank you for your feedback ($category). Our team has received it.',
+          'type': 'feedback',
+          'is_read': false,
+        });
+      }
+    } catch (e) {
+      debugPrint('Error inserting feedback notification: $e');
+    }
+  }
 }
