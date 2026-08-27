@@ -44,21 +44,23 @@ class PropertyRepository {
                 .lte('longitude', lng + 0.1);
           }
           break;
-        case 1: // Special Offers / Hot Deals
+        case 1: // Villa — category match OR title mentions villa
+          query = query.or('category.eq.Villa,title.ilike.%villa%');
+          break;
+        case 2: // Cottage — category match OR title mentions cottage
+          query = query.or('category.eq.Cottage,title.ilike.%cottage%');
+          break;
+        case 3: // Apartment — category/title match
           query = query.or(
-            'description.ilike.%offer%,description.ilike.%discount%,title.ilike.%offer%,is_negotiable.eq.true',
+            'category.eq.Apartment,category.eq.Flat,title.ilike.%apartment%,title.ilike.%flat%',
           );
           break;
-        case 2: // Student Housing
-          query = query.eq('is_student_friendly', true).lt('price', 9000);
+        case 4: // BHK — category/title contains BHK variants
+          query = query.or(
+            'category.ilike.%bhk%,title.ilike.%bhk%,title.ilike.%1bhk%,title.ilike.%2bhk%,title.ilike.%3bhk%,title.ilike.%1 bhk%,title.ilike.%2 bhk%,title.ilike.%3 bhk%',
+          );
           break;
-        case 3: // Family Flats
-          query = query.eq('category', 'Flat');
-          break;
-        case 4: // Premium
-          query = query.or('is_premium.eq.true,price.gt.20000');
-          break;
-        case 5: // Booked Section (Auto-deletes in 6 days)
+        case 5: // Booked Section
           query = query.eq('status', 'booked');
           break;
       }

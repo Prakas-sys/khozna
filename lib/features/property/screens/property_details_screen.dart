@@ -292,15 +292,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 _buildLocationSection(),
                 const SizedBox(height: 24),
                 if (widget.property.houseRules.isNotEmpty) ...[
-                  DetailSectionTitle(
-                    title: 'नियमहरू (${widget.property.category} Rules)',
-                  ),
-                  const SizedBox(height: 12),
-                  ...widget.property.houseRules.map((rule) {
-                    final data = _getFeatureData(rule);
-                    return RuleRow(icon: data.$1, title: data.$2);
-                  }),
-                  const SizedBox(height: 12),
+                  const DetailSectionTitle(title: 'House Rules'),
+                  const SizedBox(height: 16),
+                  _buildHouseRulesSection(),
+                  const SizedBox(height: 24),
                 ],
                 if (_reviews.isNotEmpty) ...[
                   _buildReviewsSection(),
@@ -1228,6 +1223,51 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           _buildSeeMoreButton(),
         ],
       ],
+    );
+  }
+
+  Widget _buildHouseRulesSection() {
+    final rules = widget.property.houseRules;
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      itemCount: rules.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        childAspectRatio: 2.8,
+      ),
+      itemBuilder: (context, index) {
+        final data = _getFeatureData(rules[index]);
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+          ),
+          child: Row(
+            children: [
+              Icon(data.$1, size: 16, color: const Color(0xFF475569)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  data.$2,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF1E293B),
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -2546,30 +2586,72 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   (IconData, String) _getFeatureData(String feature) {
     final f = feature.toLowerCase();
-    if (f.contains('wifi') || f.contains('internet')) {
-      return (Icons.wifi_rounded, 'Free Wi-Fi');
+    if (f.contains('wifi') || f.contains('internet_included') || f.contains('internet')) {
+      return (Icons.wifi_rounded, 'Wi-Fi Included');
     }
     if (f.contains('park') || f.contains('garage')) {
       return (Icons.local_parking_rounded, 'Parking');
     }
+    if (f.contains('water_included')) {
+      return (Icons.water_drop_rounded, 'Water Included');
+    }
     if (f.contains('water') || f.contains('shower')) {
       return (Icons.water_drop_rounded, '24/7 Water');
+    }
+    if (f.contains('electricity_included') || f.contains('electricity')) {
+      return (Icons.bolt_rounded, 'Electricity Included');
     }
     if (f.contains('power') || f.contains('backup')) {
       return (Icons.battery_charging_full_rounded, 'Power Backup');
     }
-    if (f.contains('student')) {
-      return (Icons.school_rounded, 'Student Friendly');
+    if (f.contains('student') || f.contains('bachelors')) {
+      return (Icons.school_rounded, 'Students Welcome');
     }
-    if (f.contains('family'))
-      return (Icons.family_restroom_rounded, 'Families');
-    if (f.contains('no smok')) return (Icons.smoke_free_rounded, 'No Smoking');
-    if (f.contains('pet')) return (Icons.pets_rounded, 'Pets Allowed');
+    if (f.contains('family')) {
+      return (Icons.family_restroom_rounded, 'Family Only');
+    }
+    if (f.contains('no_smoking') || f.contains('no smok')) {
+      return (Icons.smoke_free_rounded, 'No Smoking');
+    }
+    if (f.contains('no_parties') || f.contains('no_party') || f.contains('party')) {
+      return (Icons.nightlife_rounded, 'No Parties');
+    }
+    if (f.contains('no_alcohol') || f.contains('alcohol')) {
+      return (Icons.no_drinks, 'No Alcohol');
+    }
+    if (f.contains('pet')) {
+      return (Icons.pets_rounded, 'Pets Allowed');
+    }
+    if (f.contains('gate_closing') || f.contains('gate')) {
+      return (Icons.door_front_door_rounded, 'Gate Closing Time');
+    }
+    if (f.contains('visitors_allowed') || f.contains('visitor')) {
+      return (Icons.groups_2_rounded, 'Visitors Allowed');
+    }
+    if (f.contains('couples')) {
+      return (Icons.favorite_border_rounded, 'Couples Welcome');
+    }
+    if (f.contains('boys_only') || f.contains('boy')) {
+      return (Icons.man_rounded, 'Boys Only');
+    }
+    if (f.contains('girls_only') || f.contains('girl')) {
+      return (Icons.woman_rounded, 'Girls Only');
+    }
+    if (f.contains('cleaning')) {
+      return (Icons.cleaning_services_rounded, 'Cleaning Service');
+    }
+    if (f.contains('meals_included') || f.contains('meal') || f.contains('food')) {
+      return (Icons.restaurant_rounded, 'Meals Included');
+    }
     if (f.contains('security') || f.contains('cctv')) {
       return (Icons.security_rounded, 'Security');
     }
 
-    // Default
-    return (Icons.check_circle_outline_rounded, feature);
+    // Default — humanize the ID
+    final label = feature.replaceAll('_', ' ');
+    return (
+      Icons.check_circle_outline_rounded,
+      label.isNotEmpty ? label[0].toUpperCase() + label.substring(1) : feature,
+    );
   }
 }

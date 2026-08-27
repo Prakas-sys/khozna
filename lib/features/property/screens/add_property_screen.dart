@@ -24,7 +24,7 @@ class AddPropertyScreen extends StatefulWidget {
 
 class _AddPropertyScreenState extends State<AddPropertyScreen> {
   int _currentStep = 0;
-  final int _totalSteps = 8;
+  final int _totalSteps = 9;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController();
   final ScrollController _mainScrollController = ScrollController();
@@ -319,21 +319,24 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           isValid = true;
         }
         break;
-      case 5: // Photos (Step 6)
+      case 5: // House Rules (Step 6)
+        isValid = true;
+        break;
+      case 6: // Photos (Step 7)
         if (_selectedImages.length < 5) {
           errorMessage = 'कृपया कम्तिमा ५ वटा फोटोहरू राख्नुहोस्।';
         } else {
           isValid = true;
         }
         break;
-      case 6: // Marketing (Title + Video + Desc)
+      case 7: // Marketing (Title + Video)
         if (_titleController.text.trim().isEmpty) {
           errorMessage = 'कृपया एउटा आकर्षक शीर्षक राख्नुहोस्।';
         } else {
           isValid = true;
         }
         break;
-      case 7: // Payout
+      case 8: // Payout
         if (_payoutAccountController.text.trim().isEmpty) {
           errorMessage = 'कृपया आफ्नो पेमेन्ट खाता नम्बर राख्नुहोस्।';
         } else {
@@ -580,7 +583,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     _buildStepLocation(),
                     _buildStepBasics(),
                     _buildStepAmenities(),
-                    _buildStepPricingRules(),
+                    _buildStepPricing(),
+                    _buildStepHouseRules(),
                     _buildStepPhotos(),
                     _buildStepMarketing(),
                     _buildStepPayout(),
@@ -974,7 +978,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           AmenityItem(id: 'drinking_water', label: 'Drinking Water', icon: Icons.water_drop_rounded),
           AmenityItem(id: 'internet', label: 'Wi-Fi', icon: Icons.wifi_rounded),
           AmenityItem(id: 'kitchen', label: 'Kitchen', icon: Icons.kitchen_rounded),
-          AmenityItem(id: 'attached_bathroom', label: 'Bathroom', icon: Icons.shower_rounded),
           AmenityItem(id: 'furnished', label: 'Furnished', icon: Icons.chair_rounded),
           AmenityItem(id: 'unfurnished', label: 'Unfurnished', icon: Icons.chair_outlined),
           AmenityItem(id: 'laundry', label: 'Washing Machine', icon: Icons.local_laundry_service_rounded),
@@ -994,15 +997,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           AmenityItem(id: 'public_transport', label: 'Public Transport', icon: Icons.directions_bus_rounded),
         ],
       ),
-      AmenityCategory(
-        title: 'RULES & SERVICES',
-        items: [
-          AmenityItem(id: 'family_friendly', label: 'Family Friendly', icon: Icons.family_restroom_rounded),
-          AmenityItem(id: 'student_friendly', label: 'Student Friendly', icon: Icons.school_rounded),
-          AmenityItem(id: 'pets_allowed', label: 'Pets Allowed', icon: Icons.pets_rounded),
-          AmenityItem(id: 'cleaning_service', label: 'Cleaning Service', icon: Icons.cleaning_services_rounded),
-        ],
-      ),
     ];
 
     return StepLayout(
@@ -1018,10 +1012,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  Widget _buildStepPricingRules() {
+  Widget _buildStepPricing() {
     return StepLayout(
-      title: 'Pricing & House Rules',
-      subtitle: 'Set your monthly rent price and property house rules.',
+      title: 'Set Your Price',
+      subtitle: 'Set your monthly rent and nightly rate for your property.',
       content: [
         // ── Pricing Section ────────────────────────────────────────────────
         PriceInputField(
@@ -1035,81 +1029,223 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           controller: _priceNightController,
           suffix: '/ night',
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
 
         // Negotiable Switch
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Rent Negotiable',
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                      color: const Color(0xFF0F172A),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Allow guests to discuss or negotiate rent price',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: const Color(0xFF64748B),
-                    ),
-                  ),
-                ],
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.handshake_outlined,
+                  size: 18,
+                  color: Color(0xFF475569),
+                ),
               ),
-            ),
-            Switch.adaptive(
-              value: _isNegotiable,
-              onChanged: (v) {
-                HapticFeedback.lightImpact();
-                setState(() => _isNegotiable = v);
-              },
-              activeColor: AppTheme.brandColor,
-            ),
-          ],
-        ),
-        const SizedBox(height: 28),
-
-        // ── House Rules Section ─────────────────────────────────────────────
-        Text(
-          'HOUSE RULES',
-          style: GoogleFonts.inter(
-            fontSize: 11.5,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF94A3B8),
-            letterSpacing: 0.5,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Rent Negotiable',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        color: const Color(0xFF0F172A),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Allow guests to discuss or negotiate rent',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: const Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch.adaptive(
+                value: _isNegotiable,
+                onChanged: (v) {
+                  HapticFeedback.lightImpact();
+                  setState(() => _isNegotiable = v);
+                },
+                activeColor: AppTheme.brandColor,
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
-        AmenitiesGrid(
-          selectedItems: _selectedRules,
-          icons: const {
-            'family_only': Icons.family_restroom_rounded,
-            'bachelors_allowed': Icons.school_rounded,
-            'boys_only': Icons.man_rounded,
-            'girls_only': Icons.woman_rounded,
-            'pets_allowed': Icons.pets_rounded,
-            'no_smoking': Icons.smoke_free_rounded,
-            'no_parties': Icons.nightlife_rounded,
-            'gate_closing': Icons.door_front_door_rounded,
-          },
-          labels: const {
-            'family_only': 'Family Only',
-            'bachelors_allowed': 'Students / Bachelors',
-            'boys_only': 'Boys Only',
-            'girls_only': 'Girls Only',
-            'pets_allowed': 'Pets Allowed',
-            'no_smoking': 'No Smoking',
-            'no_parties': 'No Parties / Noise',
-            'gate_closing': 'Gate Closing Time',
-          },
-          onToggle: _toggleRule,
-        ),
+      ],
+    );
+  }
+
+  Widget _buildStepHouseRules() {
+    // Rule definitions: id -> (icon, label, description, isAllowed)
+    final List<Map<String, dynamic>> ruleGroups = [
+      {
+        'title': 'WHO CAN STAY',
+        'rules': [
+          {'id': 'family_only', 'icon': Icons.family_restroom_rounded, 'label': 'Family Only', 'desc': 'Only families with families accepted'},
+          {'id': 'bachelors_allowed', 'icon': Icons.school_rounded, 'label': 'Students / Bachelors', 'desc': 'Students and single tenants welcome'},
+          {'id': 'boys_only', 'icon': Icons.man_rounded, 'label': 'Boys Only', 'desc': 'Space reserved for male tenants'},
+          {'id': 'girls_only', 'icon': Icons.woman_rounded, 'label': 'Girls Only', 'desc': 'Space reserved for female tenants'},
+          {'id': 'couples_allowed', 'icon': Icons.favorite_border_rounded, 'label': 'Couples Welcome', 'desc': 'Couples can rent this property'},
+        ],
+      },
+      {
+        'title': 'HOUSE POLICIES',
+        'rules': [
+          {'id': 'no_smoking', 'icon': Icons.smoke_free_rounded, 'label': 'No Smoking', 'desc': 'Strictly no smoking inside premises'},
+          {'id': 'no_parties', 'icon': Icons.nightlife_rounded, 'label': 'No Parties / Loud Noise', 'desc': 'Gatherings and loud noise not allowed'},
+          {'id': 'no_alcohol', 'icon': Icons.no_drinks, 'label': 'No Alcohol', 'desc': 'Consumption of alcohol not permitted'},
+          {'id': 'pets_allowed', 'icon': Icons.pets_rounded, 'label': 'Pets Allowed', 'desc': 'Cats, dogs or other pets welcome'},
+          {'id': 'gate_closing', 'icon': Icons.door_front_door_rounded, 'label': 'Gate Closing Time', 'desc': 'Main gate closes at a set time daily'},
+          {'id': 'visitors_allowed', 'icon': Icons.groups_2_rounded, 'label': 'Visitors Allowed', 'desc': 'Guests and visitors can visit tenants'},
+        ],
+      },
+      {
+        'title': 'INCLUDED SERVICES',
+        'rules': [
+          {'id': 'cleaning_service', 'icon': Icons.cleaning_services_rounded, 'label': 'Cleaning Service', 'desc': 'Regular room/common area cleaning'},
+          {'id': 'meals_included', 'icon': Icons.restaurant_rounded, 'label': 'Meals Included', 'desc': 'Food provided (tiffin or full meals)'},
+          {'id': 'internet_included', 'icon': Icons.wifi_rounded, 'label': 'Internet Included', 'desc': 'Wi-Fi cost included in rent'},
+          {'id': 'electricity_included', 'icon': Icons.bolt_rounded, 'label': 'Electricity Included', 'desc': 'Electricity bill covered in rent'},
+          {'id': 'water_included', 'icon': Icons.water_drop_rounded, 'label': 'Water Included', 'desc': 'Water bill covered in rent'},
+        ],
+      },
+    ];
+
+    return StepLayout(
+      title: 'House Rules',
+      subtitle: 'Set clear expectations — like Airbnb. Guests will see these before booking.',
+      content: [
+        ...ruleGroups.map((group) {
+          final title = group['title'] as String;
+          final rules = group['rules'] as List<Map<String, dynamic>>;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF94A3B8),
+                  letterSpacing: 0.8,
+                ),
+              ),
+              const SizedBox(height: 10),
+              ...rules.map((rule) {
+                final id = rule['id'] as String;
+                final icon = rule['icon'] as IconData;
+                final label = rule['label'] as String;
+                final desc = rule['desc'] as String;
+                final isSelected = _selectedRules.contains(id);
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: GestureDetector(
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      _toggleRule(id);
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+                      decoration: BoxDecoration(
+                        color: isSelected ? const Color(0xFF0F172A) : Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0),
+                          width: isSelected ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? Colors.white.withOpacity(0.15)
+                                  : const Color(0xFFF1F5F9),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              icon,
+                              size: 18,
+                              color: isSelected ? Colors.white : const Color(0xFF475569),
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  label,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: isSelected ? Colors.white : const Color(0xFF0F172A),
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  desc,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: isSelected
+                                        ? Colors.white.withOpacity(0.65)
+                                        : const Color(0xFF94A3B8),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 22,
+                            height: 22,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isSelected ? Colors.white : Colors.transparent,
+                              border: Border.all(
+                                color: isSelected
+                                    ? Colors.white
+                                    : const Color(0xFFCBD5E1),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: isSelected
+                                ? const Icon(
+                                    Icons.check_rounded,
+                                    size: 14,
+                                    color: Color(0xFF0F172A),
+                                  )
+                                : null,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+              const SizedBox(height: 12),
+            ],
+          );
+        }),
       ],
     );
   }
