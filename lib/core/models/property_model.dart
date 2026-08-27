@@ -105,7 +105,7 @@ class Property {
       ownerId: map['owner_id'] ?? '',
       ownerName: ownerProfile?['full_name'] ?? 'Khozna User',
       ownerAvatar: ownerProfile?['avatar_url'] ?? '',
-      isOwnerVerified: ownerProfile?['kyc_status'] == 'verified',
+      isOwnerVerified: ownerProfile?['kyc_status'] == 'verified' || ownerProfile?['kyc_status'] == 'approved' || ownerProfile?['kyc_status'] == 'completed' || ownerProfile?['is_verified'] == true,
       ownerLocation: (ownerProfile?['area_name']?.toString() ?? map['area_name']?.toString() ?? 'Kathmandu, Nepal').replaceAll('Nepal', 'Kathmandu, Nepal'),
       amenities:
           (map['amenities'] as List?)?.map((e) => e.toString()).toList() ?? [],

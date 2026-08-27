@@ -57,7 +57,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   void initState() {
     super.initState();
     _realLocation = widget.location;
-    _isProfileVerified = false;
+    _isProfileVerified = widget.isVerified;
     _loadProfileData();
   }
 
@@ -102,10 +102,15 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             }
             final String profStatus = (profileData['kyc_status'] ?? '')
                 .toString()
+                .trim()
                 .toLowerCase();
-            _isProfileVerified = profStatus == 'verified' ||
+            final bool dbVerified = profStatus == 'verified' ||
                 profStatus == 'approved' ||
-                (profileData['is_verified'] as bool? ?? widget.isVerified);
+                profStatus == 'completed' ||
+                profStatus == 'true' ||
+                (profileData['is_verified'] == true);
+
+            _isProfileVerified = dbVerified || widget.isVerified;
 
             _isEmailVerified = _email != null && _email!.trim().isNotEmpty;
             _isPhoneVerified = _phoneNumber != null && _phoneNumber!.trim().isNotEmpty;
