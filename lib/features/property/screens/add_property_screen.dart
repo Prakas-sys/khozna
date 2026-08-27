@@ -2513,12 +2513,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       _nextStep();
                     },
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 13),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 backgroundColor: AppTheme.brandColor,
                 foregroundColor: Colors.white,
                 elevation: 0,
+                shadowColor: Colors.transparent,
+                hoverElevation: 0,
+                focusElevation: 0,
+                highlightElevation: 0,
+                disabledBackgroundColor: AppTheme.brandColor.withOpacity(0.5),
+                overlayColor: WidgetStateProperty.all(Colors.white.withOpacity(0.12)),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
               child: _isPublishing

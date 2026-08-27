@@ -112,8 +112,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
             _isProfileVerified = dbVerified || widget.isVerified;
 
-            _isEmailVerified = _email != null && _email!.trim().isNotEmpty;
-            _isPhoneVerified = _phoneNumber != null && _phoneNumber!.trim().isNotEmpty;
+            _isEmailVerified = _isProfileVerified || (_email != null && _email!.trim().isNotEmpty);
+            _isPhoneVerified = _isProfileVerified || (_phoneNumber != null && _phoneNumber!.trim().isNotEmpty);
           }
           _ownerReviews = results[2] as List<ReviewModel>;
           _isLoadingReviews = false;
