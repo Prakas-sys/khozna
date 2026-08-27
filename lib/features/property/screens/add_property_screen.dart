@@ -1845,6 +1845,473 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
+  Widget _buildStepReview() {
+    final String categoryName = (_selectedCategory == 'Other'
+            ? _otherCategoryController.text.trim()
+            : _selectedCategory) ??
+        'Property';
+    final String titleText = _titleController.text.trim().isEmpty
+        ? 'Untitled Property'
+        : _titleController.text.trim();
+    final String areaText = _areaController.text.trim().isEmpty
+        ? 'Location not set'
+        : _areaController.text.trim();
+    final String landmarkText = _landmarkController.text.trim();
+    final String priceText = _priceController.text.trim().isEmpty
+        ? '0'
+        : _priceController.text.trim();
+
+    return StepLayout(
+      title: 'Review Listing',
+      subtitle: 'Double-check your property details before publishing.',
+      content: [
+        // ── Main Listing Preview Card ──────────────────
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.06),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Photo Header Stack
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                    child: _selectedImages.isNotEmpty
+                        ? Image.file(
+                            _selectedImages.first,
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                        : Container(
+                            height: 200,
+                            color: const Color(0xFFF1F5F9),
+                            child: const Center(
+                              child: Icon(Icons.image_outlined, size: 48, color: Color(0xFF94A3B8)),
+                            ),
+                          ),
+                  ),
+                  // Category Badge
+                  Positioned(
+                    top: 14,
+                    left: 14,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Text(
+                        categoryName.toUpperCase(),
+                        style: GoogleFonts.inter(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Photo Count Badge
+                  Positioned(
+                    bottom: 12,
+                    right: 14,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.75),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.photo_library_outlined, color: Colors.white, size: 13),
+                          const SizedBox(width: 5),
+                          Text(
+                            '${_selectedImages.length} Photos',
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              // Property Card Content Body
+              Padding(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title & Edit Button
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            titleText,
+                            style: GoogleFonts.inter(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF0F172A),
+                              height: 1.25,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.edit_outlined, size: 18, color: AppTheme.brandColor),
+                          onPressed: () => _jumpToStep(7), // Marketing step (Title)
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+
+                    // Location
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on_rounded, size: 15, color: AppTheme.brandColor),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            landmarkText.isNotEmpty ? '$areaText ($landmarkText)' : areaText,
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF64748B),
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () => _jumpToStep(1), // Location step
+                          child: Text(
+                            'Edit',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.brandColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Price Pill Box
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF0FDF4),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFF86EFAC), width: 1),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                'Rent:',
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF166534),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'रु $priceText',
+                                style: GoogleFonts.inter(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w900,
+                                  color: const Color(0xFF15803D),
+                                ),
+                              ),
+                              Text(
+                                ' / month',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF166534),
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (_isNegotiable)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFDCFCE7),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                'Negotiable',
+                                style: GoogleFonts.inter(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: const Color(0xFF15803D),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Key Specs Grid Row
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        if (_bedroomsController.text.isNotEmpty && _bedroomsController.text != '0')
+                          _buildReviewSpecChip(Icons.bed_outlined, '${_bedroomsController.text} Beds'),
+                        if (_bathroomsController.text.isNotEmpty && _bathroomsController.text != '0')
+                          _buildReviewSpecChip(Icons.bathtub_outlined, '${_bathroomsController.text} Baths'),
+                        if (_floorController.text.isNotEmpty)
+                          _buildReviewSpecChip(Icons.apartment_rounded, '${_floorController.text} Floor'),
+                        if (_sqftController.text.isNotEmpty)
+                          _buildReviewSpecChip(Icons.square_foot_rounded, '${_sqftController.text} Sqft'),
+                        if (_guestsController.text.isNotEmpty && _guestsController.text != '0')
+                          _buildReviewSpecChip(Icons.people_outline_rounded, 'Max ${_guestsController.text} Guests'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 18),
+
+        // ── Amenities Summary Block ──────────────────
+        if (_selectedAmenities.isNotEmpty) ...[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'AMENITIES INCLUDED (${_selectedAmenities.length})',
+                style: GoogleFonts.inter(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF94A3B8),
+                  letterSpacing: 0.6,
+                ),
+              ),
+              InkWell(
+                onTap: () => _jumpToStep(3),
+                child: Text(
+                  'Edit',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.brandColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _selectedAmenities.map((amenityId) {
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.check_circle_rounded, size: 13, color: Color(0xFF16A34A)),
+                    const SizedBox(width: 5),
+                    Text(
+                      amenityId.replaceAll('_', ' ').toUpperCase(),
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF334155),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 18),
+        ],
+
+        // ── Payout Method Summary Block ──────────────────
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'PAYMENT METHOD FOR RENT',
+              style: GoogleFonts.inter(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF94A3B8),
+                letterSpacing: 0.6,
+              ),
+            ),
+            InkWell(
+              onTap: () => _jumpToStep(8),
+              child: Text(
+                'Edit',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.brandColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppTheme.brandColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.account_balance_wallet_rounded, color: AppTheme.brandColor, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _selectedPayoutMethod.toUpperCase(),
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF0F172A),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _payoutAccountController.text,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.verified_user_rounded, color: Color(0xFF16A34A), size: 20),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Ready Banner
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF0FDF4),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFF86EFAC)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.rocket_launch_rounded, color: Color(0xFF16A34A), size: 26),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Ready to Publish!',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF14532D),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Your listing will be instantly live for thousands of tenants.',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: const Color(0xFF166534),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+
+  Widget _buildReviewSpecChip(IconData icon, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: const Color(0xFF475569)),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF334155),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _jumpToStep(int stepIndex) {
+    HapticFeedback.lightImpact();
+    _pageController.animateToPage(
+      stepIndex,
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeInOut,
+    );
+    setState(() => _currentStep = stepIndex);
+  }
+
   Widget _buildPayoutTile(
     String title,
     String type,
