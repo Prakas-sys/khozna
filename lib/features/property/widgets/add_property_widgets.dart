@@ -702,20 +702,19 @@ class PropertyFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool hasValue = controller.text.trim().isNotEmpty;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Flexible(
               child: Text(
                 label,
                 style: GoogleFonts.inter(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: hasValue ? const Color(0xFF0F172A) : const Color(0xFF6B7280),
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF6B7280),
                 ),
               ),
             ),
@@ -728,36 +727,6 @@ class PropertyFormField extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                 ),
               ),
-            if (hasValue) ...[
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDCFCE7),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFF86EFAC), width: 0.8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.check_rounded,
-                      size: 11,
-                      color: Color(0xFF16A34A),
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      'Done',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF16A34A),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
           ],
         ),
         const SizedBox(height: 7),
@@ -769,7 +738,7 @@ class PropertyFormField extends StatelessWidget {
           onChanged: onChanged,
           style: GoogleFonts.inter(
             fontSize: 15,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
             color: const Color(0xFF111827),
           ),
           decoration: InputDecoration(
@@ -780,29 +749,16 @@ class PropertyFormField extends StatelessWidget {
               fontWeight: FontWeight.w400,
             ),
             filled: true,
-            fillColor: hasValue ? const Color(0xFFF0FDF4) : Colors.white,
+            fillColor: Colors.white,
             prefixIcon: prefixIcon != null 
-                ? Icon(
-                    prefixIcon, 
-                    size: 17, 
-                    color: hasValue ? const Color(0xFF16A34A) : const Color(0xFFD1D5DB),
-                  ) 
+                ? Icon(prefixIcon, size: 17, color: const Color(0xFFD1D5DB)) 
                 : null,
             suffixIcon: suffix != null 
                 ? Padding(
                     padding: const EdgeInsets.only(right: 12),
                     child: suffix,
                   ) 
-                : (hasValue
-                    ? const Padding(
-                        padding: EdgeInsets.only(right: 12),
-                        child: Icon(
-                          Icons.check_circle_rounded,
-                          size: 18,
-                          color: Color(0xFF16A34A),
-                        ),
-                      )
-                    : null),
+                : null,
             suffixIconConstraints: const BoxConstraints(
               minWidth: 24,
               minHeight: 24,
@@ -813,17 +769,11 @@ class PropertyFormField extends StatelessWidget {
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: hasValue ? const Color(0xFF22C55E) : const Color(0xFFE5E7EB),
-                width: hasValue ? 1.5 : 1,
-              ),
+              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: hasValue ? const Color(0xFF22C55E) : const Color(0xFFE5E7EB),
-                width: hasValue ? 1.5 : 1,
-              ),
+              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

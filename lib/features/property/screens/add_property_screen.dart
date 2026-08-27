@@ -762,19 +762,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   setState(() => _showLocationNudge = false);
                   _detectLocation();
                 },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
+          child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 18),
+            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 18),
             decoration: BoxDecoration(
-              color: hasLocation
-                  ? const Color(0xFFF0FDF4)
-                  : AppTheme.brandColor.withOpacity(0.05),
+              color: AppTheme.brandColor.withOpacity(0.05),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: hasLocation
-                    ? const Color(0xFF22C55E)
-                    : AppTheme.brandColor.withOpacity(0.4),
+                color: AppTheme.brandColor.withOpacity(0.3),
                 width: 1.5,
               ),
             ),
@@ -783,9 +778,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: hasLocation
-                        ? const Color(0xFFDCFCE7)
-                        : AppTheme.brandColor.withOpacity(0.12),
+                    color: AppTheme.brandColor.withOpacity(0.12),
                     shape: BoxShape.circle,
                   ),
                   child: _isLocating
@@ -797,9 +790,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                             color: AppTheme.brandColor,
                           ),
                         )
-                      : Icon(
-                          hasLocation ? Icons.check_rounded : Icons.my_location_rounded,
-                          color: hasLocation ? const Color(0xFF16A34A) : AppTheme.brandColor,
+                      : const Icon(
+                          Icons.my_location_rounded,
+                          color: AppTheme.brandColor,
                           size: 24,
                         ),
                 ),
@@ -811,7 +804,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       Text(
                         _isLocating
                             ? 'Detecting Location...'
-                            : (hasLocation ? 'GPS Location Saved ✓' : 'Auto-Detect Location (GPS)'),
+                            : 'Auto-Detect Location (GPS)',
                         style: GoogleFonts.inter(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -823,21 +816,21 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                         _isLocating
                             ? 'Finding area and landmark automatically...'
                             : (hasLocation
-                                ? 'Tap to re-detect current GPS location'
+                                ? 'GPS location set • Tap to update'
                                 : 'Tap to auto-fill area name & map position'),
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: hasLocation ? const Color(0xFF16A34A) : const Color(0xFF64748B),
+                          color: const Color(0xFF64748B),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Icon(
+                const Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 14,
-                  color: hasLocation ? const Color(0xFF16A34A) : AppTheme.brandColor,
+                  color: AppTheme.brandColor,
                 ),
               ],
             ),
