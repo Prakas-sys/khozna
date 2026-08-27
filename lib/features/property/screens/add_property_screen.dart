@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -1285,52 +1287,56 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         // ── Main Upload Card ─────────────────────────────────────────
         GestureDetector(
           onTap: _pickImages,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isGoalMet ? const Color(0xFF22C55E) : const Color(0xFFE2E8F0),
-                width: 1.5,
-              ),
+          child: CustomPaint(
+            painter: DashRectPainter(
+              color: isGoalMet ? const Color(0xFF22C55E) : const Color(0xFF94A3B8),
+              strokeWidth: 1.5,
+              gap: 6.0,
+              borderRadius: 16.0,
             ),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.brandColor.withOpacity(0.08),
-                    shape: BoxShape.circle,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor.withOpacity(0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.add_a_photo_rounded,
+                      color: AppTheme.brandColor,
+                      size: 26,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.add_a_photo_rounded,
-                    color: AppTheme.brandColor,
-                    size: 26,
+                  const SizedBox(height: 12),
+                  Text(
+                    _selectedImages.isEmpty ? 'Upload Property Photos' : 'Add More Photos',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF0F172A),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  _selectedImages.isEmpty ? 'Upload Property Photos' : 'Add More Photos',
-                  style: GoogleFonts.inter(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF0F172A),
+                  const SizedBox(height: 4),
+                  Text(
+                    isGoalMet
+                        ? '$photoCount photos added ✓ (Minimum 5 reached)'
+                        : 'Add at least 5 photos ($photoCount / 5 uploaded)',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: isGoalMet ? const Color(0xFF16A34A) : const Color(0xFF64748B),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  isGoalMet
-                      ? '$photoCount photos added ✓ (Minimum 5 reached)'
-                      : 'Add at least 5 photos ($photoCount / 5 uploaded)',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: isGoalMet ? const Color(0xFF16A34A) : const Color(0xFF64748B),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -1860,21 +1866,22 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     final String priceText = _priceController.text.trim().isEmpty
         ? '0'
         : _priceController.text.trim();
+    final String nightPriceText = _priceNightController.text.trim();
 
     return StepLayout(
-      title: 'Review Listing',
-      subtitle: 'Double-check your property details before publishing.',
+      title: 'Review your listing',
+      subtitle: 'Here\'s how your property will look to guests.',
       content: [
-        // ── Main Listing Preview Card ──────────────────
+        // ── 1. MINIMALIST AIRBNB CARD PREVIEW ──────────────────────────────
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
+                color: Colors.black.withOpacity(0.04),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
@@ -1883,11 +1890,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Photo Header Stack
+              // Photo Cover
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                     child: _selectedImages.isNotEmpty
                         ? Image.file(
                             _selectedImages.first,
@@ -1903,21 +1910,21 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                             ),
                           ),
                   ),
-                  // Category Badge
+                  // Category Pill
                   Positioned(
-                    top: 14,
-                    left: 14,
+                    top: 12,
+                    left: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
-                        borderRadius: BorderRadius.circular(100),
+                        color: Colors.black.withOpacity(0.75),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         categoryName.toUpperCase(),
                         style: GoogleFonts.inter(
                           color: Colors.white,
-                          fontSize: 11,
+                          fontSize: 10,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.5,
                         ),
@@ -1927,7 +1934,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   // Photo Count Badge
                   Positioned(
                     bottom: 12,
-                    right: 14,
+                    right: 12,
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
@@ -1937,13 +1944,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.photo_library_outlined, color: Colors.white, size: 13),
-                          const SizedBox(width: 5),
+                          const Icon(Icons.photo_camera_outlined, color: Colors.white, size: 12),
+                          const SizedBox(width: 4),
                           Text(
                             '${_selectedImages.length} Photos',
                             style: GoogleFonts.inter(
                               color: Colors.white,
-                              fontSize: 11,
+                              fontSize: 10.5,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -1954,141 +1961,100 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 ],
               ),
 
-              // Property Card Content Body
+              // Title, Location, Price Body
               Padding(
-                padding: const EdgeInsets.all(18),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Title & Edit Button
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            titleText,
-                            style: GoogleFonts.inter(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: const Color(0xFF0F172A),
-                              height: 1.25,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.edit_outlined, size: 18, color: AppTheme.brandColor),
-                          onPressed: () => _jumpToStep(7), // Marketing step (Title)
-                        ),
-                      ],
+                    Text(
+                      titleText,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF0F172A),
+                        height: 1.25,
+                      ),
                     ),
                     const SizedBox(height: 6),
-
-                    // Location
                     Row(
                       children: [
-                        const Icon(Icons.location_on_rounded, size: 15, color: AppTheme.brandColor),
+                        const Icon(Icons.location_on_rounded, size: 14, color: AppTheme.brandColor),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             landmarkText.isNotEmpty ? '$areaText ($landmarkText)' : areaText,
                             style: GoogleFonts.inter(
                               fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               color: const Color(0xFF64748B),
                             ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () => _jumpToStep(1), // Location step
-                          child: Text(
-                            'Edit',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.brandColor,
-                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 14),
 
-                    // Price Pill Box
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF0FDF4),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF86EFAC), width: 1),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                'Rent:',
-                                style: GoogleFonts.inter(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF166534),
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                'रु $priceText',
-                                style: GoogleFonts.inter(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w900,
-                                  color: const Color(0xFF15803D),
-                                ),
-                              ),
-                              Text(
-                                ' / month',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF166534),
-                                ),
-                              ),
-                            ],
-                          ),
-                          if (_isNegotiable)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFDCFCE7),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                'Negotiable',
-                                style: GoogleFonts.inter(
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w800,
-                                  color: const Color(0xFF15803D),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Key Specs Grid Row
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                    // Price Pill with Custom Rupee Vector
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        if (_bedroomsController.text.isNotEmpty && _bedroomsController.text != '0')
-                          _buildReviewSpecChip(Icons.bed_outlined, '${_bedroomsController.text} Beds'),
-                        if (_bathroomsController.text.isNotEmpty && _bathroomsController.text != '0')
-                          _buildReviewSpecChip(Icons.bathtub_outlined, '${_bathroomsController.text} Baths'),
-                        if (_floorController.text.isNotEmpty)
-                          _buildReviewSpecChip(Icons.apartment_rounded, '${_floorController.text} Floor'),
-                        if (_sqftController.text.isNotEmpty)
-                          _buildReviewSpecChip(Icons.square_foot_rounded, '${_sqftController.text} Sqft'),
-                        if (_guestsController.text.isNotEmpty && _guestsController.text != '0')
-                          _buildReviewSpecChip(Icons.people_outline_rounded, 'Max ${_guestsController.text} Guests'),
+                        SvgPicture.asset(
+                          'assets/icons/vector of ruppes.svg',
+                          width: 16,
+                          height: 16,
+                          colorFilter: const ColorFilter.mode(
+                            AppTheme.brandColor,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          priceText,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 19,
+                            fontWeight: FontWeight.w900,
+                            color: AppTheme.brandColor,
+                          ),
+                        ),
+                        Text(
+                          ' / month',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF475569),
+                          ),
+                        ),
+                        if (nightPriceText.isNotEmpty && nightPriceText != '0') ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            '• ',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: const Color(0xFF64748B),
+                            ),
+                          ),
+                          SvgPicture.asset(
+                            'assets/icons/vector of ruppes.svg',
+                            width: 12,
+                            height: 12,
+                            colorFilter: const ColorFilter.mode(
+                              Color(0xFF64748B),
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            '$nightPriceText / night',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ],
@@ -2097,182 +2063,65 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 20),
 
-        // ── Amenities Summary Block ──────────────────
-        if (_selectedAmenities.isNotEmpty) ...[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // ── 2. CLEAN READY NOTE ─────────────────────────────────────────────
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF0FDF4),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFBBF7D0)),
+          ),
+          child: Row(
             children: [
-              Text(
-                'AMENITIES INCLUDED (${_selectedAmenities.length})',
-                style: GoogleFonts.inter(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF94A3B8),
-                  letterSpacing: 0.6,
-                ),
-              ),
-              InkWell(
-                onTap: () => _jumpToStep(3),
+              const Icon(Icons.check_circle_rounded, color: Color(0xFF16A34A), size: 20),
+              const SizedBox(width: 10),
+              Expanded(
                 child: Text(
-                  'Edit',
+                  'Everything is set! Tap Publish to list your property live.',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.brandColor,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF15803D),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _selectedAmenities.map((amenityId) {
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.check_circle_rounded, size: 13, color: Color(0xFF16A34A)),
-                    const SizedBox(width: 5),
-                    Text(
-                      amenityId.replaceAll('_', ' ').toUpperCase(),
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF334155),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 18),
-        ],
+        ),
+      ],
+    );
+  }
 
-        // ── Payout Method Summary Block ──────────────────
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'PAYMENT METHOD FOR RENT',
-              style: GoogleFonts.inter(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF94A3B8),
-                letterSpacing: 0.6,
-              ),
+  Widget _buildMinimalRow({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: const Color(0xFF64748B)),
+        const SizedBox(width: 10),
+        Text(
+          '$label: ',
+          style: GoogleFonts.inter(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF64748B),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: GoogleFonts.inter(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF0F172A),
             ),
-            InkWell(
-              onTap: () => _jumpToStep(8),
-              child: Text(
-                'Edit',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.brandColor,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppTheme.brandColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.account_balance_wallet_rounded, color: AppTheme.brandColor, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _selectedPayoutMethod.toUpperCase(),
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF0F172A),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      _payoutAccountController.text,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF64748B),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.verified_user_rounded, color: Color(0xFF16A34A), size: 20),
-            ],
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-        const SizedBox(height: 20),
-
-        // Ready Banner
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF0FDF4),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF86EFAC)),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.rocket_launch_rounded, color: Color(0xFF16A34A), size: 26),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Ready to Publish!',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF14532D),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Your listing will be instantly live for thousands of tenants.',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: const Color(0xFF166534),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 10),
       ],
     );
   }
@@ -2287,12 +2136,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: const Color(0xFF475569)),
+          Icon(icon, size: 13, color: const Color(0xFF475569)),
           const SizedBox(width: 5),
           Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 12,
+              fontSize: 11.5,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF334155),
             ),
@@ -2766,4 +2615,47 @@ class _OtherCategoryScreenState extends State<OtherCategoryScreen> {
       ),
     );
   }
+}
+
+class DashRectPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double gap;
+  final double borderRadius;
+
+  DashRectPainter({
+    this.color = Colors.black,
+    this.strokeWidth = 1.5,
+    this.gap = 5.0,
+    this.borderRadius = 16.0,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    Path path = Path();
+    path.addRRect(
+      RRect.fromLTRBR(0, 0, size.width, size.height, Radius.circular(borderRadius)),
+    );
+
+    Path dashPath = Path();
+    for (PathMetric pathMetric in path.computeMetrics()) {
+      double distance = 0.0;
+      while (distance < pathMetric.length) {
+        dashPath.addPath(
+          pathMetric.extractPath(distance, distance + gap),
+          Offset.zero,
+        );
+        distance += gap * 2;
+      }
+    }
+    canvas.drawPath(dashPath, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
