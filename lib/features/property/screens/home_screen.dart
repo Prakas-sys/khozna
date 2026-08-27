@@ -74,6 +74,10 @@ class HomeScreenState extends State<HomeScreen> {
           filtered.add(p);
         }
       }
+      // If deduplication cleared all items for this section, retain original list so section is not empty
+      if (filtered.isEmpty && list.isNotEmpty) {
+        filtered.addAll(list);
+      }
       filteredResults.add(filtered);
     }
 

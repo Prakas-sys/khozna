@@ -70,8 +70,21 @@ class PropertyRepository {
           .order('created_at', ascending: false)
           .limit(8);
 
-      final List<Map<String, dynamic>> rawData =
+      List<Map<String, dynamic>> rawData =
           List<Map<String, dynamic>>.from(data);
+
+      // Fallback: If section has no properties matching the strict filter, fetch available properties
+      if (rawData.isEmpty && index != 5) {
+        final fallbackData = await _client
+            .from('properties')
+            .select(
+              '*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status, area_name)',
+            )
+            .eq('status', 'available')
+            .order('created_at', ascending: false)
+            .limit(8);
+        rawData = List<Map<String, dynamic>>.from(fallbackData);
+      }
 
       if (rawData.isNotEmpty) {
         final currentCache = Map<int, List<Map<String, dynamic>>>.from(

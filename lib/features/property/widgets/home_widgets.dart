@@ -585,8 +585,12 @@ class HomeHorizontalSection extends StatelessWidget {
         const SizedBox(height: 12),
         Builder(
           builder: (context) {
-            if (isLoading || properties.isEmpty) {
+            if (isLoading) {
               return _buildSkeletonList();
+            }
+
+            if (properties.isEmpty) {
+              return const SizedBox.shrink();
             }
 
             final displayList = properties.take(5).toList();
