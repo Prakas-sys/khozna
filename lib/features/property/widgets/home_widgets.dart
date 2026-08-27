@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/models/property_model.dart';
@@ -622,70 +623,184 @@ class HomeHorizontalSection extends StatelessWidget {
   }
 
   Widget _buildSeeAllCard(BuildContext context) {
+    // Extract up to 4 image URLs from properties for the flower stacked preview
+    final previewUrls = properties
+        .map((p) => p.imageUrl.isNotEmpty ? p.imageUrl : (p.images.isNotEmpty ? p.images.first : ''))
+        .where((url) => url.isNotEmpty)
+        .take(4)
+        .toList();
+
     return Padding(
       padding: const EdgeInsets.only(right: 16),
       child: GestureDetector(
         onTap: () => onViewAll(title, subtitle),
         child: Container(
-          width: 160,
+          width: 180,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 12,
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
             ],
           ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppTheme.brandColor.withOpacity(0.08),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: AppTheme.brandColor.withOpacity(0.2),
-                    width: 1.2,
+              // Stacked Photo Flower Preview
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Stacked Card 1 (Left Wing)
+                      _buildFlowerThumbnail(
+                        url: previewUrls.isNotEmpty ? previewUrls[0] : null,
+                        angle: -0.16,
+                        offset: const Offset(-20, -2),
+                        size: 72,
+                      ),
+                      // Stacked Card 2 (Right Wing)
+                      _buildFlowerThumbnail(
+                        url: previewUrls.length > 1
+                            ? previewUrls[1]
+                            : (previewUrls.isNotEmpty ? previewUrls[0] : null),
+                        angle: 0.16,
+                        offset: const Offset(20, -2),
+                        size: 72,
+                      ),
+                      // Stacked Card 3 (Center Stack)
+                      _buildFlowerThumbnail(
+                        url: previewUrls.length > 2
+                            ? previewUrls[2]
+                            : (previewUrls.isNotEmpty ? previewUrls[0] : null),
+                        angle: -0.04,
+                        offset: const Offset(0, -12),
+                        size: 78,
+                      ),
+                      // Clean Circular Arrow Button (No heavy blur shadow)
+                      Positioned(
+                        bottom: 8,
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: AppTheme.brandColor,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: const Icon(
-                  Icons.arrow_forward_rounded,
-                  color: AppTheme.brandColor,
-                  size: 22,
-                ),
               ),
-              const SizedBox(height: 12),
-              Text(
-                'Show All',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF0F172A),
-                ),
-              ),
-              const SizedBox(height: 4),
+              // Clean Minimalist Labels (Low Cognitive Load)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Text(
-                  'Explore all $title',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFF64748B),
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 12),
+                child: Column(
+                  children: [
+                    Text(
+                      'Explore All',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF0F172A),
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.brandColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFlowerThumbnail({
+    required String? url,
+    required double angle,
+    required Offset offset,
+    required double size,
+  }) {
+    return Transform.translate(
+      offset: offset,
+      child: Transform.rotate(
+        angle: angle,
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white, width: 2.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.12),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(13),
+            child: url != null && url.isNotEmpty
+                ? CachedNetworkImage(
+                    imageUrl: url,
+                    fit: BoxFit.cover,
+                    placeholder: (_, __) =>
+                        Container(color: const Color(0xFFE2E8F0)),
+                    errorWidget: (_, __, ___) => _buildFallbackThumbnail(),
+                  )
+                : _buildFallbackThumbnail(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFallbackThumbnail() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF00C853), Color(0xFF009624)],
+        ),
+      ),
+      child: const Center(
+        child: Icon(
+          Icons.home_work_rounded,
+          color: Colors.white70,
+          size: 24,
         ),
       ),
     );

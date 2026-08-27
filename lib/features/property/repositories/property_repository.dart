@@ -44,20 +44,24 @@ class PropertyRepository {
                 .lte('longitude', lng + 0.1);
           }
           break;
-        case 1: // Villa — category or title contains villa
-          query = query.or('category.ilike.%villa%,title.ilike.%villa%');
-          break;
-        case 2: // Cottage — category or title contains cottage
-          query = query.or('category.ilike.%cottage%,title.ilike.%cottage%');
-          break;
-        case 3: // Apartment — category or title contains apartment/flat
+        case 1: // Villa
           query = query.or(
-            'category.ilike.%apartment%,category.ilike.%flat%,title.ilike.%apartment%,title.ilike.%flat%',
+            'category.ilike.%villa%,title.ilike.%villa%,description.ilike.%villa%',
           );
           break;
-        case 4: // BHK — category or title contains BHK variants
+        case 2: // Cottage
           query = query.or(
-            'category.ilike.%bhk%,title.ilike.%bhk%,title.ilike.%1bhk%,title.ilike.%2bhk%,title.ilike.%3bhk%,title.ilike.%1 bhk%,title.ilike.%2 bhk%,title.ilike.%3 bhk%',
+            'category.ilike.%cottage%,title.ilike.%cottage%,description.ilike.%cottage%',
+          );
+          break;
+        case 3: // Apartment / Flat / Room / Apt
+          query = query.or(
+            'category.ilike.%apartment%,category.ilike.%flat%,category.ilike.%room%,category.ilike.%apt%,title.ilike.%apartment%,title.ilike.%flat%,title.ilike.%room%,title.ilike.%apt%,description.ilike.%apartment%,description.ilike.%flat%,description.ilike.%room%',
+          );
+          break;
+        case 4: // BHK
+          query = query.or(
+            'category.ilike.%bhk%,title.ilike.%bhk%,description.ilike.%bhk%,title.ilike.%1bhk%,title.ilike.%2bhk%,title.ilike.%3bhk%',
           );
           break;
         case 5: // Booked Section

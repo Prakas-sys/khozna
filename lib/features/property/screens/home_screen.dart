@@ -63,18 +63,10 @@ class HomeScreenState extends State<HomeScreen> {
 
     final results = await Future.wait(futures);
 
-    final Set<String> seenIds = {};
     final List<List<Property>> filteredResults = [];
 
     for (var list in results) {
-      final List<Property> filtered = [];
-      for (var p in list) {
-        if (!seenIds.contains(p.id)) {
-          seenIds.add(p.id);
-          filtered.add(p);
-        }
-      }
-      filteredResults.add(filtered);
+      filteredResults.add(List<Property>.from(list));
     }
 
     final elapsed = DateTime.now().difference(startTime).inMilliseconds;
