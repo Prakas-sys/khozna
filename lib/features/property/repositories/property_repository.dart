@@ -68,7 +68,7 @@ class PropertyRepository {
       final data = await query
           .order('status', ascending: true)
           .order('created_at', ascending: false)
-          .limit(6);
+          .limit(8);
 
       final List<Map<String, dynamic>> rawData =
           List<Map<String, dynamic>>.from(data);

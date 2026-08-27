@@ -702,6 +702,8 @@ class PropertyFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasValue = controller.text.trim().isNotEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -714,7 +716,7 @@ class PropertyFormField extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF6B7280),
+                  color: hasValue ? const Color(0xFF15803D) : const Color(0xFF6B7280),
                 ),
               ),
             ),
@@ -738,7 +740,7 @@ class PropertyFormField extends StatelessWidget {
           onChanged: onChanged,
           style: GoogleFonts.inter(
             fontSize: 15,
-            fontWeight: FontWeight.w400,
+            fontWeight: FontWeight.w500,
             color: const Color(0xFF111827),
           ),
           decoration: InputDecoration(
@@ -749,9 +751,13 @@ class PropertyFormField extends StatelessWidget {
               fontWeight: FontWeight.w400,
             ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: hasValue ? const Color(0xFFF0FDF4) : Colors.white,
             prefixIcon: prefixIcon != null 
-                ? Icon(prefixIcon, size: 17, color: const Color(0xFFD1D5DB)) 
+                ? Icon(
+                    prefixIcon, 
+                    size: 17, 
+                    color: hasValue ? const Color(0xFF16A34A) : const Color(0xFFD1D5DB),
+                  ) 
                 : null,
             suffixIcon: suffix != null 
                 ? Padding(
@@ -769,11 +775,17 @@ class PropertyFormField extends StatelessWidget {
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
+              borderSide: BorderSide(
+                color: hasValue ? const Color(0xFF22C55E) : const Color(0xFFE5E7EB),
+                width: hasValue ? 1.5 : 1,
+              ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
+              borderSide: BorderSide(
+                color: hasValue ? const Color(0xFF22C55E) : const Color(0xFFE5E7EB),
+                width: hasValue ? 1.5 : 1,
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

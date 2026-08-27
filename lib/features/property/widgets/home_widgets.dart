@@ -589,21 +589,20 @@ class HomeHorizontalSection extends StatelessWidget {
               return _buildSkeletonList();
             }
 
+            final displayList = properties.take(5).toList();
+
             return SizedBox(
               height: 282,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
                 physics: const BouncingScrollPhysics(),
-                itemCount: 4,
+                itemCount: displayList.length + 1,
                 itemBuilder: (context, index) {
-                  if (index < properties.length) {
-                    return _buildPropertyCard(properties[index]);
+                  if (index < displayList.length) {
+                    return _buildPropertyCard(displayList[index]);
                   } else {
-                    return const Padding(
-                      padding: EdgeInsets.only(right: 16),
-                      child: SkeletonCard(),
-                    );
+                    return _buildSeeAllCard(context);
                   }
                 },
               ),
@@ -620,7 +619,7 @@ class HomeHorizontalSection extends StatelessWidget {
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        itemCount: 3,
+        itemCount: 5,
         itemBuilder: (_, _) => const Padding(
           padding: EdgeInsets.only(right: 16),
           child: SkeletonCard(),
@@ -633,6 +632,76 @@ class HomeHorizontalSection extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 16),
       child: PropertyCard(property: p),
+    );
+  }
+
+  Widget _buildSeeAllCard(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 16),
+      child: GestureDetector(
+        onTap: () => onViewAll(title, subtitle),
+        child: Container(
+          width: 160,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppTheme.brandColor.withOpacity(0.08),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppTheme.brandColor.withOpacity(0.2),
+                    width: 1.2,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.arrow_forward_rounded,
+                  color: AppTheme.brandColor,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Show All',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  'Explore all $title',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF64748B),
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

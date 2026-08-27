@@ -119,11 +119,19 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     if (user != null) {
       final profile = await Supabase.instance.client
           .from('profiles')
-          .select('esewa_number')
+          .select('esewa_number, full_name')
           .eq('id', user.id)
           .maybeSingle();
-      if (profile != null && profile['esewa_number'] != null) {
-        _payoutAccountController.text = profile['esewa_number'];
+      if (profile != null) {
+        final val = (profile['esewa_number'] as String?)?.trim() ?? '';
+        final isDummyZeroes = RegExp(r'^0+$').hasMatch(val) || val == '000';
+        if (val.isNotEmpty && !isDummyZeroes) {
+          _payoutAccountController.text = val;
+        }
+        final name = (profile['full_name'] as String?)?.trim() ?? '';
+        if (name.isNotEmpty && _payoutNameController.text.isEmpty) {
+          _payoutNameController.text = name;
+        }
       }
     }
   }
@@ -762,14 +770,19 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   setState(() => _showLocationNudge = false);
                   _detectLocation();
                 },
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 18),
             decoration: BoxDecoration(
-              color: AppTheme.brandColor.withOpacity(0.05),
+              color: hasLocation
+                  ? const Color(0xFFF0FDF4)
+                  : AppTheme.brandColor.withOpacity(0.05),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppTheme.brandColor.withOpacity(0.3),
+                color: hasLocation
+                    ? const Color(0xFF22C55E)
+                    : AppTheme.brandColor.withOpacity(0.3),
                 width: 1.5,
               ),
             ),
@@ -778,7 +791,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.brandColor.withOpacity(0.12),
+                    color: hasLocation
+                        ? const Color(0xFFDCFCE7)
+                        : AppTheme.brandColor.withOpacity(0.12),
                     shape: BoxShape.circle,
                   ),
                   child: _isLocating
@@ -790,9 +805,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                             color: AppTheme.brandColor,
                           ),
                         )
-                      : const Icon(
+                      : Icon(
                           Icons.my_location_rounded,
-                          color: AppTheme.brandColor,
+                          color: hasLocation
+                              ? const Color(0xFF16A34A)
+                              : AppTheme.brandColor,
                           size: 24,
                         ),
                 ),
@@ -804,11 +821,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       Text(
                         _isLocating
                             ? 'Detecting Location...'
-                            : 'Auto-Detect Location (GPS)',
+                            : (hasLocation
+                                ? 'Location Auto-Detected'
+                                : 'Auto-Detect Location (GPS)'),
                         style: GoogleFonts.inter(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF0F172A),
+                          color: hasLocation
+                              ? const Color(0xFF15803D)
+                              : const Color(0xFF0F172A),
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -816,21 +837,25 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                         _isLocating
                             ? 'Finding area and landmark automatically...'
                             : (hasLocation
-                                ? 'GPS location set • Tap to update'
+                                ? 'GPS coordinates set • Tap to update'
                                 : 'Tap to auto-fill area name & map position'),
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFF64748B),
+                          color: hasLocation
+                              ? const Color(0xFF16A34A)
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 14,
-                  color: AppTheme.brandColor,
+                  color: hasLocation
+                      ? const Color(0xFF16A34A)
+                      : AppTheme.brandColor,
                 ),
               ],
             ),
