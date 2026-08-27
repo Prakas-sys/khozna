@@ -24,7 +24,7 @@ class AddPropertyScreen extends StatefulWidget {
 
 class _AddPropertyScreenState extends State<AddPropertyScreen> {
   int _currentStep = 0;
-  final int _totalSteps = 9;
+  final int _totalSteps = 10;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController();
   final ScrollController _mainScrollController = ScrollController();
@@ -351,6 +351,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           isValid = true;
         }
         break;
+      case 9: // Final Review & Publish
+        isValid = true;
+        break;
     }
 
     if (isValid) {
@@ -596,6 +599,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     _buildStepPhotos(),
                     _buildStepMarketing(),
                     _buildStepPayout(),
+                    _buildStepReview(),
                   ],
                 ),
                 Align(
