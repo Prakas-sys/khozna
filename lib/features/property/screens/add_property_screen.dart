@@ -1049,7 +1049,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         ),
         const SizedBox(height: 16),
         PriceInputField(
-          label: 'Nightly Rent (Optional)',
+          label: 'Nightly Rent',
           controller: _priceNightController,
           suffix: '/ night',
         ),
@@ -2518,11 +2518,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shadowColor: Colors.transparent,
-                hoverElevation: 0,
-                focusElevation: 0,
-                highlightElevation: 0,
                 disabledBackgroundColor: AppTheme.brandColor.withOpacity(0.5),
-                overlayColor: WidgetStateProperty.all(Colors.white.withOpacity(0.12)),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
