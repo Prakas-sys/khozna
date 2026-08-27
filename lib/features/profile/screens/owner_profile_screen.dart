@@ -25,7 +25,7 @@ class OwnerProfileScreen extends StatefulWidget {
     required this.ownerId,
     required this.name,
     required this.avatar,
-    this.isVerified = true,
+    this.isVerified = false,
     required this.location,
     required this.totalListings,
   });
@@ -50,12 +50,14 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   String? _organization;
   String? _fetchedAvatar;
   bool _isProfileVerified = false;
+  bool _isEmailVerified = false;
+  bool _isPhoneVerified = false;
 
   @override
   void initState() {
     super.initState();
     _realLocation = widget.location;
-    _isProfileVerified = widget.isVerified;
+    _isProfileVerified = false;
     _loadProfileData();
   }
 
@@ -99,11 +101,14 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               _fetchedAvatar = profileData['avatar_url'].toString();
             }
             final String profStatus = (profileData['kyc_status'] ?? '')
-                .toString();
-            _isProfileVerified =
-                profStatus == 'verified' ||
+                .toString()
+                .toLowerCase();
+            _isProfileVerified = profStatus == 'verified' ||
                 profStatus == 'approved' ||
                 (profileData['is_verified'] as bool? ?? widget.isVerified);
+
+            _isEmailVerified = _email != null && _email!.trim().isNotEmpty;
+            _isPhoneVerified = _phoneNumber != null && _phoneNumber!.trim().isNotEmpty;
           }
           _ownerReviews = results[2] as List<ReviewModel>;
           _isLoadingReviews = false;
@@ -261,7 +266,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
                       // Joined date
                       Text(
-                        'Host since $_joinedDate',
+                        'Joined $_joinedDate',
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           color: const Color(0xFF94A3B8),
@@ -270,7 +275,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       ),
                       const SizedBox(height: 28),
 
-                      // ── 3-Stat Row (like Airbnb) ──────────────────────
+                      // ── 3-Stat Row ──────────────────────
                       Container(
                         padding: const EdgeInsets.symmetric(
                           vertical: 20,
@@ -308,12 +313,12 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                   : null,
                             ),
                             _buildStatDivider(),
-                            // Years Hosting
+                            // Years on Khozna
                             _buildBigStat(
                               value: '$_yearsHosting',
                               label: _yearsHosting == 1
-                                  ? 'Year hosting'
-                                  : 'Years hosting',
+                                  ? 'Year on Khozna'
+                                  : 'Years on Khozna',
                             ),
                           ],
                         ),
@@ -345,12 +350,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       ),
                       _buildVerificationRow(
                         label: 'Email address',
-                        isVerified: _email != null && _email!.isNotEmpty,
+                        isVerified: _isEmailVerified,
                       ),
                       _buildVerificationRow(
                         label: 'Phone number',
-                        isVerified:
-                            _phoneNumber != null && _phoneNumber!.isNotEmpty,
+                        isVerified: _isPhoneVerified,
                       ),
 
                       const SizedBox(height: 28),
@@ -448,7 +452,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'This host\'s identity has not been verified yet. Proceed with caution.',
+                              'This owner\'s identity has not been verified yet. Proceed with caution.',
                               style: GoogleFonts.inter(
                                 fontSize: 12.5,
                                 color: const Color(0xFF92400E),
@@ -587,23 +591,35 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(
-            isVerified ? Icons.check_circle_rounded : Icons.cancel_rounded,
-            color: isVerified
-                ? const Color(0xFF16A34A)
-                : const Color(0xFFCBD5E1),
-            size: 20,
+          Row(
+            children: [
+              Icon(
+                isVerified ? Icons.check_circle_rounded : Icons.cancel_outlined,
+                color: isVerified
+                    ? const Color(0xFF16A34A)
+                    : const Color(0xFF94A3B8),
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
           Text(
-            label,
+            isVerified ? 'Verified' : 'Not verified',
             style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: isVerified
-                  ? const Color(0xFF0F172A)
-                  : const Color(0xFF94A3B8),
+              fontSize: 13.5,
+              fontWeight: isVerified ? FontWeight.w600 : FontWeight.w500,
+              color: isVerified ? const Color(0xFF166534) : const Color(0xFF64748B),
+              decoration: isVerified ? TextDecoration.none : TextDecoration.underline,
             ),
           ),
         ],
