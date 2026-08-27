@@ -885,6 +885,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           controller: _areaController,
           isRequired: true,
           prefixIcon: Icons.location_on_outlined,
+          onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 16),
 
@@ -895,6 +896,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           controller: _landmarkController,
           isRequired: true,
           prefixIcon: Icons.near_me_outlined,
+          onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 24),
 
