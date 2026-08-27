@@ -178,9 +178,7 @@ class PropertyCard extends StatelessWidget {
                                 bookedIds.contains(id) ||
                                 status == 'pending_approval';
 
-                            if (!isBooked &&
-                                !isPending &&
-                                status != 'available') {
+                            if (!isBooked && !isPending) {
                               return const SizedBox.shrink();
                             }
 
@@ -192,9 +190,7 @@ class PropertyCard extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: isBooked
                                     ? Colors.redAccent
-                                    : (isPending
-                                          ? Colors.orange
-                                          : const Color(0xFF00C853)),
+                                    : Colors.orange,
                                 borderRadius: BorderRadius.circular(30),
                                 boxShadow: [
                                   BoxShadow(
@@ -205,9 +201,7 @@ class PropertyCard extends StatelessWidget {
                                 ],
                               ),
                               child: Text(
-                                isBooked
-                                    ? 'BOOKED'
-                                    : (isPending ? 'PENDING' : 'FOR RENT'),
+                                isBooked ? 'BOOKED' : 'PENDING',
                                 style: GoogleFonts.inter(
                                   color: Colors.white,
                                   fontSize: 10.0,

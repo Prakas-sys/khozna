@@ -583,52 +583,34 @@ class HomeHorizontalSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        Builder(
-          builder: (context) {
-            if (isLoading) {
-              return _buildSkeletonList();
-            }
-
-            if (properties.isEmpty) {
-              return const SizedBox.shrink();
-            }
-
-            final displayList = properties.take(5).toList();
-
-            return SizedBox(
-              height: 282,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                clipBehavior: Clip.none,
-                physics: const BouncingScrollPhysics(),
-                itemCount: displayList.length + 1,
-                itemBuilder: (context, index) {
-                  if (index < displayList.length) {
-                    return _buildPropertyCard(displayList[index]);
-                  } else {
-                    return _buildSeeAllCard(context);
-                  }
-                },
-              ),
-            );
-          },
+        SizedBox(
+          height: 282,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            clipBehavior: Clip.none,
+            physics: const BouncingScrollPhysics(),
+            itemCount: 6, // Always 5 card slots + 1 See All card
+            itemBuilder: (context, index) {
+              if (index < 5) {
+                if (!isLoading && index < properties.length) {
+                  return _buildPropertyCard(properties[index]);
+                } else {
+                  return _buildSkeletonCard();
+                }
+              } else {
+                return _buildSeeAllCard(context);
+              }
+            },
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildSkeletonList() {
-    return SizedBox(
-      height: 282,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        itemCount: 5,
-        itemBuilder: (_, _) => const Padding(
-          padding: EdgeInsets.only(right: 16),
-          child: SkeletonCard(),
-        ),
-      ),
+  Widget _buildSkeletonCard() {
+    return const Padding(
+      padding: EdgeInsets.only(right: 16),
+      child: SkeletonCard(),
     );
   }
 

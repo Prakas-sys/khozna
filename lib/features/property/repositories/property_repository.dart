@@ -44,18 +44,18 @@ class PropertyRepository {
                 .lte('longitude', lng + 0.1);
           }
           break;
-        case 1: // Villa — category match OR title mentions villa
-          query = query.or('category.eq.Villa,title.ilike.%villa%');
+        case 1: // Villa — category or title contains villa
+          query = query.or('category.ilike.%villa%,title.ilike.%villa%');
           break;
-        case 2: // Cottage — category match OR title mentions cottage
-          query = query.or('category.eq.Cottage,title.ilike.%cottage%');
+        case 2: // Cottage — category or title contains cottage
+          query = query.or('category.ilike.%cottage%,title.ilike.%cottage%');
           break;
-        case 3: // Apartment — category/title match
+        case 3: // Apartment — category or title contains apartment/flat
           query = query.or(
-            'category.eq.Apartment,category.eq.Flat,title.ilike.%apartment%,title.ilike.%flat%',
+            'category.ilike.%apartment%,category.ilike.%flat%,title.ilike.%apartment%,title.ilike.%flat%',
           );
           break;
-        case 4: // BHK — category/title contains BHK variants
+        case 4: // BHK — category or title contains BHK variants
           query = query.or(
             'category.ilike.%bhk%,title.ilike.%bhk%,title.ilike.%1bhk%,title.ilike.%2bhk%,title.ilike.%3bhk%,title.ilike.%1 bhk%,title.ilike.%2 bhk%,title.ilike.%3 bhk%',
           );
@@ -70,30 +70,16 @@ class PropertyRepository {
           .order('created_at', ascending: false)
           .limit(8);
 
-      List<Map<String, dynamic>> rawData =
+      final List<Map<String, dynamic>> rawData =
           List<Map<String, dynamic>>.from(data);
 
-      // Fallback: If section has no properties matching the strict filter, fetch available properties
-      if (rawData.isEmpty && index != 5) {
-        final fallbackData = await _client
-            .from('properties')
-            .select(
-              '*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status, area_name)',
-            )
-            .eq('status', 'available')
-            .order('created_at', ascending: false)
-            .limit(8);
-        rawData = List<Map<String, dynamic>>.from(fallbackData);
-      }
-
-      if (rawData.isNotEmpty) {
-        final currentCache = Map<int, List<Map<String, dynamic>>>.from(
-          homeSectionCache.value,
-        );
-        currentCache[index] = rawData;
-        homeSectionCache.value = currentCache;
-        OfflineStorage.saveHomeCache(currentCache);
-      }
+      // Always update cache (even if rawData is empty) to purge any stale cached items
+      final currentCache = Map<int, List<Map<String, dynamic>>>.from(
+        homeSectionCache.value,
+      );
+      currentCache[index] = rawData;
+      homeSectionCache.value = currentCache;
+      OfflineStorage.saveHomeCache(currentCache);
 
       return rawData.map((e) => Property.fromMap(e)).toList();
     } catch (e) {
