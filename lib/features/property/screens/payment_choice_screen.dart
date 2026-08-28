@@ -338,51 +338,53 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
                 const SizedBox(height: 24),
 
-                Row(
-                  children: [
-                    Container(
-                      width: 3,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: AppTheme.brandColor,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Select Payment Route',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
+                Text(
+                  'How would you like to pay?',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF0F172A),
+                    letterSpacing: -0.3,
+                  ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 4),
+                Text(
+                  'Choose the payment route that works best for you.',
+                  style: GoogleFonts.inter(
+                    fontSize: 12.5,
+                    color: const Color(0xFF94A3B8),
+                    height: 1.4,
+                  ),
+                ),
 
-                // Option A: Khozna Escrow
+                const SizedBox(height: 16),
+
+                // ── Khozna Secure Escrow ──
                 _buildPathCard(
                   id: 'khozna_escrow',
-                  title: 'Khozna Secure Escrow',
-                  subtitle: 'Funds are held safely by Khozna & released after you move in. 100% refund protection.',
+                  title: 'Khozna Secure',
+                  subtitle: 'We hold your funds safely and release them only after you move in.',
                   badge: 'RECOMMENDED',
-                  icon: Icons.shield_rounded,
-                  iconColor: const Color(0xFF25D366),
+                  icon: Icons.verified_user_rounded,
+                  iconColor: AppTheme.brandColor,
+                  features: ['100% Refund Protection', 'Dispute Resolution', 'KYC Verified'],
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
 
-                // Option B: Pay to Owner
+                // ── Pay to Owner ──
                 _buildPathCard(
                   id: 'host_direct',
                   title: 'Pay to Owner',
                   subtitle: hasHostPayment
-                      ? 'Pay directly to the property owner via eSewa, Khalti, or Bank QR code.'
-                      : 'Owner hasn\'t configured direct wallet yet. Use Khozna Escrow.',
+                      ? 'Pay directly to the landlord via eSewa, Khalti, or QR code.'
+                      : 'Owner hasn\'t set up direct payment yet.',
                   badge: 'DIRECT',
-                  icon: Icons.person_pin_rounded,
-                  iconColor: const Color(0xFF2563EB),
+                  icon: Icons.send_rounded,
+                  iconColor: const Color(0xFF6366F1),
+                  features: hasHostPayment
+                      ? ['eSewa / Khalti', 'Owner QR Code', 'Instant Transfer']
+                      : [],
                   disabled: !hasHostPayment,
                 ),
               ],
@@ -395,7 +397,6 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           label: 'Continue to Methods',
           onPressed: () {
             HapticFeedback.mediumImpact();
-            // Default selected method based on path
             if (_paymentPath == 'khozna_escrow') {
               _selectedMethod = 'khozna_esewa';
             } else {
@@ -421,10 +422,14 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     required String badge,
     required IconData icon,
     required Color iconColor,
+    List<String> features = const [],
     bool disabled = false,
   }) {
     final isSelected = _paymentPath == id;
     final isEscrow = id == 'khozna_escrow';
+
+    // Restrained palette — only brand color for Khozna, pure black for owner
+    final Color activeColor = isEscrow ? AppTheme.brandColor : const Color(0xFF0F172A);
 
     return GestureDetector(
       onTap: disabled
@@ -435,127 +440,178 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: disabled
-              ? const Color(0xFFF8FAFC)
-              : isSelected
-                  ? (isEscrow
-                      ? AppTheme.brandColor.withOpacity(0.04)
-                      : Colors.white)
-                  : Colors.white,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected
-                ? (isEscrow ? AppTheme.brandColor : Colors.black87)
-                : Colors.grey.shade200,
-            width: isSelected ? 2 : 1,
+            color: isSelected ? activeColor : const Color(0xFFE2E8F0),
+            width: isSelected ? 1.8 : 1,
           ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Icon Badge
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: isEscrow
-                    ? AppTheme.brandColor.withOpacity(0.08)
-                    : (disabled ? Colors.grey.shade100 : Colors.grey.shade100),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                icon,
-                size: 22,
-                color: disabled
-                    ? Colors.grey[400]
-                    : (isEscrow ? AppTheme.brandColor : Colors.black87),
-              ),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected
+                  ? activeColor.withOpacity(0.06)
+                  : Colors.black.withOpacity(0.02),
+              blurRadius: isSelected ? 14 : 4,
+              offset: const Offset(0, 3),
             ),
-            const SizedBox(width: 14),
-            // Text Details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Icon — clean, no colored background on owne
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: disabled
+                        ? const Color(0xFFF8FAFC)
+                        : isEscrow
+                            ? AppTheme.brandColor.withOpacity(0.08)
+                            : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: disabled
+                          ? const Color(0xFFE2E8F0)
+                          : isEscrow
+                              ? AppTheme.brandColor.withOpacity(0.15)
+                              : const Color(0xFFE2E8F0),
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 18,
+                    color: disabled
+                        ? const Color(0xFFCBD5E1)
+                        : isEscrow
+                            ? AppTheme.brandColor
+                            : const Color(0xFF334155),
+                  ),
+                ),
+
+                const SizedBox(width: 13),
+
+                // Title + subtitle
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Flexible(
-                        child: Text(
-                          title,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 14.5,
-                            fontWeight: FontWeight.w700,
-                            color: disabled ? Colors.grey[400] : Colors.black87,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            title,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: disabled
+                                  ? const Color(0xFFCBD5E1)
+                                  : const Color(0xFF0F172A),
+                              letterSpacing: -0.3,
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 7),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: disabled
+                                  ? const Color(0xFFF1F5F9)
+                                  : isEscrow
+                                      ? AppTheme.brandColor.withOpacity(0.09)
+                                      : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Text(
+                              badge,
+                              style: GoogleFonts.inter(
+                                fontSize: 8.5,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.6,
+                                color: disabled
+                                    ? const Color(0xFFCBD5E1)
+                                    : isEscrow
+                                        ? AppTheme.brandColor
+                                        : const Color(0xFF64748B),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isEscrow
-                              ? AppTheme.brandColor.withOpacity(0.1)
-                              : const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          badge,
-                          style: GoogleFonts.inter(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
-                            color: isEscrow
-                                ? AppTheme.brandColor
-                                : const Color(0xFF64748B),
-                            letterSpacing: 0.5,
-                          ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          height: 1.4,
+                          color: disabled
+                              ? const Color(0xFFCBD5E1)
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
+                ),
+
+                const SizedBox(width: 10),
+
+                // Radio dot — top aligned
+                Padding(
+                  padding: const EdgeInsets.only(top: 1),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isSelected ? activeColor : Colors.transparent,
+                      border: Border.all(
+                        color: isSelected ? activeColor : const Color(0xFFCBD5E1),
+                        width: 2,
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: isSelected
+                        ? const Icon(Icons.check_rounded, size: 11, color: Colors.white)
+                        : null,
+                  ),
+                ),
+              ],
+            ),
+
+            // Feature pills — grey unless selected, never colorful
+            if (!disabled && features.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 6,
+                runSpacing: 5,
+                children: features.map((f) => Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Text(
+                    f,
                     style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: disabled ? Colors.grey[400] : Colors.grey[600],
-                      height: 1.35,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF475569),
                     ),
                   ),
-                ],
+                )).toList(),
               ),
-            ),
-            const SizedBox(width: 12),
-            // Selection Checkmark / Radio
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isSelected
-                    ? (isEscrow ? AppTheme.brandColor : Colors.black87)
-                    : Colors.transparent,
-                border: Border.all(
-                  color: isSelected
-                      ? (isEscrow ? AppTheme.brandColor : Colors.black87)
-                      : Colors.grey.shade300,
-                  width: 2,
-                ),
-              ),
-              alignment: Alignment.center,
-              child: isSelected
-                  ? const Icon(
-                      Icons.check_rounded,
-                      size: 13,
-                      color: Colors.white,
-                    )
-                  : null,
-            ),
+            ],
           ],
         ),
       ),
@@ -1033,7 +1089,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      'TOTAL AMOUNT',
+                      'TOTAL RENT',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
@@ -1048,18 +1104,18 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Transform.translate(
-                        offset: const Offset(0, 1),
+                        offset: const Offset(0, 2.5),
                         child: SvgPicture.asset(
                           'assets/icons/vector of ruppes.svg',
-                          width: 16,
-                          height: 16,
+                          width: 20,
+                          height: 20,
                           colorFilter: const ColorFilter.mode(
                             Colors.black,
                             BlendMode.srcIn,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 3),
+                      const SizedBox(width: 2),
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 130),
                         child: Text(
