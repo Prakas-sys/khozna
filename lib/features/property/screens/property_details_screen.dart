@@ -1674,39 +1674,42 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // ── Hero Rating Row (Airbnb-style) ──
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Icon(Icons.star_rounded, color: Colors.black, size: 28),
-            const SizedBox(width: 8),
-            Text(
-              avgRating.toStringAsFixed(1),
-              style: GoogleFonts.outfit(
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-                color: Colors.black,
+        GestureDetector(
+          onTap: _showAllReviewsModal,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Icon(Icons.star_rounded, color: Colors.black, size: 28),
+              const SizedBox(width: 8),
+              Text(
+                avgRating.toStringAsFixed(1),
+                style: GoogleFonts.outfit(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black,
+                ),
               ),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              '·',
-              style: GoogleFonts.inter(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[400],
+              const SizedBox(width: 6),
+              Text(
+                '·',
+                style: GoogleFonts.inter(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[400],
+                ),
               ),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              '${_reviews.length} ${_reviews.length == 1 ? "Vote" : "Votes"}',
-              style: GoogleFonts.plusJakartaSans(
-                fontWeight: FontWeight.w800,
-                fontSize: 15,
-                color: Colors.black,
-                decoration: TextDecoration.underline,
+              const SizedBox(width: 6),
+              Text(
+                '${_reviews.length} ${_reviews.length == 1 ? "Vote" : "Votes"}',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 15,
+                  color: Colors.black,
+                  decoration: TextDecoration.underline,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: 20),
 

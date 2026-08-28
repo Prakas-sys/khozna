@@ -1663,9 +1663,9 @@ class TicketBorderPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final path = ReceiptTicketClipper().getClip(size);
     final paint = Paint()
-      ..color = Colors.black.withOpacity(0.04)
+      ..color = const Color(0xFFCBD5E1)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
+      ..strokeWidth = 1.5;
     canvas.drawPath(path, paint);
   }
 
