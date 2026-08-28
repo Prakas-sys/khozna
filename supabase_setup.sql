@@ -32,3 +32,7 @@ CREATE POLICY "Allow delete bookings" ON bookings FOR DELETE USING (true);
 -- 3. Verify indexes
 CREATE INDEX IF NOT EXISTS idx_payments_booking_id ON payments(booking_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_guest_id ON bookings(guest_id);
+
+-- 4. Enable Supabase Realtime for instant red notification badge popups
+ALTER PUBLICATION supabase_realtime ADD TABLE notifications;
+ALTER PUBLICATION supabase_realtime ADD TABLE bookings;

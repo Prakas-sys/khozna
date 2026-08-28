@@ -7,6 +7,7 @@ import 'package:khozna/features/chat/repositories/chat_repository.dart';
 class NotificationRepository {
   static final _client = Supabase.instance.client;
   static RealtimeChannel? _notificationChannel;
+  static RealtimeChannel? _bookingChannel;
 
   /// NEW: Robust initializer for all real-time listeners
   static void initRealtimeListeners() {
@@ -14,6 +15,7 @@ class NotificationRepository {
     if (user == null) return;
 
     _notificationChannel?.unsubscribe();
+    _bookingChannel?.unsubscribe();
 
     _notificationChannel = _client
         .channel('public:notifications-${user.id}')
@@ -41,6 +43,24 @@ class NotificationRepository {
           },
         );
     _notificationChannel?.subscribe();
+
+    _bookingChannel = _client
+        .channel('public:bookings-guest-${user.id}')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'bookings',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'guest_id',
+            value: user.id,
+          ),
+          callback: (payload) {
+            notificationBadgeCount.value += 1;
+            fetchUnreadNotificationCount();
+          },
+        );
+    _bookingChannel?.subscribe();
 
     _client
         .channel('public:messages-${user.id}')
