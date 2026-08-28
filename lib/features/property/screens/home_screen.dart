@@ -557,7 +557,10 @@ class HomeScreenState extends State<HomeScreen> {
         }
       });
     }
-    await _getCurrentLocation();
-    await _initializeFutures();
+    // Run location refresh and data fetch concurrently
+    await Future.wait([
+      _getCurrentLocation(),
+      _initializeFutures(),
+    ]);
   }
 }

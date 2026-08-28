@@ -2450,13 +2450,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 decoration: BoxDecoration(
                   color: AppTheme.brandColor,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.brandColor.withOpacity(0.25),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
                 ),
                 child: Row(
                   children: [
