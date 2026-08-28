@@ -427,189 +427,199 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   }) {
     final isSelected = _paymentPath == id;
     final isEscrow = id == 'khozna_escrow';
-
-    // Restrained palette — only brand color for Khozna, pure black for owner
     final Color activeColor = isEscrow ? AppTheme.brandColor : const Color(0xFF0F172A);
 
     return GestureDetector(
-      onTap: disabled
-          ? null
-          : () {
-              HapticFeedback.selectionClick();
-              setState(() => _paymentPath = id);
-            },
+      onTap: disabled ? null : () {
+        HapticFeedback.selectionClick();
+        setState(() => _paymentPath = id);
+      },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+        duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
-        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? activeColor : const Color(0xFFE2E8F0),
-            width: isSelected ? 1.8 : 1,
+            color: isSelected ? activeColor : const Color(0xFFE8EDF2),
+            width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? activeColor.withOpacity(0.06)
-                  : Colors.black.withOpacity(0.02),
-              blurRadius: isSelected ? 14 : 4,
-              offset: const Offset(0, 3),
+                  ? activeColor.withOpacity(0.08)
+                  : Colors.black.withOpacity(0.03),
+              blurRadius: isSelected ? 18 : 6,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Icon — clean, no colored background on owne
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: disabled
-                        ? const Color(0xFFF8FAFC)
-                        : isEscrow
-                            ? AppTheme.brandColor.withOpacity(0.08)
-                            : const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
+            // ── Top section ──────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Icon bubble
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
                       color: disabled
-                          ? const Color(0xFFE2E8F0)
+                          ? const Color(0xFFF1F5F9)
                           : isEscrow
-                              ? AppTheme.brandColor.withOpacity(0.15)
-                              : const Color(0xFFE2E8F0),
-                      width: 1,
+                              ? AppTheme.brandColor.withOpacity(0.10)
+                              : const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      icon,
+                      size: 22,
+                      color: disabled
+                          ? const Color(0xFFCBD5E1)
+                          : isEscrow
+                              ? AppTheme.brandColor
+                              : const Color(0xFF1E293B),
                     ),
                   ),
-                  child: Icon(
-                    icon,
-                    size: 18,
-                    color: disabled
-                        ? const Color(0xFFCBD5E1)
-                        : isEscrow
-                            ? AppTheme.brandColor
-                            : const Color(0xFF334155),
-                  ),
-                ),
+                  const SizedBox(width: 12),
 
-                const SizedBox(width: 13),
-
-                // Title + subtitle
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            title,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                              color: disabled
-                                  ? const Color(0xFFCBD5E1)
-                                  : const Color(0xFF0F172A),
-                              letterSpacing: -0.3,
-                            ),
-                          ),
-                          const SizedBox(width: 7),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: disabled
-                                  ? const Color(0xFFF1F5F9)
-                                  : isEscrow
-                                      ? AppTheme.brandColor.withOpacity(0.09)
-                                      : const Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Text(
-                              badge,
-                              style: GoogleFonts.inter(
-                                fontSize: 8.5,
+                  // Title + description
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              title,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 14.5,
                                 fontWeight: FontWeight.w800,
-                                letterSpacing: 0.6,
                                 color: disabled
                                     ? const Color(0xFFCBD5E1)
-                                    : isEscrow
-                                        ? AppTheme.brandColor
-                                        : const Color(0xFF64748B),
+                                    : const Color(0xFF0F172A),
+                                letterSpacing: -0.3,
                               ),
                             ),
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: disabled
+                                    ? const Color(0xFFF1F5F9)
+                                    : isEscrow
+                                        ? AppTheme.brandColor.withOpacity(0.10)
+                                        : const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                badge,
+                                style: GoogleFonts.inter(
+                                  fontSize: 8.5,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.5,
+                                  color: disabled
+                                      ? const Color(0xFFCBD5E1)
+                                      : isEscrow
+                                          ? AppTheme.brandColor
+                                          : const Color(0xFF64748B),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          subtitle,
+                          style: GoogleFonts.inter(
+                            fontSize: 11.5,
+                            height: 1.45,
+                            color: disabled
+                                ? const Color(0xFFCBD5E1)
+                                : const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  // Radio indicator
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isSelected ? activeColor : Colors.transparent,
+                        border: Border.all(
+                          color: isSelected ? activeColor : const Color(0xFFCBD5E1),
+                          width: 2,
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: isSelected
+                          ? const Icon(Icons.check_rounded, size: 11, color: Colors.white)
+                          : null,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // ── Divider ──
+            if (!disabled) ...[
+              Container(height: 1, color: const Color(0xFFF1F5F9)),
+
+              // ── Bottom section: accepted methods / milestones ──
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                child: isEscrow
+                    // Khozna Secure: show the 3-step escrow flow
+                    ? Row(
+                        children: [
+                          _buildFlowStep('Deposit', Icons.upload_rounded, activeColor),
+                          _buildFlowArrow(),
+                          _buildFlowStep('Held Safe', Icons.lock_rounded, activeColor),
+                          _buildFlowArrow(),
+                          _buildFlowStep('Released', Icons.check_circle_rounded, activeColor),
+                        ],
+                      )
+                    // Pay to Owner: show accepted wallet logos
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'ACCEPTED VIA',
+                            style: GoogleFonts.inter(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF94A3B8),
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                          const SizedBox(height: 7),
+                          Row(
+                            children: [
+                              // eSewa pill
+                              _buildWalletPill('eSewa', const Color(0xFF60BB46)),
+                              const SizedBox(width: 6),
+                              // Khalti pill
+                              _buildWalletPill('Khalti', const Color(0xFF5C2D91)),
+                              const SizedBox(width: 6),
+                              // QR pill
+                              _buildWalletPill('QR Code', const Color(0xFF334155)),
+                            ],
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          height: 1.4,
-                          color: disabled
-                              ? const Color(0xFFCBD5E1)
-                              : const Color(0xFF64748B),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(width: 10),
-
-                // Radio dot — top aligned
-                Padding(
-                  padding: const EdgeInsets.only(top: 1),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isSelected ? activeColor : Colors.transparent,
-                      border: Border.all(
-                        color: isSelected ? activeColor : const Color(0xFFCBD5E1),
-                        width: 2,
-                      ),
-                    ),
-                    alignment: Alignment.center,
-                    child: isSelected
-                        ? const Icon(Icons.check_rounded, size: 11, color: Colors.white)
-                        : null,
-                  ),
-                ),
-              ],
-            ),
-
-            // Feature pills — grey unless selected, never colorful
-            if (!disabled && features.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 6,
-                runSpacing: 5,
-                children: features.map((f) => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                  ),
-                  child: Text(
-                    f,
-                    style: GoogleFonts.inter(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF475569),
-                    ),
-                  ),
-                )).toList(),
               ),
             ],
           ],
@@ -618,6 +628,46 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     );
   }
 
+  Widget _buildFlowStep(String label, IconData icon, Color color) {
+    return Expanded(
+      child: Column(
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(height: 3),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 9.5,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF475569),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFlowArrow() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Icon(Icons.arrow_forward_rounded, size: 12, color: Colors.grey[300]),
+    );
+  }
+
+  Widget _buildWalletPill(String name, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.18)),
+      ),
+      child: Text(
+        name,
+        style: GoogleFonts.inter(
+          fontSize: 10.5,
+  }
 
   // ── STEP 2 OF 3: SELECT METHOD ──
   Widget _buildStepOneMethodSelection() {
