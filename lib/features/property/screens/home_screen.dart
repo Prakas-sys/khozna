@@ -123,7 +123,18 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchInitialData() async {
-    // If cache not loaded in memory yet, load from disk
+    // ⚡ 1. Restore cached location name instantly
+    if (currentLocationName.value.isNotEmpty && currentLocationName.value != 'Nepal') {
+      _currentLocationName = currentLocationName.value;
+    } else {
+      final cachedLoc = await OfflineStorage.loadLastLocation();
+      if (cachedLoc != null && cachedLoc.isNotEmpty) {
+        _currentLocationName = cachedLoc;
+        currentLocationName.value = cachedLoc;
+      }
+    }
+
+    // ⚡ 2. Load section properties cache from disk/memory
     if (homeSectionCache.value.isEmpty) {
       final diskCache = await OfflineStorage.loadHomeCache();
       if (diskCache.isNotEmpty) {
@@ -138,7 +149,6 @@ class HomeScreenState extends State<HomeScreen> {
         if (mounted) setState(() {});
       }
     } else {
-      // If already in memory, only apply cache when it has content
       for (int i = 0; i < 5; i++) {
         final cachedData = homeSectionCache.value[i] ?? [];
         if (cachedData.isNotEmpty) {
@@ -148,11 +158,13 @@ class HomeScreenState extends State<HomeScreen> {
       }
       if (mounted) setState(() {});
     }
-    await _getCurrentLocation();
-    if (mounted) _initializeFutures();
+
+    // ⚡ 3. Start fetching property sections & fresh location concurrently
+    if (mounted) {
+      _initializeFutures();
+      _getCurrentLocation(); // Run in background, don't await to prevent blocking UI
+    }
   }
-
-
 
   Future<void> _getCurrentLocation() async {
     try {
@@ -163,49 +175,51 @@ class HomeScreenState extends State<HomeScreen> {
       if (permission == LocationPermission.whileInUse ||
           permission == LocationPermission.always) {
 
-        // ⚡ First try last known position for instant display
+        // ⚡ First try last known position for instant location display
         final lastKnown = await Geolocator.getLastKnownPosition();
         if (lastKnown != null) {
           _currentPosition = lastKnown;
           _fetchAreaName(lastKnown);
         }
 
-        // Then get fresh accurate position with fallback sequence to prevent timeout hang
+        // Then get fresh accurate position with short non-blocking timeouts
         Position? position;
         try {
-          // 1. Try High Accuracy first (Fast 6s timeout)
+          // 1. Try High Accuracy (3s fast timeout)
           position = await Geolocator.getCurrentPosition(
             locationSettings: const LocationSettings(
               accuracy: LocationAccuracy.high,
             ),
-          ).timeout(const Duration(seconds: 6));
+          ).timeout(const Duration(seconds: 3));
         } catch (_) {
-          // 2. Fallback to Medium (Network based, fast 4s timeout)
+          // 2. Fallback to Medium (Network based, 3s timeout)
           try {
             position = await Geolocator.getCurrentPosition(
               locationSettings: const LocationSettings(
                 accuracy: LocationAccuracy.medium,
               ),
-            ).timeout(const Duration(seconds: 4));
+            ).timeout(const Duration(seconds: 3));
           } catch (_) {
-            // Keep default/lastKnown if both failed
+            // Keep lastKnown/cached if both failed
           }
         }
 
         if (position != null) {
           _currentPosition = position;
           await _fetchAreaName(position); // overwrite with fresh result
-        } else {
+        } else if (_currentPosition == null) {
           // Fallback to IP location if GPS coordinates could not be retrieved
           await _fallbackToIpLocation();
         }
-      } else {
+      } else if (_currentPosition == null) {
         // Fallback to IP if permissions are denied
         await _fallbackToIpLocation();
       }
     } catch (e) {
       debugPrint('Location fetch skipped, attempting IP fallback: $e');
-      await _fallbackToIpLocation();
+      if (_currentPosition == null) {
+        await _fallbackToIpLocation();
+      }
     }
   }
 
@@ -346,6 +360,7 @@ class HomeScreenState extends State<HomeScreen> {
         if (mounted && _currentLocationName != area) {
           setState(() => _currentLocationName = area);
           currentLocationName.value = area; // sync global notifier
+          OfflineStorage.saveLastLocation(area); // persist for instant display next launch
         }
       }
     } catch (e) {
@@ -400,6 +415,7 @@ class HomeScreenState extends State<HomeScreen> {
             if (mounted && _currentLocationName != area) {
               setState(() => _currentLocationName = area);
               currentLocationName.value = area;
+              OfflineStorage.saveLastLocation(area); // persist for instant display next launch
               return;
             }
           }
