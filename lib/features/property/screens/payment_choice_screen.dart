@@ -535,7 +535,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                             height: 1.35,
                             color: disabled
                                 ? const Color(0xFFCBD5E1)
-                                : const Color(0xFF64748B),
+                                : const Color(0xFF475569),
                           ),
                         ),
                       ],
@@ -587,34 +587,16 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                           _buildFlowStep('Released', Icons.check_circle_rounded, activeColor),
                         ],
                       )
-                    // Pay to Owner: show accepted wallet logos
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'ACCEPTED VIA',
-                            style: GoogleFonts.inter(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w800,
-                              color: const Color(0xFF94A3B8),
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-                          const SizedBox(height: 7),
-                          Row(
-                            children: [
-                              // eSewa pill
-                              _buildWalletPill('eSewa', const Color(0xFF60BB46)),
-                              const SizedBox(width: 6),
-                              // Khalti pill
-                              _buildWalletPill('Khalti', const Color(0xFF5C2D91)),
-                              const SizedBox(width: 6),
-                              // QR pill
-                              _buildWalletPill('QR Code', const Color(0xFF334155)),
-                            ],
-                          ),
-                        ],
-                      ),
+                    // Pay to Owner: show real logo image badges (no ACCEPTED VIA text)
+                    : Row(
+                      children: [
+                        _buildWalletLogoImage('assets/images/esewa.webp'),
+                        const SizedBox(width: 8),
+                        _buildWalletLogoImage('assets/images/khalti.png'),
+                        const SizedBox(width: 8),
+                        _buildWalletQrPill(),
+                      ],
+                    ),
               ),
             ],
           ],
@@ -650,21 +632,44 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     );
   }
 
-  Widget _buildWalletPill(String name, Color color) {
+  Widget _buildWalletLogoImage(String assetPath) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.18)),
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
-      child: Text(
-        name,
-        style: GoogleFonts.inter(
-          fontSize: 10.5,
-          fontWeight: FontWeight.w700,
-          color: color,
-        ),
+      child: Image.asset(
+        assetPath,
+        height: 16,
+        fit: BoxFit.contain,
+      ),
+    );
+  }
+
+  Widget _buildWalletQrPill() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.qr_code_2_rounded, size: 15, color: Color(0xFF334155)),
+          const SizedBox(width: 4),
+          Text(
+            'QR',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF334155),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1013,6 +1018,12 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   Widget _buildReceiptTicket() {
     final String dateStr = DateFormat('MMM d, yyyy').format(_currentBooking.checkIn);
     final String amountStr = PriceFormatter.format(_currentBooking.totalPrice.toString());
+    final prop = widget.property;
+    final String dateLabel = (prop != null && prop.priceNight > 0 && prop.priceMonth == 0)
+        ? 'Check-in'
+        : (prop != null && prop.priceMonth > 0 && prop.priceNight == 0)
+            ? 'Move-in'
+            : 'Check-in / Move-in';
 
     return CustomPaint(
       painter: TicketBorderPainter(),
@@ -1027,7 +1038,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               Row(
                 children: [
                   const Icon(
-                    Icons.receipt_long_rounded,
+                    Icons.home_work_rounded,
                     color: Colors.black87,
                     size: 18,
                   ),
@@ -1114,7 +1125,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                             Icon(Icons.calendar_today_outlined, size: 12, color: Colors.grey[500]),
                             const SizedBox(width: 4),
                             Text(
-                              'Check-in: $dateStr',
+                              '$dateLabel: $dateStr',
                               style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w500),
                             ),
                           ],
