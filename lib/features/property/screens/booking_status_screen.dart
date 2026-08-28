@@ -1135,6 +1135,8 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
   }
 
   Widget _buildAwaitingPaymentActions() {
+    final bool hasProof = _booking.paymentProofUrl != null && _booking.paymentProofUrl!.isNotEmpty;
+
     return Column(
       children: [
         Container(
@@ -1151,22 +1153,24 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
           ),
           child: Column(
             children: [
-              const Icon(
-                Icons.verified_rounded,
-                color: Colors.green,
+              Icon(
+                hasProof ? Icons.verified_rounded : Icons.account_balance_wallet_rounded,
+                color: hasProof ? Colors.green : AppTheme.brandColor,
                 size: 40,
               ),
               const SizedBox(height: 10),
               Text(
-                'बुकिङ स्वीकृत भयो! 🎉',
+                hasProof ? 'भुक्तानी प्राप्त भयो! 🎉' : 'भुक्तानी रसिद अपलोड गर्नुहोस् 💳',
                 style: GoogleFonts.notoSansDevanagari(
                   fontWeight: FontWeight.w800,
-                  fontSize: 18,
+                  fontSize: 17,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                'तपाईंको भुक्तानी Khozna Secure मा सफलतापूर्वक पठाइयो।\nसमीक्षा पश्चात बुकिङ पक्का हुनेछ।',
+                hasProof
+                    ? 'तपाईंको भुक्तानी रसिद Khozna Secure मा पठाइएको छ।\nप्रशासकले प्रमाणीकरण गरेपछि बुकिङ पक्का हुनेछ।'
+                    : 'कोठा बुकिङ पूरा गर्न eSewa/Khalti मार्फत भुक्तानी पठाएर रसिदको फोटो अपलोड गर्नुहोस्।',
                 style: GoogleFonts.notoSansDevanagari(
                   fontSize: 12,
                   color: Colors.grey.shade700,
@@ -1178,6 +1182,21 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
           ),
         ),
         const SizedBox(height: 14),
+        if (!hasProof || _booking.status == 'awaiting_payment') ...[
+          _actionBtn(
+            label: 'भुक्तानी रसिद पठाउनुहोस् (Upload Payment Receipt)',
+            color: const Color(0xFF22C55E),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PaymentChoiceScreen(booking: _booking),
+                ),
+              ).then((_) => _fetchBookingDetails());
+            },
+          ),
+          const SizedBox(height: 10),
+        ],
         _actionBtn(
           label: 'Browse More Rooms',
           color: AppTheme.brandColor,
