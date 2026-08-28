@@ -109,15 +109,28 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         if (!existing && !dismissedIds.contains(synthId)) {
           final timeStr = visit.createdAt?.toIso8601String()
               ?? DateTime.now().toIso8601String();
-          if (visit.status == 'visit_accepted' ||
-              visit.status == 'awaiting_payment') {
+          final propTitle = visit.propertyTitle ?? 'Property';
+          if (visit.status == 'visit_accepted') {
             combined.add({
               'id': synthId,
               'booking_id': visit.id,
               'property_id': visit.propertyId,
-              'title': 'Visit Request Approved! 🎉',
+              'title': 'Visit Approved! 🎉',
               'message':
-                  'Great news! The owner accepted your visit request. Tap to view booking details.',
+                  'The owner accepted your visit request for "$propTitle". Tap to view details.',
+              'type': 'booking_approved',
+              'created_at': timeStr,
+            });
+          } else if (visit.status == 'awaiting_payment') {
+            final isVisitFlow = visit.visitLiked == true;
+            combined.add({
+              'id': synthId,
+              'booking_id': visit.id,
+              'property_id': visit.propertyId,
+              'title': isVisitFlow ? 'Visit Approved — Pay Now 💳' : 'Booking Approved — Pay Now 💳',
+              'message': isVisitFlow
+                  ? 'Your visit for "$propTitle" was successful. Tap to complete payment.'
+                  : 'Your booking for "$propTitle" is approved! Tap to complete payment.',
               'type': 'booking_approved',
               'created_at': timeStr,
             });
@@ -129,7 +142,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'property_id': visit.propertyId,
               'title': 'Payment Submitted 💳',
               'message':
-                  'Payment proof for "${visit.propertyTitle ?? "Property"}" is currently under review.',
+                  'Payment proof for "$propTitle" is currently under review.',
               'type': 'booking_alert',
               'created_at': timeStr,
             });
@@ -140,7 +153,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'property_id': visit.propertyId,
               'title': 'Booking Confirmed! 🎊',
               'message':
-                  'Congratulations! Your property booking for "${visit.propertyTitle ?? "Property"}" is confirmed.',
+                  'Congratulations! Your property booking for "$propTitle" is confirmed.',
               'type': 'booking_alert',
               'created_at': timeStr,
             });
@@ -149,8 +162,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'id': synthId,
               'booking_id': visit.id,
               'property_id': visit.propertyId,
-              'title': 'Visit Request Sent ⏳',
-              'message': 'Your property visit request has been sent to the owner for review.',
+              'title': 'Booking Request Sent ⏳',
+              'message': 'Your property booking request for "$propTitle" has been sent to the owner for review.',
               'type': 'booking_alert',
               'created_at': timeStr,
             });
@@ -504,76 +517,51 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           child: InkWell(
                             onTap: () async {
                               final type = note['type']?.toString() ?? '';
-                              if (type == 'booking_approved' ||
-                                  type == 'booking_rejected' ||
-                                  type == 'booking_alert') {
-                                // 1. Check if it's an "Approved" message for the guest to pay
-                                final String title =
-                                    note['title']?.toString() ?? '';
-                                final String message =
-                                    note['message']?.toString() ?? '';
-                                final bool isApproved =
-                                    title.contains('स्वीकृत') ||
-                                    message.contains('स्वीकृत');
-                                final String bookingId =
-                                    note['booking_id']?.toString() ?? '';
+                              final String bookingId = note['booking_id']?.toString() ?? '';
+                              final propertyId = note['property_id'];
 
-                                if (isApproved && bookingId.isNotEmpty) {
-                                  // Navigate to payment choice screen
-
-                                  final booking =
-                                      await SupabaseService.getVisitById(
-                                        bookingId,
-                                      );
-                                  if (booking != null && mounted) {
+                              if (bookingId.isNotEmpty) {
+                                final booking = await SupabaseService.getVisitById(bookingId);
+                                if (booking != null && mounted) {
+                                  if (booking.status == 'awaiting_payment') {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) =>
-                                            PaymentChoiceScreen(
-                                              booking: booking,
-                                              propertyTitle:
-                                                  booking.propertyTitle ??
-                                                  'Your Property',
-                                            ),
-                                      ),
-                                    );
-                                    return;
-                                  }
-                                }
-
-                                // 2. Fallback to status screen if guest
-                                final propertyId = note['property_id'];
-                                if (propertyId != null) {
-                                  final bookings =
-                                      await SupabaseService.getMyVisits();
-                                  final filtered = bookings
-                                      .where((b) => b.propertyId == propertyId)
-                                      .toList();
-
-                                  if (filtered.isNotEmpty && mounted) {
-                                    final booking = filtered.first;
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            BookingStatusScreen(
-                                              booking: booking,
-                                            ),
+                                        builder: (context) => PaymentChoiceScreen(
+                                          booking: booking,
+                                          propertyTitle: booking.propertyTitle ?? 'Your Property',
+                                        ),
                                       ),
                                     );
                                   } else {
-                                    // 3. Maybe it's an owner notification
-                                    if (mounted) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const OwnerBookingsScreen(),
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => BookingStatusScreen(
+                                          booking: booking,
                                         ),
-                                      );
-                                    }
+                                      ),
+                                    );
                                   }
+                                  return;
+                                }
+                              }
+
+                              if (propertyId != null) {
+                                final bookings = await SupabaseService.getMyVisits();
+                                final filtered = bookings
+                                    .where((b) => b.propertyId == propertyId)
+                                    .toList();
+
+                                if (filtered.isNotEmpty && mounted) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => BookingStatusScreen(
+                                        booking: filtered.first,
+                                      ),
+                                    ),
+                                  );
                                 }
                               }
                             },
