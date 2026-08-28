@@ -1663,7 +1663,107 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     }
 
     if (_reviews.isEmpty) {
-      return const SizedBox.shrink();
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Icon(Icons.star_rounded, color: Colors.black, size: 28),
+              const SizedBox(width: 8),
+              Text(
+                'New',
+                style: GoogleFonts.outfit(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '·',
+                style: GoogleFonts.inter(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[400],
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '0 Reviews',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.rate_review_outlined,
+                    color: AppTheme.brandColor,
+                    size: 26,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'No reviews yet for this listing',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                    color: const Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Reviews and ratings appear here after verified renters visit this property.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: const Color(0xFF64748B),
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                OutlinedButton(
+                  onPressed: _showAllReviewsModal,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    side: const BorderSide(color: Colors.black, width: 1.2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                  ),
+                  child: Text(
+                    'How Khozna Reviews Work',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
     }
 
     final double avgRating =
@@ -2032,14 +2132,48 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.only(bottom: 24),
-                itemCount: _reviews.length,
-                separatorBuilder: (context, index) => const Divider(height: 24),
-                itemBuilder: (context, index) {
-                  return _buildReviewCard(_reviews[index]);
-                },
-              ),
+              child: _reviews.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.verified_user_rounded,
+                              size: 56,
+                              color: AppTheme.brandColor,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Verified Reviews Only',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'In Khozna, reviews can only be posted by renters who have completed an in-person room visit. This guarantees 100% genuine feedback for every listing.',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.inter(
+                                fontSize: 13.5,
+                                color: Colors.grey[600],
+                                height: 1.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      itemCount: _reviews.length,
+                      separatorBuilder: (context, index) => const Divider(height: 24),
+                      itemBuilder: (context, index) {
+                        return _buildReviewCard(_reviews[index]);
+                      },
+                    ),
             ),
           ],
         ),
