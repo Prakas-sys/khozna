@@ -35,6 +35,40 @@ class BookingRepository {
     }
   }
 
+  /// Fetch all dates that are already taken for a property.
+  /// Returns a Set of date strings in 'yyyy-MM-dd' format.
+  static Future<Set<String>> fetchUnavailableDates(String propertyId) async {
+    try {
+      final response = await _client
+          .from('bookings')
+          .select('check_in')
+          .eq('property_id', propertyId)
+          .inFilter('status', [
+            'pending_approval',
+            'visit_accepted',
+            'awaiting_payment',
+            'paid',
+            'confirmed',
+          ]);
+
+      final Set<String> blocked = {};
+      for (final row in List<Map<String, dynamic>>.from(response)) {
+        final raw = row['check_in']?.toString();
+        if (raw != null) {
+          final dt = DateTime.tryParse(raw);
+          if (dt != null) {
+            // Block the whole calendar day
+            blocked.add('${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}');
+          }
+        }
+      }
+      return blocked;
+    } catch (e) {
+      debugPrint('fetchUnavailableDates error: $e');
+      return {};
+    }
+  }
+
   static Future<BookingModel?> createBooking(BookingModel booking) async {
     try {
       final user = _client.auth.currentUser;
