@@ -2318,15 +2318,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       IconData icon = Icons.info_outline_rounded;
 
       if (_pendingBookingStatus == 'pending_approval') {
-        label = 'Pending Approval';
-        btnColor = Colors.orange.shade600;
+        label = 'Pending Request';
+        btnColor = Colors.amber.shade700;
         icon = Icons.hourglass_empty_rounded;
       } else if (_pendingBookingStatus == 'awaiting_payment') {
-        label = 'Payment Sent (View Status)';
+        label = 'Complete Payment';
         btnColor = const Color(0xFF22C55E);
-        icon = Icons.check_circle_outline_rounded;
+        icon = Icons.account_balance_wallet_outlined;
       } else if (_pendingBookingStatus == 'paid' || _pendingBookingStatus == 'payment_under_review') {
-        label = 'Payment Under Review';
+        label = 'Under Review';
         btnColor = Colors.orange.shade700;
         icon = Icons.verified_user_outlined;
       } else if (_pendingBookingStatus == 'confirmed') {
@@ -2336,10 +2336,23 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       }
 
       return SizedBox(
-        height: 48,
+        height: 46,
         child: ElevatedButton.icon(
           onPressed: () async {
             if (_pendingBookingId == null) return;
+            if (_pendingBookingStatus == 'awaiting_payment') {
+              // Direct to PaymentChoiceScreen to upload receipt/pay
+              final booking = await SupabaseService.getVisitById(_pendingBookingId!);
+              if (booking != null && mounted) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PaymentChoiceScreen(booking: booking, property: widget.property),
+                  ),
+                ).then((_) => _updateBookingStatus());
+                return;
+              }
+            }
             final booking = await SupabaseService.getVisitById(_pendingBookingId!);
             if (booking != null && mounted) {
               Navigator.push(
@@ -2350,10 +2363,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               ).then((_) => _updateBookingStatus());
             }
           },
-          icon: Icon(icon, size: 18),
+          icon: Icon(icon, size: 16),
           label: Text(
             label,
-            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700),
+            style: GoogleFonts.inter(fontSize: 13.5, fontWeight: FontWeight.w700),
           ),
           style: ElevatedButton.styleFrom(
             backgroundColor: btnColor,
@@ -2362,7 +2375,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               borderRadius: BorderRadius.circular(100),
             ),
             elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
           ),
         ),
       );
@@ -2673,8 +2686,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildDisabledButton(String label) {
     return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 32),
+      height: 46,
+      padding: const EdgeInsets.symmetric(horizontal: 18),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.grey[200],
@@ -2683,7 +2696,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       child: Text(
         label,
         style: GoogleFonts.inter(
-          fontSize: 15,
+          fontSize: 13.5,
           fontWeight: FontWeight.w700,
           color: Colors.grey[500],
           letterSpacing: -0.1,

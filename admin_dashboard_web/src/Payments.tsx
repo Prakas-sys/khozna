@@ -8,7 +8,7 @@ export const Payments = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [rejectReason, setRejectReason] = useState('');
-  const [filter, setFilter] = useState('pending');
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     fetchPayments();
