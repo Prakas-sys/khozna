@@ -210,6 +210,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87, size: 18),
           onPressed: () {
@@ -220,40 +221,58 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             }
           },
         ),
-        title: Column(
-          children: [
-            Text(
-              _stepTitle,
-              style: GoogleFonts.plusJakartaSans(
-                color: Colors.black,
-                fontWeight: FontWeight.w800,
-                fontSize: 16,
-              ),
-            ),
-            Text(
-              'Step ${_currentStep + 1} of 3',
-              style: GoogleFonts.inter(
-                color: Colors.grey[500],
-                fontWeight: FontWeight.w600,
-                fontSize: 11,
-              ),
-            ),
-          ],
+        title: Text(
+          _stepTitle,
+          style: GoogleFonts.plusJakartaSans(
+            color: Colors.black,
+            fontWeight: FontWeight.w800,
+            fontSize: 16,
+          ),
         ),
         centerTitle: true,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(3),
-          child: LinearProgressIndicator(
-            value: (_currentStep + 1) / 3,
-            backgroundColor: Colors.grey[100],
-            color: Colors.black,
-            minHeight: 3,
+          preferredSize: const Size.fromHeight(48),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+            child: Row(
+              children: List.generate(3, (i) {
+                final isDone = i < _currentStep;
+                final isActive = i == _currentStep;
+                return Expanded(
+                  child: Container(
+                    margin: EdgeInsets.only(right: i < 2 ? 6 : 0),
+                    height: 6,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: isDone
+                          ? Colors.black
+                          : isActive
+                              ? AppTheme.brandColor
+                              : Colors.grey.shade200,
+                    ),
+                  ),
+                );
+              }),
+            ),
           ),
         ),
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 220),
-        child: _buildCurrentStepView(),
+        transitionBuilder: (child, animation) => FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.04, 0),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
+            child: child,
+          ),
+        ),
+        child: KeyedSubtree(
+          key: ValueKey(_currentStep),
+          child: _buildCurrentStepView(),
+        ),
       ),
     );
   }
@@ -319,14 +338,26 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
                 const SizedBox(height: 24),
 
-                Text(
-                  'WHO DO YOU WANT TO PAY?',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.grey[500],
-                    letterSpacing: 0.8,
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      width: 3,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: AppTheme.brandColor,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Select Payment Route',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
 
@@ -394,8 +425,6 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   }) {
     final isSelected = _paymentPath == id;
     final isEscrow = id == 'khozna_escrow';
-    const whatsappGreen = Color(0xFF25D366);
-    const whatsappDarkGreen = Color(0xFF16A34A);
 
     return GestureDetector(
       onTap: disabled
@@ -408,60 +437,47 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: disabled ? const Color(0xFFF1F5F9) : Colors.white,
-          borderRadius: BorderRadius.circular(18),
+          color: disabled
+              ? const Color(0xFFF8FAFC)
+              : isSelected
+                  ? (isEscrow
+                      ? AppTheme.brandColor.withOpacity(0.04)
+                      : Colors.white)
+                  : Colors.white,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? (isEscrow ? whatsappGreen : Colors.black) : Colors.grey[200]!,
+            color: isSelected
+                ? (isEscrow ? AppTheme.brandColor : Colors.black87)
+                : Colors.grey.shade200,
             width: isSelected ? 2 : 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isSelected ? 0.05 : 0.01),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Stack(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: isEscrow ? const Color(0xFFDCF8C6) : const Color(0xFFEFF6FF),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    isEscrow ? Icons.account_balance_wallet_rounded : icon,
-                    size: 22,
-                    color: isEscrow ? whatsappDarkGreen : iconColor,
-                  ),
-                ),
-                if (isEscrow)
-                  Positioned(
-                    right: 0,
-                    bottom: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.verified_user_rounded,
-                        size: 14,
-                        color: whatsappDarkGreen,
-                      ),
-                    ),
-                  ),
-              ],
+            // Icon Badge
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: isEscrow
+                    ? AppTheme.brandColor.withOpacity(0.08)
+                    : (disabled ? Colors.grey.shade100 : Colors.grey.shade100),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                size: 22,
+                color: disabled
+                    ? Colors.grey[400]
+                    : (isEscrow ? AppTheme.brandColor : Colors.black87),
+              ),
             ),
             const SizedBox(width: 14),
+            // Text Details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     children: [
@@ -470,19 +486,20 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                           title,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 14.5,
-                            fontWeight: FontWeight.w800,
-                            color: disabled ? Colors.grey[500] : Colors.black,
+                            fontWeight: FontWeight.w700,
+                            color: disabled ? Colors.grey[400] : Colors.black87,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: isEscrow
-                              ? const Color(0xFFDCF8C6)
+                              ? AppTheme.brandColor.withOpacity(0.1)
                               : const Color(0xFFF1F5F9),
                           borderRadius: BorderRadius.circular(6),
                         ),
@@ -492,8 +509,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                             fontSize: 9,
                             fontWeight: FontWeight.w800,
                             color: isEscrow
-                                ? whatsappDarkGreen
-                                : const Color(0xFF475569),
+                                ? AppTheme.brandColor
+                                : const Color(0xFF64748B),
                             letterSpacing: 0.5,
                           ),
                         ),
@@ -509,71 +526,42 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                       height: 1.35,
                     ),
                   ),
-                  if (isEscrow) ...[
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF0FDF4),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFF86EFAC)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Image.asset('assets/images/esewa.webp', height: 13, width: 13, fit: BoxFit.contain),
-                              const SizedBox(width: 4),
-                              Text('eSewa', style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w700, color: whatsappDarkGreen)),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFAF5FF),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFFE1BEE7)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Image.asset('assets/images/khalti.png', height: 13, width: 13, fit: BoxFit.contain),
-                              const SizedBox(width: 4),
-                              Text('Khalti', style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w700, color: const Color(0xFF5E35B1))),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF8FAFC),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFFCBD5E1)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.qr_code_2_rounded, size: 13, color: Color(0xFF00A3E1)),
-                              const SizedBox(width: 4),
-                              Text('Bank QR', style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w700, color: const Color(0xFF334155))),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
                 ],
               ),
+            ),
+            const SizedBox(width: 12),
+            // Selection Checkmark / Radio
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected
+                    ? (isEscrow ? AppTheme.brandColor : Colors.black87)
+                    : Colors.transparent,
+                border: Border.all(
+                  color: isSelected
+                      ? (isEscrow ? AppTheme.brandColor : Colors.black87)
+                      : Colors.grey.shade300,
+                  width: 2,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: isSelected
+                  ? const Icon(
+                      Icons.check_rounded,
+                      size: 13,
+                      color: Colors.white,
+                    )
+                  : null,
             ),
           ],
         ),
       ),
     );
   }
+
 
   // ── STEP 2 OF 3: SELECT METHOD ──
   Widget _buildStepOneMethodSelection() {
@@ -587,14 +575,26 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  isEscrow ? 'KHOZNA ESCROW PAYMENT METHODS' : 'HOST DIRECT PAYMENT METHODS',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.grey[500],
-                    letterSpacing: 0.8,
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      width: 3,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: AppTheme.brandColor,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      isEscrow ? 'Khozna Escrow Methods' : 'Host Direct Methods',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
 
@@ -700,37 +700,24 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         ),
         child: Row(
           children: [
-            Container(
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected ? Colors.black : Colors.grey[400]!,
-                  width: 2,
-                ),
-              ),
-              alignment: Alignment.center,
-              child: isSelected
-                  ? Container(
-                      width: 10,
-                      height: 10,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.black,
-                      ),
-                    )
-                  : null,
-            ),
-            const SizedBox(width: 14),
+            // Logo / Icon
             if (logo != null)
               ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: Image.asset(logo, width: 28, height: 28, fit: BoxFit.contain),
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(logo, width: 36, height: 36, fit: BoxFit.contain),
               )
             else if (icon != null)
-              Icon(icon, size: 26, color: Colors.grey[700]),
-            const SizedBox(width: 12),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                alignment: Alignment.center,
+                child: Icon(icon, size: 20, color: Colors.grey[700]),
+              ),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -738,7 +725,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                   Text(
                     title,
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 14,
+                      fontSize: 13.5,
                       fontWeight: FontWeight.w700,
                       color: Colors.black,
                     ),
@@ -746,10 +733,32 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: GoogleFonts.inter(fontSize: 11.5, color: Colors.grey[500]),
+                    style: GoogleFonts.inter(
+                      fontSize: 11.5,
+                      color: Colors.grey[500],
+                    ),
                   ),
                 ],
               ),
+            ),
+            const SizedBox(width: 10),
+            // Selected indicator
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected ? AppTheme.brandColor : Colors.transparent,
+                border: Border.all(
+                  color: isSelected ? AppTheme.brandColor : Colors.grey.shade300,
+                  width: 2,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: isSelected
+                  ? const Icon(Icons.check_rounded, size: 13, color: Colors.white)
+                  : null,
             ),
           ],
         ),
@@ -803,37 +812,44 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
         // Sticky Bottom Submit Button
         Container(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
           decoration: BoxDecoration(
             color: Colors.white,
-            border: Border(top: BorderSide(color: Colors.grey[200]!)),
+            border: Border(top: BorderSide(color: Colors.grey.shade100)),
           ),
           child: SafeArea(
             top: false,
             child: SizedBox(
               width: double.infinity,
-              height: 52,
+              height: 54,
               child: ElevatedButton(
                 onPressed: _isSubmitting ? null : _proceed,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  disabledBackgroundColor: Colors.grey[300],
+                  backgroundColor: AppTheme.brandColor,
+                  foregroundColor: Colors.white,
+                  shadowColor: Colors.transparent,
+                  disabledBackgroundColor: Colors.grey[200],
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                   elevation: 0,
                   padding: EdgeInsets.zero,
                 ),
                 child: _isSubmitting
                     ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : Center(
-                        child: Text(
-                          'Submit Payment & Confirm',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
-                            color: Colors.white,
-                            height: 1.0,
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Submit Payment & Confirm',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                              color: Colors.white,
+                              height: 1.0,
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+                        ],
                       ),
               ),
             ),
@@ -845,41 +861,41 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
   Widget _buildBottomStickyButton({required String label, required VoidCallback onPressed}) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey[200]!)),
+        border: Border(top: BorderSide(color: Colors.grey.shade100)),
       ),
       child: SafeArea(
         top: false,
         child: SizedBox(
           width: double.infinity,
-          height: 52,
+          height: 54,
           child: ElevatedButton(
             onPressed: onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
+              backgroundColor: AppTheme.brandColor,
+              foregroundColor: Colors.white,
+              shadowColor: Colors.transparent,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
               elevation: 0,
               padding: EdgeInsets.zero,
             ),
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    label,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                      color: Colors.white,
-                      height: 1.0,
-                    ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  label,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    color: Colors.white,
+                    height: 1.0,
                   ),
-                  const SizedBox(width: 6),
-                  const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
-                ],
-              ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 17),
+              ],
             ),
           ),
         ),
