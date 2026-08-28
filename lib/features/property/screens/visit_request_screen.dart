@@ -28,6 +28,8 @@ class _VisitRequestScreenState extends State<VisitRequestScreen>
   bool _isSubmitting = false;
   UserModel? _ownerProfile;
   bool _isLoadingOwner = true;
+  Set<String> _unavailableDates = {};
+  bool _isLoadingDates = true;
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
 
@@ -45,14 +47,41 @@ class _VisitRequestScreenState extends State<VisitRequestScreen>
   static const Color _textSecondary = Color(0xFF6B7280);
   static const Color _border = Color(0xFFE5E7EB);
 
+  String _dateKey(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  bool _isUnavailable(DateTime d) => _unavailableDates.contains(_dateKey(d));
+
   @override
   void initState() {
     super.initState();
     _upcomingDates = List.generate(14, (i) => DateTime.now().add(Duration(days: i + 1)));
+    _fetchUnavailableDates();
     _animController = AnimationController(vsync: this, duration: const Duration(milliseconds: 320));
     _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
     _animController.forward();
     _fetchOwnerProfile();
+  }
+
+  Future<void> _fetchUnavailableDates() async {
+    try {
+      final blocked = await BookingRepository.fetchUnavailableDates(widget.property.id);
+      if (mounted) {
+        setState(() {
+          _unavailableDates = blocked;
+          _isLoadingDates = false;
+          // Auto-select first available date
+          for (final d in _upcomingDates) {
+            if (!_isUnavailable(d)) {
+              _selectedDate = d;
+              break;
+            }
+          }
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoadingDates = false);
+    }
   }
 
   @override
@@ -221,55 +250,125 @@ class _VisitRequestScreenState extends State<VisitRequestScreen>
         const SizedBox(height: 28),
         _sectionLabel('Pick a Date'),
         const SizedBox(height: 14),
-        SizedBox(
-          height: 88,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: _upcomingDates.length,
-            itemBuilder: (context, index) {
-              final date = _upcomingDates[index];
-              final isSelected = _selectedDate.day == date.day &&
-                  _selectedDate.month == date.month &&
-                  _selectedDate.year == date.year;
-              return GestureDetector(
-                onTap: () { HapticFeedback.selectionClick(); setState(() => _selectedDate = date); },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 62,
-                  margin: const EdgeInsets.only(right: 10),
-                  decoration: BoxDecoration(
-                    color: isSelected ? _brand : _cardBg,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: isSelected ? _brand : _border, width: 1.5),
-                    boxShadow: isSelected ? [BoxShadow(color: _brand.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 4))] : null,
+        if (_isLoadingDates)
+          const SizedBox(
+            height: 88,
+            child: Center(child: CircularProgressIndicator(color: _brand, strokeWidth: 2)),
+          )
+        else
+          SizedBox(
+            height: 88,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _upcomingDates.length,
+              itemBuilder: (context, index) {
+                final date = _upcomingDates[index];
+                final taken = _isUnavailable(date);
+                final isSelected = !taken &&
+                    _selectedDate.day == date.day &&
+                    _selectedDate.month == date.month &&
+                    _selectedDate.year == date.year;
+                return GestureDetector(
+                  onTap: taken
+                      ? null
+                      : () { HapticFeedback.selectionClick(); setState(() => _selectedDate = date); },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 62,
+                    margin: const EdgeInsets.only(right: 10),
+                    decoration: BoxDecoration(
+                      color: taken
+                          ? const Color(0xFFF3F4F6)
+                          : (isSelected ? _brand : _cardBg),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: taken
+                            ? const Color(0xFFE5E7EB)
+                            : (isSelected ? _brand : _border),
+                        width: 1.5,
+                      ),
+                      boxShadow: isSelected
+                          ? [BoxShadow(color: _brand.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 4))]
+                          : null,
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              DateFormat('E').format(date).toUpperCase(),
+                              style: GoogleFonts.inter(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                                color: taken
+                                    ? const Color(0xFFD1D5DB)
+                                    : (isSelected ? Colors.white.withValues(alpha: 0.75) : _textSecondary),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              DateFormat('d').format(date),
+                              style: GoogleFonts.outfit(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: taken
+                                    ? const Color(0xFFD1D5DB)
+                                    : (isSelected ? Colors.white : _textPrimary),
+                                height: 1,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              DateFormat('MMM').format(date),
+                              style: GoogleFonts.inter(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w600,
+                                color: taken
+                                    ? const Color(0xFFD1D5DB)
+                                    : (isSelected ? Colors.white.withValues(alpha: 0.75) : _textSecondary),
+                              ),
+                            ),
+                          ],
+                        ),
+                        // Cross-out line for taken dates
+                        if (taken)
+                          Positioned.fill(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(14),
+                              child: CustomPaint(
+                                painter: _StrikethroughPainter(),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        DateFormat('E').format(date).toUpperCase(),
-                        style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w700,
-                            color: isSelected ? Colors.white.withValues(alpha: 0.75) : _textSecondary),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        DateFormat('d').format(date),
-                        style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.w800,
-                            color: isSelected ? Colors.white : _textPrimary, height: 1),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        DateFormat('MMM').format(date),
-                        style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w600,
-                            color: isSelected ? Colors.white.withValues(alpha: 0.75) : _textSecondary),
-                      ),
-                    ],
+                );
+              },
+            ),
+          ),
+        if (!_isLoadingDates && _unavailableDates.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(
+              children: [
+                Container(width: 10, height: 10,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(3),
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
                   ),
                 ),
-              );
-            },
+                const SizedBox(width: 6),
+                Text(
+                  'Dates crossed out are already taken',
+                  style: GoogleFonts.inter(fontSize: 11, color: _textSecondary),
+                ),
+              ],
+            ),
           ),
-        ),
         const SizedBox(height: 28),
         _sectionLabel('Pick a Time'),
         const SizedBox(height: 14),
@@ -603,6 +702,22 @@ class _VisitRequestScreenState extends State<VisitRequestScreen>
   Future<void> _submit() async {
     setState(() => _isSubmitting = true);
     try {
+      if (_isUnavailable(_selectedDate)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'This date is no longer available. Please select another date.',
+              style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600),
+            ),
+            backgroundColor: const Color(0xFFE11D48),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+        return;
+      }
+
       final isNightly = widget.property.priceNight > 0;
       final finalPrice = isNightly
           ? widget.property.priceNight
@@ -665,4 +780,23 @@ class _VisitRequestScreenState extends State<VisitRequestScreen>
       if (mounted) setState(() => _isSubmitting = false);
     }
   }
+}
+
+class _StrikethroughPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF9CA3AF)
+      ..strokeWidth = 1.5
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawLine(
+      Offset(size.width * 0.15, size.height * 0.85),
+      Offset(size.width * 0.85, size.height * 0.15),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -2306,31 +2306,66 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildBottomActionButtons(BuildContext context) {
-    if (widget.property.status == 'booked') {
+    // If property is booked by someone else (not current user's active booking)
+    if (widget.property.status == 'booked' && !_userHasPendingBooking) {
       return _buildDisabledButton('Already Booked');
     }
 
-    // Payment submitted — fully disabled
-    if (_pendingBookingStatus == 'awaiting_payment') {
-      return _buildDisabledButton('Payment Sent ✓');
-    }
+    // If current guest has an active booking request or payment
+    if (_userHasPendingBooking || _pendingBookingStatus.isNotEmpty) {
+      String label = 'View Status';
+      Color btnColor = AppTheme.brandColor;
+      IconData icon = Icons.info_outline_rounded;
 
-    if (_pendingBookingStatus == 'paid' ||
-        _pendingBookingStatus == 'payment_under_review') {
-      return _buildDisabledButton('Payment Under Review ✓');
-    }
-
-    if (_pendingBookingStatus == 'confirmed') {
-      return _buildDisabledButton('Confirmed ✓');
-    }
-
-    if (_userHasPendingBooking) {
       if (_pendingBookingStatus == 'pending_approval') {
-        return _buildDisabledButton('Request Pending…');
+        label = 'Pending Approval';
+        btnColor = Colors.orange.shade600;
+        icon = Icons.hourglass_empty_rounded;
+      } else if (_pendingBookingStatus == 'awaiting_payment') {
+        label = 'Payment Sent (View Status)';
+        btnColor = const Color(0xFF22C55E);
+        icon = Icons.check_circle_outline_rounded;
+      } else if (_pendingBookingStatus == 'paid' || _pendingBookingStatus == 'payment_under_review') {
+        label = 'Payment Under Review';
+        btnColor = Colors.orange.shade700;
+        icon = Icons.verified_user_outlined;
+      } else if (_pendingBookingStatus == 'confirmed') {
+        label = 'Confirmed ✓';
+        btnColor = const Color(0xFF22C55E);
+        icon = Icons.check_circle_rounded;
       }
-      if (_pendingBookingStatus == 'visit_accepted') {
-        return _buildDisabledButton('Visit Approved ✓');
-      }
+
+      return SizedBox(
+        height: 48,
+        child: ElevatedButton.icon(
+          onPressed: () async {
+            if (_pendingBookingId == null) return;
+            final booking = await SupabaseService.getVisitById(_pendingBookingId!);
+            if (booking != null && mounted) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BookingStatusScreen(booking: booking),
+                ),
+              ).then((_) => _updateBookingStatus());
+            }
+          },
+          icon: Icon(icon, size: 18),
+          label: Text(
+            label,
+            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: btnColor,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(100),
+            ),
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+          ),
+        ),
+      );
     }
 
     return SizedBox(

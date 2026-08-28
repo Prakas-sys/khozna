@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
-import { CreditCard, ExternalLink, ArrowLeft, ShieldCheck, User, QrCode, Building2 } from 'lucide-react';
+import { CreditCard, ExternalLink, ArrowLeft, ShieldCheck, User, QrCode, Building2, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const Payments = () => {
@@ -17,7 +17,8 @@ export const Payments = () => {
   const fetchPayments = async () => {
     setLoading(true);
     try {
-      let query = supabase
+      // 1. Fetch payments table
+      const { data: paymentsData, error: paymentsErr } = await supabase
         .from('payments')
         .select(`
           *,
@@ -33,15 +34,10 @@ export const Payments = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (filter !== 'all') {
-        query = query.eq('status', filter);
-      }
+      if (paymentsErr) console.error('Error fetching payments:', paymentsErr);
 
-      const { data: paymentsData, error } = await query;
-      if (error) console.error('Error fetching payments:', error);
-
-      // Also fetch bookings directly with status 'paid' or payment_proof_url to guarantee all paid proof screenshots appear
-      const { data: bookingsData } = await supabase
+      // 2. Fetch all bookings to ensure no payment proof screenshots are missed
+      const { data: bookingsData, error: bookingsErr } = await supabase
         .from('bookings')
         .select(`
           id,
@@ -56,15 +52,17 @@ export const Payments = () => {
           guest:profiles!bookings_guest_id_fkey (full_name),
           owner:profiles!bookings_owner_id_fkey (full_name, esewa_number, khalti_number, qr_code_url)
         `)
-        .or('status.eq.paid,payment_proof_url.not.is.null')
         .order('created_at', { ascending: false });
 
+      if (bookingsErr) console.error('Error fetching bookings:', bookingsErr);
+
       const combined: any[] = [...(paymentsData || [])];
-      const existingBookingIds = new Set(combined.map(p => p.booking_id));
+      const existingBookingIds = new Set(combined.map((p) => p.booking_id));
 
       if (bookingsData) {
         bookingsData.forEach((b: any) => {
-          if (!existingBookingIds.has(b.id) && b.payment_proof_url) {
+          if (!existingBookingIds.has(b.id)) {
+            // Include booking record
             combined.push({
               id: `b_${b.id}`,
               booking_id: b.id,
@@ -72,7 +70,14 @@ export const Payments = () => {
               amount: b.total_price || 0,
               payment_method: b.payment_type || 'esewa',
               proof_image_url: b.payment_proof_url,
-              status: b.status === 'paid' ? 'pending' : b.status === 'confirmed' ? 'verified' : 'pending',
+              status:
+                b.status === 'paid' || b.status === 'awaiting_payment'
+                  ? 'pending'
+                  : b.status === 'confirmed'
+                  ? 'verified'
+                  : b.status === 'rejected'
+                  ? 'rejected'
+                  : 'pending',
               created_at: b.created_at,
               bookings: b,
             });
@@ -80,7 +85,19 @@ export const Payments = () => {
         });
       }
 
-      setPayments(combined);
+      // Apply client-side filter
+      let filtered = combined;
+      if (filter === 'pending') {
+        filtered = combined.filter(
+          (p) => p.status === 'pending' || p.status === 'paid' || p.status === 'awaiting_payment'
+        );
+      } else if (filter === 'verified') {
+        filtered = combined.filter((p) => p.status === 'verified' || p.status === 'confirmed');
+      } else if (filter === 'rejected') {
+        filtered = combined.filter((p) => p.status === 'rejected');
+      }
+
+      setPayments(filtered);
     } catch (e) {
       console.error('Error fetching payments:', e);
     } finally {
@@ -90,7 +107,7 @@ export const Payments = () => {
 
   const handleVerify = async (payment: any) => {
     if (!window.confirm('Confirm verification of this transaction?')) return;
-    
+
     try {
       if (payment.id && !payment.id.toString().startsWith('b_')) {
         await supabase.from('payments').update({ status: 'verified' }).eq('id', payment.id);
@@ -110,20 +127,15 @@ export const Payments = () => {
   };
 
   const handleReject = async (payment: any) => {
-    if (!rejectReason) {
-      alert('Exclusion reason required');
-      return;
-    }
-
     try {
       if (payment.id && !payment.id.toString().startsWith('b_')) {
         await supabase.from('payments').update({ status: 'rejected' }).eq('id', payment.id);
       }
-      await supabase.from('bookings').update({ status: 'awaiting_payment' }).eq('id', payment.booking_id);
+      await supabase.from('bookings').update({ status: 'rejected' }).eq('id', payment.booking_id);
       await supabase.from('notifications').insert({
         user_id: payment.bookings?.guest_id,
         title: 'Payment Rejected',
-        message: `Your payment for "${payment.bookings?.properties?.title || 'Property'}" was denied. ${rejectReason}`,
+        message: `Your payment for "${payment.bookings?.properties?.title || 'Property'}" was denied. ${rejectReason || ''}`,
         type: 'booking_alert',
       });
       setSelectedPayment(null);
@@ -131,6 +143,22 @@ export const Payments = () => {
       fetchPayments();
     } catch (e) {
       alert('Rejection protocol failed');
+    }
+  };
+
+  const handleDelete = async (payment: any) => {
+    if (!window.confirm('Are you sure you want to DELETE this payment/booking record permanently?')) return;
+    try {
+      if (payment.id && !payment.id.toString().startsWith('b_')) {
+        await supabase.from('payments').delete().eq('id', payment.id);
+      }
+      if (payment.booking_id) {
+        await supabase.from('bookings').delete().eq('id', payment.booking_id);
+      }
+      setSelectedPayment(null);
+      fetchPayments();
+    } catch (e) {
+      alert('Delete failed');
     }
   };
 
@@ -220,16 +248,28 @@ export const Payments = () => {
                     </span>
                   </div>
                   
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedPayment(p);
-                    }}
-                    className="h-9 px-4 bg-[#171717] text-white rounded-lg text-[12px] font-semibold hover:bg-[#0A0A0A] transition-all shadow-xs flex items-center gap-2"
-                  >
-                    <span>View Image & Verify</span>
-                    <ExternalLink size={13} strokeWidth={1.5} />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedPayment(p);
+                      }}
+                      className="h-9 px-4 bg-[#171717] text-white rounded-lg text-[12px] font-semibold hover:bg-[#0A0A0A] transition-all shadow-xs flex items-center gap-2"
+                    >
+                      <span>View Image & Verify</span>
+                      <ExternalLink size={13} strokeWidth={1.5} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(p);
+                      }}
+                      title="Delete record permanently"
+                      className="h-9 w-9 bg-rose-50 text-rose-600 border border-rose-100 rounded-lg flex items-center justify-center hover:bg-rose-100 transition-all"
+                    >
+                      <Trash2 size={14} strokeWidth={1.5} />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -366,30 +406,35 @@ export const Payments = () => {
                   )}
                 </div>
 
-                <div className="flex flex-col gap-2 pt-8 border-t border-[#F5F5F5] mt-10">
-                  {selectedPayment.status === 'pending' ? (
-                    <>
-                      <button 
-                        onClick={() => handleVerify(selectedPayment)}
-                        className="w-full h-11 bg-[#171717] text-white rounded-xl font-semibold text-[13px] hover:bg-[#0A0A0A] transition-all shadow-sm flex items-center justify-center gap-2"
-                      >
-                        <ShieldCheck size={16} strokeWidth={1.5} /> Clear Transaction
-                      </button>
-                      <button 
-                        onClick={() => handleReject(selectedPayment)}
-                        className="w-full h-11 bg-white text-rose-500 border border-rose-100 rounded-xl font-semibold text-[13px] hover:bg-rose-50 transition-all flex items-center justify-center gap-2"
-                      >
-                         Refuse Approval
-                      </button>
-                    </>
-                  ) : (
+                <div className="flex flex-col gap-2 pt-6 border-t border-[#F5F5F5] mt-6">
+                  {selectedPayment.status !== 'verified' && (
                     <button 
-                      onClick={() => setSelectedPayment(null)}
-                      className="w-full h-11 bg-[#F5F5F5] text-[#525252] rounded-xl font-semibold text-[13px] hover:bg-[#E5E5E5] transition-all"
+                      onClick={() => handleVerify(selectedPayment)}
+                      className="w-full h-11 bg-emerald-600 text-white rounded-xl font-semibold text-[13px] hover:bg-emerald-700 transition-all shadow-sm flex items-center justify-center gap-2"
                     >
-                      Close Review
+                      <ShieldCheck size={16} strokeWidth={1.5} /> Verify & Approve Payment
                     </button>
                   )}
+                  {selectedPayment.status !== 'rejected' && (
+                    <button 
+                      onClick={() => handleReject(selectedPayment)}
+                      className="w-full h-11 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl font-semibold text-[13px] hover:bg-amber-100 transition-all flex items-center justify-center gap-2"
+                    >
+                       Reject Payment
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => handleDelete(selectedPayment)}
+                    className="w-full h-11 bg-rose-50 text-rose-600 border border-rose-200 rounded-xl font-semibold text-[13px] hover:bg-rose-100 transition-all flex items-center justify-center gap-2"
+                  >
+                     Delete Record Permanently
+                  </button>
+                  <button 
+                    onClick={() => setSelectedPayment(null)}
+                    className="w-full h-10 bg-[#F5F5F5] text-[#525252] rounded-xl font-semibold text-[12px] hover:bg-[#E5E5E5] transition-all mt-1"
+                  >
+                    Close Review
+                  </button>
                 </div>
               </div>
             </motion.div>
