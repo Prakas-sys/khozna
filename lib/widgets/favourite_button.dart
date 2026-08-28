@@ -162,6 +162,11 @@ class _FavouriteButtonState extends State<FavouriteButton> {
                                         ),
                                         backgroundColor: Colors.black87,
                                         behavior: SnackBarBehavior.floating,
+                                        margin: const EdgeInsets.only(
+                                          bottom: 85,
+                                          left: 16,
+                                          right: 16,
+                                        ),
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                             10,

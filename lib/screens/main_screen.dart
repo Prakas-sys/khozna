@@ -419,7 +419,7 @@ class _MainScreenState extends State<MainScreen> {
                     margin: const EdgeInsets.only(
                       left: 28,
                       right: 28,
-                      bottom: 12,
+                      bottom: 85,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(100),

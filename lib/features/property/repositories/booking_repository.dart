@@ -477,42 +477,51 @@ class BookingRepository {
   }
 
   static Future<BookingModel?> getBookingById(String bookingId) async {
-    final response = await _client
-        .from('bookings')
-        .select('*, properties(title, price, price_month, price_night)')
-        .eq('id', bookingId)
-        .maybeSingle();
+    try {
+      final response = await _client
+          .from('bookings')
+          .select('*, properties(title, price, price_month, price_night)')
+          .eq('id', bookingId)
+          .maybeSingle();
 
-    if (response == null) return null;
+      if (response == null) return null;
 
-    // Add property title and fallback total_price to the model if it exists
-    final Map<String, dynamic> data = Map<String, dynamic>.from(response);
-    if (data['properties'] != null) {
-      data['property_title'] = data['properties']['title'];
+      final Map<String, dynamic> data = Map<String, dynamic>.from(response);
+      if (data['properties'] != null) {
+        data['property_title'] = data['properties']['title'];
 
-      final double pm = double.tryParse(data['properties']['price_month']?.toString() ?? '0') ?? 0;
-      final double pn = double.tryParse(data['properties']['price_night']?.toString() ?? '0') ?? 0;
-      final double p = double.tryParse(data['properties']['price']?.toString().replaceAll(',', '') ?? '0') ?? 0;
-      final double propPrice = pm > 0 ? pm : (pn > 0 ? pn : p);
+        final double pm = double.tryParse(data['properties']['price_month']?.toString() ?? '0') ?? 0;
+        final double pn = double.tryParse(data['properties']['price_night']?.toString() ?? '0') ?? 0;
+        final double p = double.tryParse(data['properties']['price']?.toString().replaceAll(',', '') ?? '0') ?? 0;
+        final double propPrice = pm > 0 ? pm : (pn > 0 ? pn : p);
 
-      final double currentTotal = double.tryParse(data['total_price']?.toString() ?? '0') ?? 0;
-      if (currentTotal <= 0 && propPrice > 0) {
-        data['total_price'] = propPrice;
+        final double currentTotal = double.tryParse(data['total_price']?.toString() ?? '0') ?? 0;
+        if (currentTotal <= 0 && propPrice > 0) {
+          data['total_price'] = propPrice;
+        }
       }
-    }
 
-    return BookingModel.fromMap(data);
+      return BookingModel.fromMap(data);
+    } catch (e) {
+      debugPrint('Error getting booking $bookingId: $e');
+      return null;
+    }
   }
 
   static Future<List<BookingModel>> getMyBookings() async {
     final user = _client.auth.currentUser;
     if (user == null) return [];
-    final response = await _client
-        .from('bookings')
-        .select()
-        .eq('guest_id', user.id)
-        .order('created_at', ascending: false);
-    return (response as List).map((e) => BookingModel.fromMap(e)).toList();
+    try {
+      final response = await _client
+          .from('bookings')
+          .select()
+          .eq('guest_id', user.id)
+          .order('created_at', ascending: false);
+      return (response as List).map((e) => BookingModel.fromMap(e)).toList();
+    } catch (e) {
+      debugPrint('Error fetching my bookings: $e');
+      return [];
+    }
   }
 
   static List<Map<String, dynamic>> _cachedOwnerBookings = [];

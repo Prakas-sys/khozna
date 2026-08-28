@@ -95,9 +95,10 @@ class KhoznaErrorScreen extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.firaCode(
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
                         fontSize: 11,
-                        color: Colors.grey[400],
+                        color: Colors.grey,
                       ),
                     ),
                   ),

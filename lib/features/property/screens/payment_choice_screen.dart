@@ -1557,6 +1557,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           content: Text('Please upload a payment screenshot first.', style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
           backgroundColor: Colors.black,
           behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.only(bottom: 85, left: 16, right: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
@@ -1590,8 +1591,13 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(bottom: 85, left: 16, right: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
         );
       }
     } finally {

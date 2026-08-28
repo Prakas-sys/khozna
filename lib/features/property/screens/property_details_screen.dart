@@ -27,7 +27,12 @@ import 'package:khozna/core/utils/map_launcher.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final Property property;
-  const PropertyDetailsScreen({super.key, required this.property});
+  final String? heroTag;
+  const PropertyDetailsScreen({
+    super.key,
+    required this.property,
+    this.heroTag,
+  });
 
   @override
   State<PropertyDetailsScreen> createState() => _PropertyDetailsScreenState();
@@ -346,8 +351,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               itemCount: imageCount,
               itemBuilder: (context, index) {
                 return Hero(
-                  tag:
-                      widget.property.id + (index == 0 ? '' : index.toString()),
+                  tag: (widget.heroTag ?? widget.property.id) +
+                      (index == 0 ? '' : index.toString()),
                   child: KhoznaImage(
                     imageUrl: displayImages[index],
                     fit: BoxFit.cover,

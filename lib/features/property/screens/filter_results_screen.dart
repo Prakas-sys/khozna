@@ -391,7 +391,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                   color: Colors.white,
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
                   child: Hero(
-                    tag: 'search_bar',
+                    tag: 'search_bar_container',
                     child: Material(
                       color: Colors.transparent,
                       child: GestureDetector(

@@ -190,12 +190,30 @@ class PropertyRepository {
   }
 
   static Future<void> updatePropertyStatus(String id, String status) async {
-    await _client.from('properties').update({'status': status}).eq('id', id);
+    try {
+      await _client.from('properties').update({'status': status}).eq('id', id);
+    } catch (e) {
+      debugPrint('Error updating property status $id: $e');
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('ClientException')) {
+        throw 'Network connection error. Please check your internet connection.';
+      }
+      rethrow;
+    }
   }
 
   static Future<void> deletePropertyPermanently(String id) async {
-    await _client.from('property_images').delete().eq('property_id', id);
-    await _client.from('properties').delete().eq('id', id);
+    try {
+      await _client.from('property_images').delete().eq('property_id', id);
+      await _client.from('properties').delete().eq('id', id);
+    } catch (e) {
+      debugPrint('Error deleting property $id: $e');
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('ClientException')) {
+        throw 'Network connection error. Please check your internet connection.';
+      }
+      rethrow;
+    }
   }
 
   /// Create a new property listing with AI checks and media uploads

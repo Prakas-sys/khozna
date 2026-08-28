@@ -20,6 +20,7 @@ class PropertyCard extends StatelessWidget {
   final VoidCallback? onDelete;
   final double? width;
   final bool hidePriceSymbol;
+  final String? heroTag;
 
   const PropertyCard({
     super.key,
@@ -29,6 +30,7 @@ class PropertyCard extends StatelessWidget {
     this.onDelete,
     this.width,
     this.hidePriceSymbol = false,
+    this.heroTag,
   });
 
   // Getters to bridge the original design code with the Property model
@@ -58,6 +60,8 @@ class PropertyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String effectiveHeroTag = heroTag ?? '${property.id}_$hashCode';
+
     return GestureDetector(
       onTap: isOwnerView
           ? null // Owners can always tap their own cards
@@ -74,7 +78,10 @@ class PropertyCard extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => PropertyDetailsScreen(property: property),
+                    builder: (_) => PropertyDetailsScreen(
+                      property: property,
+                      heroTag: effectiveHeroTag,
+                    ),
                   ),
                 );
               }
@@ -106,7 +113,7 @@ class PropertyCard extends StatelessWidget {
                     height: 169,
                     width: double.infinity,
                     child: Hero(
-                      tag: id,
+                      tag: effectiveHeroTag,
                       child: CachedNetworkImage(
                         imageUrl: imageUrl.isNotEmpty
                             ? imageUrl

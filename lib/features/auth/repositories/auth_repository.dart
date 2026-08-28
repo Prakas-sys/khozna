@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/security/app_logger.dart';
@@ -52,12 +54,22 @@ class AuthRepository {
         success: true,
         userId: currentUserId,
       );
+    } on SocketException catch (e) {
+      debugPrint('Network error in signInWithIdToken: $e');
+      throw 'No internet connection. Please check your network and try again.';
+    } on AuthException catch (e) {
+      debugPrint('Auth error in signInWithIdToken: ${e.message}');
+      throw e.message;
     } catch (e) {
       AppLogger.logAuthAttempt(
         method: 'Google SignIn Native',
         success: false,
         error: e.toString(),
       );
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('ClientException')) {
+        throw 'Network connection lost. Please check your internet connection.';
+      }
       rethrow;
     }
   }
@@ -74,12 +86,22 @@ class AuthRepository {
         success: true,
         userId: currentUserId,
       );
+    } on SocketException catch (e) {
+      debugPrint('Network error in signInWithGoogle: $e');
+      throw 'No internet connection. Please check your network and try again.';
+    } on AuthException catch (e) {
+      debugPrint('Auth error in signInWithGoogle: ${e.message}');
+      throw e.message;
     } catch (e) {
       AppLogger.logAuthAttempt(
         method: 'Google SignIn Web',
         success: false,
         error: e.toString(),
       );
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('ClientException')) {
+        throw 'Network connection lost. Please check your internet connection.';
+      }
       rethrow;
     }
   }
@@ -91,8 +113,18 @@ class AuthRepository {
         OAuthProvider.facebook,
         redirectTo: 'com.khozna.khozna://login-callback/',
       );
+    } on SocketException catch (e) {
+      debugPrint('Network error in signInWithFacebook: $e');
+      throw 'No internet connection. Please check your network and try again.';
+    } on AuthException catch (e) {
+      debugPrint('Auth error in signInWithFacebook: ${e.message}');
+      throw e.message;
     } catch (e) {
       debugPrint('Supabase Facebook Sign-In Error: $e');
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('ClientException')) {
+        throw 'Network connection lost. Please check your internet connection.';
+      }
       rethrow;
     }
   }
@@ -101,9 +133,10 @@ class AuthRepository {
   static Future<void> signOut() async {
     try {
       await _client.auth.signOut();
+    } on SocketException catch (e) {
+      debugPrint('Network error in signOut: $e');
     } catch (e) {
       debugPrint('Sign Out Error: $e');
-      rethrow;
     }
   }
 }

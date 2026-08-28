@@ -50,9 +50,13 @@ class UserRepository {
   }
 
   static Future<void> deleteUserPermanently(String userId) async {
-    await _client.from('kyc_verifications').delete().eq('user_id', userId);
-    await _client.from('notifications').delete().eq('user_id', userId);
-    await _client.from('profiles').delete().eq('id', userId);
+    try {
+      await _client.from('kyc_verifications').delete().eq('user_id', userId);
+      await _client.from('notifications').delete().eq('user_id', userId);
+      await _client.from('profiles').delete().eq('id', userId);
+    } catch (e) {
+      debugPrint('Error deleting user $userId: $e');
+    }
   }
 
   static Future<void> reportUser(
@@ -60,12 +64,16 @@ class UserRepository {
     String reporterId,
     String reason,
   ) async {
-    final cleanReason = SecurityUtils.sanitizeInput(reason, maxLength: 500);
-    await _client.from('user_reports').insert({
-      'reported_user_id': userId,
-      'reporter_id': reporterId,
-      'reason': cleanReason,
-    });
+    try {
+      final cleanReason = SecurityUtils.sanitizeInput(reason, maxLength: 500);
+      await _client.from('user_reports').insert({
+        'reported_user_id': userId,
+        'reporter_id': reporterId,
+        'reason': cleanReason,
+      });
+    } catch (e) {
+      debugPrint('Error reporting user: $e');
+    }
   }
 
   static Future<List<UserReportModel>> getUserReports() async {
@@ -84,7 +92,11 @@ class UserRepository {
   }
 
   static Future<void> deleteReport(String reportId) async {
-    await _client.from('user_reports').delete().eq('id', reportId);
+    try {
+      await _client.from('user_reports').delete().eq('id', reportId);
+    } catch (e) {
+      debugPrint('Error deleting report: $e');
+    }
   }
 
   static Future<void> submitFeedback({
