@@ -1099,11 +1099,10 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
         return _buildPendingActions();
       case 'awaiting_payment':
       case 'visit_accepted':
-        return _buildAcceptedActions();
+        return _buildAwaitingPaymentActions();
       case 'rejected':
         return _buildRejectedActions();
       case 'visit_completed':
-        return _buildCompletedNoLike();
       case 'confirmed':
       case 'paid':
         return Column(
@@ -1133,6 +1132,60 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
         }
         return const SizedBox.shrink();
     }
+  }
+
+  Widget _buildAwaitingPaymentActions() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppTheme.brandColor.withOpacity(0.06),
+                Colors.green.withOpacity(0.06),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppTheme.brandColor.withOpacity(0.2)),
+          ),
+          child: Column(
+            children: [
+              const Icon(
+                Icons.verified_rounded,
+                color: Colors.green,
+                size: 40,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'बुकिङ स्वीकृत भयो! 🎉',
+                style: GoogleFonts.notoSansDevanagari(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'तपाईंको भुक्तानी Khozna Secure मा सफलतापूर्वक पठाइयो।\nसमीक्षा पश्चात बुकिङ पक्का हुनेछ।',
+                style: GoogleFonts.notoSansDevanagari(
+                  fontSize: 12,
+                  color: Colors.grey.shade700,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        _actionBtn(
+          label: 'Browse More Rooms',
+          color: AppTheme.brandColor,
+          outlined: true,
+          onTap: () => Navigator.pop(context),
+        ),
+      ],
+    );
   }
 
   Widget _buildPendingActions() {
@@ -1175,89 +1228,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     );
   }
 
-  Widget _buildAcceptedActions() {
-    final isPast = DateTime.now().isAfter(_booking.checkIn);
-    return Column(
-      children: [
-        if (isPast) ...[
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Text(
-              '👀 कोठा हेर्न जानुभयो? (Did you visit the room?)',
-              style: GoogleFonts.notoSansDevanagari(
-                fontWeight: FontWeight.w700,
-                fontSize: 15,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _actionBtn(
-                  label: 'Yes',
-                  color: AppTheme.brandColor,
-                  onTap: () => _handleVisitedAnswer(true),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _actionBtn(
-                  label: 'No',
-                  color: Colors.grey,
-                  outlined: true,
-                  onTap: () => _handleVisitedAnswer(false),
-                ),
-              ),
-            ],
-          ),
-        ] else ...[
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.brandColor.withOpacity(0.05),
-                  Colors.blue.withOpacity(0.05),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppTheme.brandColor.withOpacity(0.2)),
-            ),
-            child: Column(
-              children: [
-                const Icon(
-                  Icons.check_circle_rounded,
-                  color: Colors.green,
-                  size: 40,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'अवलोकन स्वीकृत भयो!',
-                  style: GoogleFonts.notoSansDevanagari(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 18,
-                  ),
-                ),
-                Text(
-                  'कोठा हेर्न जानुहोस् र मन पराएपछि मात्र भुक्तानी गर्नुहोस्।',
-                  style: GoogleFonts.notoSansDevanagari(
-                    fontSize: 12,
-                    color: Colors.grey.shade700,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ],
-    );
-  }
+
 
   Widget _buildRejectedActions() {
     return Column(

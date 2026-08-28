@@ -171,57 +171,7 @@ class PropertyCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Status Badges
-                  Positioned(
-                    top: 10,
-                    left: 10,
-                    child: Row(
-                      children: [
-                        ValueListenableBuilder<Set<String>>(
-                          valueListenable: bookedPropertiesStore,
-                          builder: (context, bookedIds, _) {
-                            final isBooked = status == 'booked';
-                            final isPending =
-                                bookedIds.contains(id) ||
-                                status == 'pending_approval';
 
-                            if (!isBooked && !isPending) {
-                              return const SizedBox.shrink();
-                            }
-
-                            return Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 5,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isBooked
-                                    ? Colors.redAccent
-                                    : Colors.orange,
-                                borderRadius: BorderRadius.circular(30),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.15),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Text(
-                                isBooked ? 'BOOKED' : 'PENDING',
-                                style: GoogleFonts.inter(
-                                  color: Colors.white,
-                                  fontSize: 10.0,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 0.3,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
                   // Favourite button
                   Positioned(
                     top: 6,
