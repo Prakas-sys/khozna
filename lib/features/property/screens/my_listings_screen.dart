@@ -225,9 +225,10 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           ).then((_) => _fetchListings());
         },
         backgroundColor: AppTheme.brandColor,
-        elevation: 3,
-        hoverElevation: 4,
-        highlightElevation: 2,
+        elevation: 0,
+        hoverElevation: 0,
+        highlightElevation: 0,
+        focusElevation: 0,
         shape: const CircleBorder(),
         child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
       ),
