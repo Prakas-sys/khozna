@@ -81,6 +81,13 @@ export const Payments = () => {
           const bookingObj = bookingMap.get(p.booking_id);
           if (p.booking_id) processedBookingIds.add(p.booking_id);
 
+          const resolvedStatus =
+            p.status === 'rejected' || bookingObj?.status === 'rejected'
+              ? 'rejected'
+              : p.status === 'verified' || bookingObj?.status === 'confirmed'
+              ? 'verified'
+              : p.status || 'pending';
+
           combined.push({
             id: p.id,
             booking_id: p.booking_id,
@@ -88,7 +95,7 @@ export const Payments = () => {
             amount: p.amount || bookingObj?.total_price || 0,
             payment_method: p.payment_method || bookingObj?.payment_type || 'esewa',
             proof_image_url: p.proof_image_url || bookingObj?.payment_proof_url,
-            status: p.status || (bookingObj?.status === 'confirmed' ? 'verified' : 'pending'),
+            status: resolvedStatus,
             created_at: p.created_at,
             bookings: bookingObj || null,
           });
@@ -98,7 +105,7 @@ export const Payments = () => {
       // Then add any bookings that are paid/under review or have proof_image_url that were not in payments table
       if (bookingsData) {
         bookingsData.forEach((b: any) => {
-          if (!processedBookingIds.has(b.id) && (b.payment_proof_url || b.status === 'paid' || b.status === 'awaiting_payment' || b.status === 'confirmed')) {
+          if (!processedBookingIds.has(b.id) && (b.payment_proof_url || b.status === 'paid' || b.status === 'awaiting_payment' || b.status === 'confirmed' || b.status === 'rejected')) {
             combined.push({
               id: `b_${b.id}`,
               booking_id: b.id,
@@ -151,6 +158,8 @@ export const Payments = () => {
       await supabase.from('bookings').update({ status: 'confirmed' }).eq('id', payment.booking_id);
       await supabase.from('notifications').insert({
         user_id: payment.bookings?.guest_id,
+        booking_id: payment.booking_id,
+        property_id: payment.bookings?.property_id,
         title: 'Payment Verified',
         message: `Your payment for "${payment.bookings?.properties?.title || 'Property'}" has been confirmed.`,
         type: 'booking_alert',
@@ -170,9 +179,11 @@ export const Payments = () => {
       await supabase.from('bookings').update({ status: 'rejected' }).eq('id', payment.booking_id);
       await supabase.from('notifications').insert({
         user_id: payment.bookings?.guest_id,
+        booking_id: payment.booking_id,
+        property_id: payment.bookings?.property_id,
         title: 'Payment Rejected',
-        message: `Your payment for "${payment.bookings?.properties?.title || 'Property'}" was denied. ${rejectReason || ''}`,
-        type: 'booking_alert',
+        message: `Your payment for "${payment.bookings?.properties?.title || 'Property'}" was denied. ${rejectReason ? 'Reason: ' + rejectReason : ''}`,
+        type: 'booking_rejected',
       });
       setSelectedPayment(null);
       setRejectReason('');

@@ -2333,6 +2333,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         label = 'Confirmed ✓';
         btnColor = const Color(0xFF22C55E);
         icon = Icons.check_circle_rounded;
+      } else if (_pendingBookingStatus == 'rejected') {
+        label = 'Payment Rejected';
+        btnColor = Colors.red.shade700;
+        icon = Icons.cancel_outlined;
       }
 
       return SizedBox(
