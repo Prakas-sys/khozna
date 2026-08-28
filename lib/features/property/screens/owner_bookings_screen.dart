@@ -981,13 +981,21 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
   }
 
   Widget _buildPaymentProofSection(Map<String, dynamic> booking) {
-    final payments = booking['payments'] as List<dynamic>?;
-    final payment = payments != null && payments.isNotEmpty
-        ? payments.first as Map<String, dynamic>
-        : null;
-    final String? proofUrl = payment?['proof_image_url'];
-    final String? refId = payment?['reference_id'];
-    final String method = (payment?['payment_method'] ?? 'esewa').toString().toLowerCase();
+    final paymentsRaw = booking['payments'];
+    Map<String, dynamic>? payment;
+    if (paymentsRaw is List && paymentsRaw.isNotEmpty) {
+      payment = paymentsRaw.first as Map<String, dynamic>?;
+    } else if (paymentsRaw is Map<String, dynamic>) {
+      payment = paymentsRaw;
+    }
+
+    final String? proofUrl = payment?['proof_image_url'] ??
+        booking['payment_proof_url'] ??
+        booking['proof_image_url'];
+    final String? refId = payment?['reference_id'] ?? booking['reference_id'];
+    final String method = (payment?['payment_method'] ?? booking['payment_type'] ?? 'esewa')
+        .toString()
+        .toLowerCase();
 
     final bool isEsewa = method.contains('esewa');
     final String logoAsset = isEsewa ? 'assets/images/esewa.webp' : 'assets/images/khalti.png';
@@ -1069,8 +1077,8 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                 borderRadius: BorderRadius.circular(12),
                 child: Stack(
                   children: [
-                    Image.network(
-                      proofUrl,
+                    KhoznaImage(
+                      imageUrl: proofUrl,
                       width: double.infinity,
                       height: 180,
                       fit: BoxFit.cover,
@@ -1156,6 +1164,18 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                         ),
                       );
                     },
+                    errorBuilder: (ctx, error, stackTrace) => Container(
+                      padding: const EdgeInsets.all(24),
+                      color: Colors.black87,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.broken_image_rounded, color: Colors.white70, size: 48),
+                          SizedBox(height: 12),
+                          Text('Unable to load receipt image', style: TextStyle(color: Colors.white)),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

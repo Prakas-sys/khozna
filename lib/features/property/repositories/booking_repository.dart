@@ -322,9 +322,22 @@ class BookingRepository {
             'payment_type': paymentType,
             'khozna_fee': fee,
             'status': 'paid',
+            'payment_proof_url': proofImageUrl,
             'updated_at': DateTime.now().toUtc().toIso8601String(),
           })
-          .eq('id', bookingId);
+          .eq('id', bookingId)
+          .catchError((_) async {
+            // Fallback in case payment_proof_url column is not on bookings table
+            await _client
+                .from('bookings')
+                .update({
+                  'payment_type': paymentType,
+                  'khozna_fee': fee,
+                  'status': 'paid',
+                  'updated_at': DateTime.now().toUtc().toIso8601String(),
+                })
+                .eq('id', bookingId);
+          });
 
       // 2. Create payment record
       await _client.from('payments').insert({

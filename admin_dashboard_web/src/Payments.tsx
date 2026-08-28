@@ -25,6 +25,7 @@ export const Payments = () => {
             id,
             guest_id,
             owner_id,
+            payment_proof_url,
             properties (title),
             guest:profiles!bookings_guest_id_fkey (full_name),
             owner:profiles!bookings_owner_id_fkey (full_name, esewa_number, khalti_number, qr_code_url)
@@ -36,9 +37,50 @@ export const Payments = () => {
         query = query.eq('status', filter);
       }
 
-      const { data, error } = await query;
-      if (error) throw error;
-      setPayments(data || []);
+      const { data: paymentsData, error } = await query;
+      if (error) console.error('Error fetching payments:', error);
+
+      // Also fetch bookings directly with status 'paid' or payment_proof_url to guarantee all paid proof screenshots appear
+      const { data: bookingsData } = await supabase
+        .from('bookings')
+        .select(`
+          id,
+          guest_id,
+          owner_id,
+          total_price,
+          status,
+          payment_proof_url,
+          payment_type,
+          created_at,
+          properties (title),
+          guest:profiles!bookings_guest_id_fkey (full_name),
+          owner:profiles!bookings_owner_id_fkey (full_name, esewa_number, khalti_number, qr_code_url)
+        `)
+        .or('status.eq.paid,payment_proof_url.not.is.null')
+        .order('created_at', { ascending: false });
+
+      const combined: any[] = [...(paymentsData || [])];
+      const existingBookingIds = new Set(combined.map(p => p.booking_id));
+
+      if (bookingsData) {
+        bookingsData.forEach((b: any) => {
+          if (!existingBookingIds.has(b.id) && b.payment_proof_url) {
+            combined.push({
+              id: `b_${b.id}`,
+              booking_id: b.id,
+              payer_id: b.guest_id,
+              amount: b.total_price || 0,
+              payment_method: b.payment_type || 'esewa',
+              proof_image_url: b.payment_proof_url,
+              status: b.status === 'paid' ? 'pending' : b.status === 'confirmed' ? 'verified' : 'pending',
+              created_at: b.created_at,
+              bookings: b,
+            });
+          }
+        });
+      }
+
+      setPayments(combined);
     } catch (e) {
       console.error('Error fetching payments:', e);
     } finally {
@@ -50,12 +92,14 @@ export const Payments = () => {
     if (!window.confirm('Confirm verification of this transaction?')) return;
     
     try {
-      await supabase.from('payments').update({ status: 'verified' }).eq('id', payment.id);
+      if (payment.id && !payment.id.toString().startsWith('b_')) {
+        await supabase.from('payments').update({ status: 'verified' }).eq('id', payment.id);
+      }
       await supabase.from('bookings').update({ status: 'confirmed' }).eq('id', payment.booking_id);
       await supabase.from('notifications').insert({
-        user_id: payment.bookings.guest_id,
+        user_id: payment.bookings?.guest_id,
         title: 'Payment Verified',
-        message: `Your payment for "${payment.bookings.properties.title}" has been confirmed.`,
+        message: `Your payment for "${payment.bookings?.properties?.title || 'Property'}" has been confirmed.`,
         type: 'booking_alert',
       });
       setSelectedPayment(null);
@@ -72,12 +116,14 @@ export const Payments = () => {
     }
 
     try {
-      await supabase.from('payments').update({ status: 'rejected' }).eq('id', payment.id);
+      if (payment.id && !payment.id.toString().startsWith('b_')) {
+        await supabase.from('payments').update({ status: 'rejected' }).eq('id', payment.id);
+      }
       await supabase.from('bookings').update({ status: 'awaiting_payment' }).eq('id', payment.booking_id);
       await supabase.from('notifications').insert({
-        user_id: payment.bookings.guest_id,
+        user_id: payment.bookings?.guest_id,
         title: 'Payment Rejected',
-        message: `Your payment for "${payment.bookings.properties.title}" was denied. ${rejectReason}`,
+        message: `Your payment for "${payment.bookings?.properties?.title || 'Property'}" was denied. ${rejectReason}`,
         type: 'booking_alert',
       });
       setSelectedPayment(null);
@@ -87,6 +133,8 @@ export const Payments = () => {
       alert('Rejection protocol failed');
     }
   };
+
+  const modalProofUrl = selectedPayment ? (selectedPayment.proof_image_url || selectedPayment.bookings?.payment_proof_url || selectedPayment.bookings?.proof_image_url) : null;
 
   return (
     <div className="flex-1 overflow-y-auto px-8 py-8 bg-[#FAFAFA]">
@@ -174,19 +222,30 @@ export const Payments = () => {
             >
               {/* Left: Screenshot */}
               <div className="flex-1 bg-[#FAFAFA] p-10 flex items-center justify-center relative overflow-hidden border-r border-[#F5F5F5]">
-                 <img 
-                   src={selectedPayment.proof_image_url} 
-                   alt="Proof" 
-                   className="max-w-full max-h-full object-contain rounded-xl shadow-lg border border-[#E5E5E5]"
-                 />
-                 <a 
-                   href={selectedPayment.proof_image_url} 
-                   target="_blank" 
-                   rel="noreferrer"
-                   className="absolute top-6 right-6 p-2.5 bg-white/90 rounded-full text-[#737373] hover:text-[#171717] shadow-xs border border-[#E5E5E5] transition-colors"
-                 >
-                   <ExternalLink size={16} strokeWidth={1.5} />
-                 </a>
+                {modalProofUrl ? (
+                  <>
+                    <img 
+                      src={modalProofUrl} 
+                      alt="Payment Proof Screenshot" 
+                      className="max-w-full max-h-full object-contain rounded-xl shadow-lg border border-[#E5E5E5]"
+                    />
+                    <a 
+                      href={modalProofUrl} 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="absolute top-6 right-6 p-2.5 bg-white/90 rounded-full text-[#737373] hover:text-[#171717] shadow-xs border border-[#E5E5E5] transition-colors flex items-center gap-2 text-xs font-semibold"
+                      title="Open image in new tab"
+                    >
+                      <ExternalLink size={16} strokeWidth={1.5} />
+                    </a>
+                  </>
+                ) : (
+                  <div className="text-center p-6">
+                    <CreditCard size={40} className="mx-auto text-[#D4D4D4] mb-3" strokeWidth={1.5} />
+                    <p className="text-[14px] font-semibold text-[#171717]">No Screenshot Uploaded</p>
+                    <p className="text-[12px] text-[#737373] mt-1">Payment ID / Ref: {selectedPayment.reference_id || 'Direct Transfer'}</p>
+                  </div>
+                )}
               </div>
 
               {/* Right: Info & Actions */}

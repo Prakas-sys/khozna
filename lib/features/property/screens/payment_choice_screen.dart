@@ -1711,7 +1711,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
       await BookingRepository.submitPayment(
         bookingId: finalBookingId,
         paymentType: _paymentDestination,
-        method: 'bank_transfer',
+        method: _selectedMethod,
         amount: _currentBooking.totalPrice,
         referenceId: _transactionController.text.trim(),
         proofImageUrl: imageUrl,
