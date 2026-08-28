@@ -2227,9 +2227,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Rupee icon balanced and pushed down slightly for perfect alignment
+                      // Rupee icon perfectly balanced with price text
                       Transform.translate(
-                        offset: const Offset(0, 1.5),
+                        offset: const Offset(0, 2.8),
                         child: SvgPicture.asset(
                           'assets/icons/vector of ruppes.svg',
                           width: 19,

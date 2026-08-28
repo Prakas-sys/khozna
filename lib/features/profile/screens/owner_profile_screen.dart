@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:khozna/core/models/review_model.dart';
 import 'package:khozna/features/profile/repositories/vote_repository.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
+import 'package:khozna/features/profile/screens/owner_listings_screen.dart';
 
 class OwnerProfileScreen extends StatefulWidget {
   final String ownerId;
@@ -349,6 +350,78 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                         isVerified: _isProfileVerified,
                       ),
 
+                      // Owner Address with Global Icon & Underline
+                      if (_realLocation.isNotEmpty || widget.location.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 14),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.public_rounded,
+                                color: Color(0xFF64748B),
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  _realLocation.isNotEmpty ? _realLocation : widget.location,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                    color: const Color(0xFF0F172A),
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      // Clickable Listings Count Row below Global Location
+                      GestureDetector(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OwnerListingsScreen(
+                                ownerId: widget.ownerId,
+                                ownerName: widget.name,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 14),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.home_work_outlined,
+                                color: Color(0xFF64748B),
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  '${widget.totalListings > 0 ? widget.totalListings : 1} ${widget.totalListings == 1 ? 'listing' : 'listings'} on Khozna',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                    color: const Color(0xFF0F172A),
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                              const Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 14,
+                                color: Color(0xFF94A3B8),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
                       const SizedBox(height: 28),
                       const Divider(color: Color(0xFFF1F5F9), thickness: 1),
                       const SizedBox(height: 28),
@@ -372,20 +445,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Location
-                      if (_realLocation.isNotEmpty)
-                        _buildInfoRow(
-                          icon: Icons.location_on_outlined,
-                          text: 'Lives in $_realLocation',
-                        ),
-
-                      // Listings count
-                      _buildInfoRow(
-                        icon: Icons.home_work_outlined,
-                        text:
-                            '${widget.totalListings > 0 ? widget.totalListings : 1} ${widget.totalListings == 1 ? 'listing' : 'listings'} on Khozna',
-                      ),
-
                       // Organization
                       if (_organization != null && _organization!.isNotEmpty)
                         _buildInfoRow(
@@ -400,15 +459,25 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                           text: _userType!,
                         ),
 
-                      // Bio
+                      // Bio / Self Intro
                       if (_bio != null && _bio!.trim().isNotEmpty) ...[
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 8),
                         Text(
                           _bio!,
                           style: GoogleFonts.inter(
                             fontSize: 14.5,
                             color: const Color(0xFF475569),
                             height: 1.55,
+                          ),
+                        ),
+                      ] else ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'No self-intro added yet.',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: const Color(0xFF94A3B8),
+                            fontStyle: FontStyle.italic,
                           ),
                         ),
                       ],
@@ -611,7 +680,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               fontSize: 13.5,
               fontWeight: isVerified ? FontWeight.w600 : FontWeight.w500,
               color: isVerified ? const Color(0xFF166534) : const Color(0xFF64748B),
-              decoration: TextDecoration.none,
+              decoration: TextDecoration.underline,
             ),
           ),
         ],
