@@ -75,11 +75,9 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
 
   void _checkPostVisit() {
     final isPastVisit = DateTime.now().isAfter(_booking.checkIn);
-    final isAccepted =
-        _booking.status == 'awaiting_payment' ||
-        _booking.status == 'visit_accepted';
-    // show "did you visit?" if past visit time, accepted, and not yet confirmed
-    if (isPastVisit && isAccepted && (_booking.visitConfirmed == null)) {
+    final isVisitAccepted = _booking.status == 'visit_accepted';
+    // Only show post-visit prompt if it was an accepted physical visit request
+    if (isPastVisit && isVisitAccepted && (_booking.visitConfirmed == null)) {
       setState(() => _showVisitedQuestion = true);
     }
   }
@@ -637,15 +635,15 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     int currentStep = 0;
     if (_booking.status == 'pending_approval') {
       currentStep = 0;
-    } else if (_booking.status == 'visit_accepted') currentStep = 1;
-    else if (_booking.status == 'awaiting_payment' || _booking.visitLiked == true) currentStep = 2;
-    else if (_booking.status == 'confirmed') currentStep = 3;
-    else if (_booking.status == 'paid') currentStep = 3;
+    } else if (_booking.status == 'visit_accepted' || _booking.status == 'awaiting_payment') {
+      currentStep = 1;
+    } else if (_booking.status == 'confirmed' || _booking.status == 'paid') {
+      currentStep = 2;
+    }
 
     final steps = [
       {'label': 'Requested', 'icon': Icons.send_rounded},
       {'label': 'Approved', 'icon': Icons.check_circle_rounded},
-      {'label': 'Liked', 'icon': Icons.favorite_rounded},
       {'label': 'Move-In', 'icon': Icons.home_rounded},
     ];
 
@@ -766,10 +764,8 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
             ],
           ),
 
-          // Trust Hint: Only show for accepted visits that aren't yet liked
-          if ((_booking.status == 'visit_accepted' ||
-                  _booking.status == 'awaiting_payment') &&
-              (_booking.visitLiked != true)) ...[
+          // Trust Hint: Only show for explicit physical visit requests
+          if (_booking.status == 'visit_accepted') ...[
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
@@ -787,7 +783,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'सुरक्षित रहनुहोस्: कोठा हेरेर मन परेपछि मात्र भुक्तानी विवरण खुल्नेछ। (Payment unlocks after visit)',
+                      'सुरक्षित रहनुहोस्: अवलोकनपछि मात्र भुक्तानी प्रक्रिया अघि बढ्नेछ।',
                       style: GoogleFonts.notoSansDevanagari(
                         fontSize: 12,
                         color: Colors.blue.shade900,
