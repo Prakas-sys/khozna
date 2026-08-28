@@ -2310,107 +2310,27 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       return _buildDisabledButton('Already Booked');
     }
 
-
+    // Payment submitted — fully disabled
     if (_pendingBookingStatus == 'awaiting_payment') {
-      return SizedBox(
-        height: 48,
-        child: ElevatedButton.icon(
-          onPressed: () async {
-            if (_pendingBookingId == null) return;
-            final booking = await SupabaseService.getVisitById(
-              _pendingBookingId!,
-            );
-            if (booking != null && mounted) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => PaymentChoiceScreen(
-                    booking: booking,
-                    propertyTitle:
-                        booking.propertyTitle ?? widget.property.title,
-                  ),
-                ),
-              );
-            }
-          },
-          icon: const Icon(Icons.payment_rounded, size: 20),
-          label: Text(
-            'Pay Now',
-            style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF22C55E),
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(100),
-            ),
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 28),
-          ),
-        ),
-      );
+      return _buildDisabledButton('Payment Sent ✓');
     }
 
     if (_pendingBookingStatus == 'paid' ||
-        _pendingBookingStatus == 'confirmed') {
-      return _buildDisabledButton(
-        _pendingBookingStatus == 'confirmed' ? '✓ Confirmed' : 'Payment Sent',
-      );
+        _pendingBookingStatus == 'payment_under_review') {
+      return _buildDisabledButton('Payment Under Review ✓');
+    }
+
+    if (_pendingBookingStatus == 'confirmed') {
+      return _buildDisabledButton('Confirmed ✓');
     }
 
     if (_userHasPendingBooking) {
       if (_pendingBookingStatus == 'pending_approval') {
-        return _buildDisabledButton('Pending Approval');
+        return _buildDisabledButton('Request Pending…');
       }
-
       if (_pendingBookingStatus == 'visit_accepted') {
-        final isEnded =
-            _timeUntilVisit == Duration.zero &&
-            _pendingBookingCheckIn != null &&
-            DateTime.now().isAfter(_pendingBookingCheckIn!);
-        return SizedBox(
-          height: 48,
-          child: ElevatedButton.icon(
-            onPressed: () async {
-              if (_pendingBookingId == null) return;
-              final booking = await SupabaseService.getVisitById(
-                _pendingBookingId!,
-              );
-              if (booking != null && mounted) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => BookingStatusScreen(booking: booking),
-                  ),
-                ).then((_) => _updateBookingStatus());
-              }
-            },
-            icon: Icon(
-              isEnded ? Icons.rate_review_rounded : Icons.timer_outlined,
-              size: 20,
-            ),
-            label: Text(
-              isEnded ? 'Leave a Review' : 'View Status',
-              style: GoogleFonts.inter(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isEnded
-                  ? AppTheme.brandColor
-                  : Colors.orange.shade400,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(100),
-              ),
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-            ),
-          ),
-        );
+        return _buildDisabledButton('Visit Approved ✓');
       }
-      return _buildDisabledButton('Visit Accepted');
     }
 
     return SizedBox(
