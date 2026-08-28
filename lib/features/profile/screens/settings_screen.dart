@@ -595,7 +595,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           const SizedBox(height: 32),
           _buildSectionTitle('ACCOUNT SECURITY'),
-          _buildSimpleTile(Icons.lock_outline, 'Change Password'),
+          _buildSimpleTile(
+            Icons.lock_outline,
+            'Change Password',
+            onTap: _showChangePasswordDialog,
+          ),
 
           const SizedBox(height: 32),
           _buildSectionTitle('DANGER ZONE'),
@@ -801,15 +805,313 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSimpleTile(IconData icon, String title) {
+  void _showChangePasswordDialog() {
+    final user = Supabase.instance.client.auth.currentUser;
+    final oldPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    bool hideOldPassword = true;
+    bool hideNewPassword = true;
+    bool dialogLoading = false;
+    bool isResetSending = false;
+    String? dialogError;
+    String? dialogSuccess;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            Future<void> sendPasswordResetEmail() async {
+              final email = user?.email ?? '';
+              if (email.isEmpty) {
+                setDialogState(() {
+                  dialogError = 'No user email address found.';
+                });
+                return;
+              }
+              setDialogState(() {
+                isResetSending = true;
+                dialogError = null;
+                dialogSuccess = null;
+              });
+              try {
+                await Supabase.instance.client.auth.resetPasswordForEmail(email);
+                setDialogState(() {
+                  isResetSending = false;
+                  dialogSuccess = 'Password reset link sent to $email! Check your inbox.';
+                });
+              } catch (e) {
+                setDialogState(() {
+                  isResetSending = false;
+                  dialogError = 'Failed to send reset email: ${e.toString()}';
+                });
+              }
+            }
+
+            Future<void> verifyAndChangePassword() async {
+              final oldPass = oldPasswordController.text.trim();
+              final newPass = newPasswordController.text.trim();
+
+              if (oldPass.isEmpty || newPass.isEmpty) {
+                setDialogState(() {
+                  dialogError = 'Please enter both current and new password.';
+                });
+                return;
+              }
+
+              if (newPass.length < 6) {
+                setDialogState(() {
+                  dialogError = 'New password must be at least 6 characters long.';
+                });
+                return;
+              }
+
+              setDialogState(() {
+                dialogLoading = true;
+                dialogError = null;
+                dialogSuccess = null;
+              });
+
+              try {
+                final email = user?.email ?? '';
+                if (email.isNotEmpty) {
+                  await Supabase.instance.client.auth.signInWithPassword(
+                    email: email,
+                    password: oldPass,
+                  );
+                }
+
+                await Supabase.instance.client.auth.updateUser(
+                  UserAttributes(password: newPass),
+                );
+
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Password updated successfully!'),
+                      backgroundColor: AppTheme.brandColor,
+                    ),
+                  );
+                }
+              } catch (e) {
+                final errStr = e.toString().toLowerCase();
+                final String userMsg = (errStr.contains('invalid_credentials') || errStr.contains('invalid login'))
+                    ? 'Incorrect current password. If missed/forgotten, tap reset link below.'
+                    : e.toString().replaceAll('Exception: ', '');
+                setDialogState(() {
+                  dialogLoading = false;
+                  dialogError = userMsg;
+                });
+              }
+            }
+
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.lock_reset_rounded,
+                      color: AppTheme.brandColor,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Change Password',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 17,
+                      color: const Color(0xFF0F172A),
+                    ),
+                  ),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Enter your old password and new password to update account security.',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: const Color(0xFF64748B),
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+
+                    TextField(
+                      controller: oldPasswordController,
+                      obscureText: hideOldPassword,
+                      decoration: InputDecoration(
+                        labelText: 'Current Password',
+                        hintText: 'Enter old password',
+                        prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            hideOldPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                            size: 20,
+                          ),
+                          onPressed: () => setDialogState(() => hideOldPassword = !hideOldPassword),
+                        ),
+                        filled: true,
+                        fillColor: const Color(0xFFF8FAFC),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+
+                    TextField(
+                      controller: newPasswordController,
+                      obscureText: hideNewPassword,
+                      decoration: InputDecoration(
+                        labelText: 'New Password',
+                        hintText: 'Enter new password',
+                        prefixIcon: const Icon(Icons.key_rounded, size: 20),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            hideNewPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                            size: 20,
+                          ),
+                          onPressed: () => setDialogState(() => hideNewPassword = !hideNewPassword),
+                        ),
+                        filled: true,
+                        fillColor: const Color(0xFFF8FAFC),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: isResetSending ? null : sendPasswordResetEmail,
+                        icon: isResetSending
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.mail_outline_rounded, size: 16, color: AppTheme.brandColor),
+                        label: Text(
+                          'Forgot/missed password? Send link to email',
+                          style: GoogleFonts.inter(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.brandColor,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    if (dialogError != null) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF2F2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          dialogError!,
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFFEF4444),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+
+                    if (dialogSuccess != null) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0FDF4),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          dialogSuccess!,
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFF166534),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: dialogLoading ? null : () => Navigator.pop(context),
+                  child: Text(
+                    'Cancel',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: dialogLoading ? null : verifyAndChangePassword,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.brandColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
+                  child: dialogLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : Text(
+                          'Update Password',
+                          style: GoogleFonts.inter(fontWeight: FontWeight.w700),
+                        ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildSimpleTile(IconData icon, String title, {VoidCallback? onTap}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         contentPadding: EdgeInsets.zero,
         leading: Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
+          decoration: const BoxDecoration(
+            color: Color(0xFFF1F5F9),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: const Color(0xFF1E293B), size: 20),
@@ -827,7 +1129,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           size: 14,
           color: Color(0xFF94A3B8),
         ),
-        onTap: () {},
+        onTap: onTap,
       ),
     );
   }

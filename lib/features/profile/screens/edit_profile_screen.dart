@@ -11,6 +11,8 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/security/security_utils.dart';
 import 'package:khozna/features/profile/screens/kyc_screen.dart';
+import 'package:khozna/core/utils/offline_storage.dart';
+import 'package:khozna/core/utils/app_notifiers.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -58,6 +60,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   double? _latitude;
   double? _longitude;
   String _kycStatus = 'not_verified';
+  String _initialEmail = '';
+  String _initialPhone = '';
 
   // 🎨 COLOR PALETTE (60-30-10 Rule)
   static const Color colorPrimary = Colors.white; // 60%
@@ -70,29 +74,104 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     SecurityUtils.setSecure(true);
+
+    // Synchronously pre-fill from auth user metadata & memory cache
+    _emailController.text = user?.email ?? '';
+    _fullNameController.text = user?.userMetadata?['full_name'] ?? user?.userMetadata?['name'] ?? '';
+    _phoneController.text = user?.userMetadata?['phone_number'] ?? user?.userMetadata?['phone'] ?? '';
+    _avatarUrl = AppTheme.sanitizeAvatarUrl(
+      user?.userMetadata?['avatar_url'] ?? user?.userMetadata?['picture'],
+    );
+
+    if (profileCache.value != null) {
+      _applyCacheMap(profileCache.value!);
+    }
+
+    _loadFromDiskCache();
     _loadUserData();
   }
 
-  @override
-  void dispose() {
-    SecurityUtils.setSecure(false);
-    _fullNameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    _esewaController.dispose();
-    _khaltiController.dispose();
-    _accountNameController.dispose();
-    _areaController.dispose();
-    _userTypeController.dispose();
-    _bioController.dispose();
-    _orgController.dispose();
-    _focusNodes.forEach((key, node) => node.dispose());
-    super.dispose();
+  Future<void> _loadFromDiskCache() async {
+    final diskCache = await OfflineStorage.loadProfileCache();
+    if (diskCache != null && mounted) {
+      _applyCacheMap(diskCache);
+    }
+  }
+
+  void _applyCacheMap(Map<String, dynamic> cache) {
+    setState(() {
+      if (_fullNameController.text.isEmpty && cache['full_name'] != null && cache['full_name'].toString().isNotEmpty) {
+        _fullNameController.text = cache['full_name'].toString();
+      }
+      if ((_emailController.text.isEmpty || _emailController.text == user?.email) && cache['email'] != null && cache['email'].toString().isNotEmpty) {
+        _emailController.text = cache['email'].toString();
+      }
+      if (_phoneController.text.isEmpty && cache['phone_number'] != null && cache['phone_number'].toString().isNotEmpty) {
+        _phoneController.text = cache['phone_number'].toString();
+      }
+      if (_esewaController.text.isEmpty && cache['esewa_number'] != null) {
+        _esewaController.text = cache['esewa_number'].toString();
+      }
+      if (_khaltiController.text.isEmpty && cache['khalti_number'] != null) {
+        _khaltiController.text = cache['khalti_number'].toString();
+      }
+      if (_accountNameController.text.isEmpty && cache['account_holder_name'] != null) {
+        _accountNameController.text = cache['account_holder_name'].toString();
+      }
+      if (_areaController.text.isEmpty && cache['area_name'] != null) {
+        _areaController.text = cache['area_name'].toString();
+      }
+      if (_userTypeController.text.isEmpty && cache['user_type'] != null) {
+        _userTypeController.text = cache['user_type'].toString();
+      }
+      if (_bioController.text.isEmpty && cache['bio'] != null) {
+        _bioController.text = cache['bio'].toString();
+      }
+      if (_orgController.text.isEmpty && cache['organization'] != null) {
+        _orgController.text = cache['organization'].toString();
+      }
+      _avatarUrl ??= AppTheme.sanitizeAvatarUrl(cache['avatar_url']);
+      _qrCodeUrl ??= cache['qr_code_url']?.toString();
+      _studentIdUrl ??= cache['student_id_url']?.toString();
+      _latitude ??= (cache['latitude'] as num?)?.toDouble();
+      _longitude ??= (cache['longitude'] as num?)?.toDouble();
+      if (cache['kyc_status'] != null && _kycStatus == 'not_verified') {
+        _kycStatus = cache['kyc_status'].toString();
+      }
+    });
+  }
+
+  void _saveCurrentToCache() {
+    if (user == null) return;
+    final cacheData = {
+      'id': user!.id,
+      'full_name': _fullNameController.text,
+      'email': _emailController.text.isNotEmpty ? _emailController.text : user?.email,
+      'phone_number': _phoneController.text,
+      'avatar_url': _avatarUrl,
+      'esewa_number': _esewaController.text,
+      'khalti_number': _khaltiController.text,
+      'account_holder_name': _accountNameController.text,
+      'qr_code_url': _qrCodeUrl,
+      'area_name': _areaController.text,
+      'user_type': _userTypeController.text,
+      'bio': _bioController.text,
+      'organization': _orgController.text,
+      'student_id_url': _studentIdUrl,
+      'kyc_status': _kycStatus,
+      'latitude': _latitude,
+      'longitude': _longitude,
+    };
+    profileCache.value = cacheData;
+    OfflineStorage.saveProfileCache(cacheData);
   }
 
   Future<void> _loadUserData() async {
     if (user != null) {
-      setState(() => _isLoading = true);
+      final bool hasExistingData = _fullNameController.text.isNotEmpty || _phoneController.text.isNotEmpty;
+      if (!hasExistingData) {
+        setState(() => _isLoading = true);
+      }
       try {
         final profile = await Supabase.instance.client
             .from('profiles')
@@ -108,47 +187,48 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             .limit(1)
             .maybeSingle();
 
-        if (mounted) {
-          // ONLY trust kyc_verifications table for banner logic.
-          // Don't use profile['is_verified'] or profile['kyc_status'] — those can
-          // be set for legacy reasons and would incorrectly hide the KYC banner.
+        if (mounted && profile != null) {
           final String kycTableStatus = (kyc?['status'] ?? '').toString().toLowerCase();
           final bool kycDocVerified = kycTableStatus == 'verified' || kycTableStatus == 'approved';
 
           setState(() {
-            _fullNameController.text = profile?['full_name'] ?? '';
-            _emailController.text = profile?['email'] ?? user?.email ?? '';
-            _phoneController.text = profile?['phone_number'] ?? '';
+            _fullNameController.text = profile['full_name'] ?? _fullNameController.text;
+            _emailController.text = profile['email'] ?? user?.email ?? _emailController.text;
+            _phoneController.text = profile['phone_number'] ?? _phoneController.text;
             _avatarUrl = AppTheme.sanitizeAvatarUrl(
-              profile?['avatar_url'] ??
+              profile['avatar_url'] ??
                   user?.userMetadata?['avatar_url'] ??
-                  user?.userMetadata?['picture'],
+                  user?.userMetadata?['picture'] ??
+                  _avatarUrl,
             );
-            _esewaController.text = profile?['esewa_number'] ?? '';
-            _khaltiController.text = profile?['khalti_number'] ?? '';
-            _accountNameController.text = profile?['account_holder_name'] ?? '';
-            _qrCodeUrl = profile?['qr_code_url'];
-            _areaController.text = profile?['area_name'] ?? '';
-            _userTypeController.text = profile?['user_type'] ?? '';
-            _bioController.text = profile?['bio'] ?? '';
-            _orgController.text = profile?['organization'] ?? '';
-            _studentIdUrl = profile?['student_id_url'];
+            _esewaController.text = profile['esewa_number'] ?? _esewaController.text;
+            _khaltiController.text = profile['khalti_number'] ?? _khaltiController.text;
+            _accountNameController.text = profile['account_holder_name'] ?? _accountNameController.text;
+            _qrCodeUrl = profile['qr_code_url'] ?? _qrCodeUrl;
+            _areaController.text = profile['area_name'] ?? _areaController.text;
+            _userTypeController.text = profile['user_type'] ?? _userTypeController.text;
+            _bioController.text = profile['bio'] ?? _bioController.text;
+            _orgController.text = profile['organization'] ?? _orgController.text;
+            _studentIdUrl = profile['student_id_url'] ?? _studentIdUrl;
 
-            // Set _kycStatus only from kyc_verifications table
             if (kyc != null) {
-              _latitude = (kyc['latitude'] as num?)?.toDouble();
-              _longitude = (kyc['longitude'] as num?)?.toDouble();
+              _latitude = (kyc['latitude'] as num?)?.toDouble() ?? _latitude;
+              _longitude = (kyc['longitude'] as num?)?.toDouble() ?? _longitude;
               _kycStatus = kycDocVerified
                   ? 'verified'
                   : (kycTableStatus.isNotEmpty ? kycTableStatus : 'pending');
-            } else {
-              // No kyc record at all → definitely not verified, show banner
-              _kycStatus = 'not_verified';
+            } else if (profile['kyc_status'] != null) {
+              _kycStatus = profile['kyc_status'];
             }
           });
+
+          _initialEmail = _emailController.text.trim();
+          _initialPhone = _phoneController.text.trim();
+
+          _saveCurrentToCache();
         }
       } catch (e) {
-        debugPrint('Error loading profile: $e');
+        debugPrint('Offline/Error loading profile: $e');
       } finally {
         if (mounted) setState(() => _isLoading = false);
       }
@@ -267,8 +347,329 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (image != null) setState(() => _idFile = File(image.path));
   }
 
+  Future<bool> _showSecurityVerificationDialog({
+    required String title,
+    required String subtitle,
+  }) async {
+    final oldPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    bool hideOldPassword = true;
+    bool hideNewPassword = true;
+    bool dialogLoading = false;
+    bool isResetSending = false;
+    String? dialogError;
+    String? dialogSuccess;
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            Future<void> sendPasswordResetEmail() async {
+              final userEmail = user?.email ?? _emailController.text.trim();
+              if (userEmail.isEmpty) {
+                setDialogState(() {
+                  dialogError = 'No valid email address found to send reset link.';
+                });
+                return;
+              }
+              setDialogState(() {
+                isResetSending = true;
+                dialogError = null;
+                dialogSuccess = null;
+              });
+              try {
+                await Supabase.instance.client.auth.resetPasswordForEmail(userEmail);
+                setDialogState(() {
+                  isResetSending = false;
+                  dialogSuccess = 'Password reset link sent to $userEmail! Check your inbox.';
+                });
+              } catch (e) {
+                setDialogState(() {
+                  isResetSending = false;
+                  dialogError = 'Failed to send reset email: ${e.toString()}';
+                });
+              }
+            }
+
+            Future<void> verifyPassword() async {
+              final oldPass = oldPasswordController.text.trim();
+              final newPass = newPasswordController.text.trim();
+
+              if (oldPass.isEmpty) {
+                setDialogState(() {
+                  dialogError = 'Please enter your current password.';
+                });
+                return;
+              }
+
+              setDialogState(() {
+                dialogLoading = true;
+                dialogError = null;
+                dialogSuccess = null;
+              });
+
+              try {
+                final currentUser = Supabase.instance.client.auth.currentUser;
+                final userEmail = currentUser?.email ?? _emailController.text.trim();
+
+                if (userEmail.isNotEmpty) {
+                  await Supabase.instance.client.auth.signInWithPassword(
+                    email: userEmail,
+                    password: oldPass,
+                  );
+                }
+
+                if (newPass.isNotEmpty) {
+                  if (newPass.length < 6) {
+                    throw 'New password must be at least 6 characters long.';
+                  }
+                  await Supabase.instance.client.auth.updateUser(
+                    UserAttributes(password: newPass),
+                  );
+                }
+
+                final newEmail = _emailController.text.trim();
+                if (newEmail.isNotEmpty && newEmail != userEmail) {
+                  await Supabase.instance.client.auth.updateUser(
+                    UserAttributes(email: newEmail),
+                  );
+                }
+
+                if (context.mounted) {
+                  Navigator.pop(context, true);
+                }
+              } catch (e) {
+                final errStr = e.toString().toLowerCase();
+                final String userMsg = (errStr.contains('invalid_credentials') || errStr.contains('invalid login'))
+                    ? 'Incorrect password entered. If missed/forgotten, tap reset link below.'
+                    : e.toString().replaceAll('Exception: ', '');
+                setDialogState(() {
+                  dialogLoading = false;
+                  dialogError = userMsg;
+                });
+              }
+            }
+
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.security_rounded,
+                      color: AppTheme.brandColor,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 17,
+                        color: const Color(0xFF0F172A),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: const Color(0xFF64748B),
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+
+                    TextField(
+                      controller: oldPasswordController,
+                      obscureText: hideOldPassword,
+                      decoration: InputDecoration(
+                        labelText: 'Current Password',
+                        hintText: 'Enter old password',
+                        prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            hideOldPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                            size: 20,
+                          ),
+                          onPressed: () => setDialogState(() => hideOldPassword = !hideOldPassword),
+                        ),
+                        filled: true,
+                        fillColor: const Color(0xFFF8FAFC),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+
+                    TextField(
+                      controller: newPasswordController,
+                      obscureText: hideNewPassword,
+                      decoration: InputDecoration(
+                        labelText: 'New Password (Optional)',
+                        hintText: 'Enter new password',
+                        prefixIcon: const Icon(Icons.key_rounded, size: 20),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            hideNewPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                            size: 20,
+                          ),
+                          onPressed: () => setDialogState(() => hideNewPassword = !hideNewPassword),
+                        ),
+                        filled: true,
+                        fillColor: const Color(0xFFF8FAFC),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: isResetSending ? null : sendPasswordResetEmail,
+                        icon: isResetSending
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.mail_outline_rounded, size: 16, color: AppTheme.brandColor),
+                        label: Text(
+                          'Forgot/missed password? Send link to email',
+                          style: GoogleFonts.inter(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.brandColor,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    if (dialogError != null) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF2F2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          dialogError!,
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFFEF4444),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+
+                    if (dialogSuccess != null) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0FDF4),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          dialogSuccess!,
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFF166534),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: dialogLoading ? null : () => Navigator.pop(context, false),
+                  child: Text(
+                    'Cancel',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: dialogLoading ? null : verifyPassword,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.brandColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
+                  child: dialogLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : Text(
+                          'Confirm & Save',
+                          style: GoogleFonts.inter(fontWeight: FontWeight.w700),
+                        ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    return result ?? false;
+  }
+
   Future<void> _updateProfile() async {
     if (user == null) return;
+
+    final String currentEmail = _emailController.text.trim();
+    final String currentPhone = _phoneController.text.trim();
+
+    final bool sensitiveChanged =
+        (_initialEmail.isNotEmpty && currentEmail != _initialEmail) ||
+        (_initialPhone.isNotEmpty && currentPhone != _initialPhone);
+
+    if (sensitiveChanged) {
+      final bool verified = await _showSecurityVerificationDialog(
+        title: 'Security Verification',
+        subtitle: 'You are updating sensitive information (Email or Phone Number). Please enter your old password to confirm.',
+      );
+      if (!verified) return;
+    }
+
     setState(() => _isLoading = true);
     try {
       String? avatar = _avatarUrl;
@@ -285,8 +686,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           .from('profiles')
           .update({
             'full_name': _fullNameController.text.trim(),
+            'email': currentEmail,
             'avatar_url': avatar,
-            'phone_number': _phoneController.text.trim(),
+            'phone_number': currentPhone,
             'esewa_number': _esewaController.text.trim(),
             'khalti_number': _khaltiController.text.trim(),
             'account_holder_name': _accountNameController.text.trim(),
@@ -299,6 +701,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             'updated_at': DateTime.now().toIso8601String(),
           })
           .eq('id', user!.id);
+
+      _initialEmail = currentEmail;
+      _initialPhone = currentPhone;
+
+      _saveCurrentToCache();
 
       if (mounted) {
         HapticFeedback.mediumImpact();
@@ -415,7 +822,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           _buildAirbnbField(
                             'Email Address',
                             _emailController,
-                            enabled: false,
+                            keyboardType: TextInputType.emailAddress,
+                            focusNode: _focusNodes['email'],
                             prefixIcon: Icons.email_outlined,
                             hintText: 'e.g. ram@example.com',
                           ),
@@ -426,6 +834,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             focusNode: _focusNodes['phone'],
                             prefixIcon: Icons.phone_outlined,
                             hintText: 'e.g. 9800000000',
+                          ),
+                          const SizedBox(height: 8),
+                          InkWell(
+                            onTap: () => _showSecurityVerificationDialog(
+                              title: 'Change Password',
+                              subtitle: 'Enter your old password and a new password below. If forgotten, tap the reset link to receive a password email.',
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: AppTheme.brandColor.withOpacity(0.06),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppTheme.brandColor.withOpacity(0.2)),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.lock_reset_rounded, size: 20, color: AppTheme.brandColor),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'Change Password',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppTheme.brandColor,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  const Icon(Icons.chevron_right_rounded, size: 20, color: AppTheme.brandColor),
+                                ],
+                              ),
+                            ),
                           ),
                         ],
                       ),

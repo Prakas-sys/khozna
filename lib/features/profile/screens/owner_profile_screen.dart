@@ -50,8 +50,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   String? _organization;
   String? _fetchedAvatar;
   bool _isProfileVerified = false;
-  bool _isEmailVerified = false;
-  bool _isPhoneVerified = false;
 
   @override
   void initState() {
@@ -111,9 +109,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                 (profileData['is_verified'] == true);
 
             _isProfileVerified = dbVerified || widget.isVerified;
-
-            _isEmailVerified = _isProfileVerified || (_email != null && _email!.trim().isNotEmpty);
-            _isPhoneVerified = _isProfileVerified || (_phoneNumber != null && _phoneNumber!.trim().isNotEmpty);
           }
           _ownerReviews = results[2] as List<ReviewModel>;
           _isLoadingReviews = false;
@@ -352,14 +347,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       _buildVerificationRow(
                         label: 'Identity',
                         isVerified: _isProfileVerified,
-                      ),
-                      _buildVerificationRow(
-                        label: 'Email address',
-                        isVerified: _isEmailVerified,
-                      ),
-                      _buildVerificationRow(
-                        label: 'Phone number',
-                        isVerified: _isPhoneVerified,
                       ),
 
                       const SizedBox(height: 28),
@@ -601,7 +588,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           Row(
             children: [
               Icon(
-                isVerified ? Icons.check_circle_rounded : Icons.cancel_outlined,
+                isVerified ? Icons.check_circle_rounded : Icons.remove_circle_outline_rounded,
                 color: isVerified
                     ? const Color(0xFF16A34A)
                     : const Color(0xFF94A3B8),
@@ -624,7 +611,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               fontSize: 13.5,
               fontWeight: isVerified ? FontWeight.w600 : FontWeight.w500,
               color: isVerified ? const Color(0xFF166534) : const Color(0xFF64748B),
-              decoration: isVerified ? TextDecoration.none : TextDecoration.underline,
+              decoration: TextDecoration.none,
             ),
           ),
         ],

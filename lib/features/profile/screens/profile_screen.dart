@@ -102,7 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       try {
         final profile = await Supabase.instance.client
             .from('profiles')
-            .select('full_name, avatar_url, kyc_status, is_owner, qr_code_url')
+            .select('*')
             .eq('id', user!.id)
             .maybeSingle();
 
@@ -123,8 +123,12 @@ class _ProfileScreenState extends State<ProfileScreen>
 
             PushNotificationService.updateKycStatus(_kycStatus);
 
-            final cacheData = {
+            final Map<String, dynamic> cacheData = {
+              ...?profileCache.value,
+              ...profile,
               'full_name': _fullName,
+              'email': profile['email'] ?? user?.email,
+              'phone_number': profile['phone_number'] ?? user?.userMetadata?['phone_number'],
               'avatar_url': _avatarUrl,
               'qr_code_url': _qrCodeUrl,
               'kyc_status': _kycStatus,
