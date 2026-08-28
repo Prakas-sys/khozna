@@ -2320,43 +2320,47 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           24,
           16,
           24,
-          MediaQuery.of(context).padding.bottom + 24,
+          MediaQuery.of(context).padding.bottom + 28,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Drag handle
             Center(
               child: Container(
                 width: 40,
-                height: 5,
+                height: 4,
                 decoration: BoxDecoration(
                   color: const Color(0xFFE5E7EB),
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 22),
+
+            // Header
             Text(
               'How would you like to proceed?',
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 17,
+                fontSize: 18,
                 fontWeight: FontWeight.w800,
                 color: const Color(0xFF111827),
-                letterSpacing: -0.3,
+                letterSpacing: -0.4,
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Text(
-              'Select an option below to proceed with this property.',
+              'Choose an option to get started with this property.',
               style: GoogleFonts.inter(
                 fontSize: 12.5,
-                color: const Color(0xFF6B7280),
+                color: const Color(0xFF9CA3AF),
+                height: 1.4,
               ),
             ),
             const SizedBox(height: 20),
 
-            // OPTION 1: Visit Schedule
+            // ── OPTION 1: Schedule Visit ────────────────────────────
             InkWell(
               onTap: () {
                 Navigator.pop(context);
@@ -2368,70 +2372,116 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   ),
                 ).then((v) => v == true ? _updateBookingStatus() : null);
               },
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(18),
               child: Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
+                  color: const Color(0xFFFFFBF2),
+                  borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: const Color(0xFFE5E7EB),
+                    color: const Color(0xFFFDE68A),
                     width: 1.5,
                   ),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(11),
                       decoration: const BoxDecoration(
-                        color: Color(0xFFF3F4F6),
+                        color: Color(0xFFFEF3C7),
                         shape: BoxShape.circle,
                       ),
                       child: SvgPicture.asset(
                         'assets/images/schedule visit.svg',
-                        width: 24,
-                        height: 24,
+                        width: 22,
+                        height: 22,
                         colorFilter: const ColorFilter.mode(
-                          Colors.black,
+                          Color(0xFFD97706),
                           BlendMode.srcIn,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Schedule a Visit',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF111827),
-                            ),
+                          Row(
+                            children: [
+                              Text(
+                                'Schedule a Visit',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF111827),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFEF3C7),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  'FREE',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w800,
+                                    color: const Color(0xFFD97706),
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 3),
                           Text(
                             'Inspect the property in person before committing.',
                             style: GoogleFonts.inter(
                               fontSize: 11.5,
-                              color: const Color(0xFF6B7280),
+                              color: const Color(0xFF9CA3AF),
+                              height: 1.4,
                             ),
                           ),
                         ],
                       ),
                     ),
+                    const SizedBox(width: 8),
                     const Icon(
                       Icons.arrow_forward_ios_rounded,
-                      color: Color(0xFF9CA3AF),
-                      size: 14,
+                      color: Color(0xFFD97706),
+                      size: 13,
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 12),
 
-            // OPTION 2: Book / Rent now
+            // ── OR divider ──────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              child: Row(
+                children: [
+                  Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      'OR',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.grey.shade400,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                  ),
+                  Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1)),
+                ],
+              ),
+            ),
+
+            // ── OPTION 2: Instant Booking ───────────────────────────
             InkWell(
               onTap: () {
                 Navigator.pop(context);
@@ -2444,28 +2494,28 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   ),
                 );
               },
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(18),
               child: Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: AppTheme.brandColor,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(18),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(11),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withOpacity(0.18),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.bolt_rounded,
                         color: Colors.white,
-                        size: 24,
+                        size: 22,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2484,7 +2534,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withOpacity(0.22),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
@@ -2504,7 +2554,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             'Rs. ${PriceFormatter.format(widget.property.priceMonth > 0 ? widget.property.priceMonth.toStringAsFixed(0) : (double.tryParse(widget.property.price) ?? 0).toStringAsFixed(0))} to reserve instantly.',
                             style: GoogleFonts.inter(
                               fontSize: 11.5,
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withOpacity(0.85),
+                              height: 1.4,
                             ),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
@@ -2512,10 +2563,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         ],
                       ),
                     ),
+                    const SizedBox(width: 8),
                     const Icon(
                       Icons.arrow_forward_ios_rounded,
                       color: Colors.white,
-                      size: 14,
+                      size: 13,
                     ),
                   ],
                 ),
