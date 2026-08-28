@@ -363,24 +363,24 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 _buildPathCard(
                   id: 'khozna_escrow',
                   title: 'Khozna Secure',
-                  subtitle: 'We hold your funds safely and release them only after you move in.',
+                  subtitle: 'Funds held safely & released after move-in.',
                   badge: 'RECOMMENDED',
-                  icon: Icons.verified_user_rounded,
+                  icon: Icons.account_balance_wallet_rounded,
                   iconColor: AppTheme.brandColor,
                   features: ['100% Refund Protection', 'Dispute Resolution', 'KYC Verified'],
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
 
                 // ── Pay to Owner ──
                 _buildPathCard(
                   id: 'host_direct',
                   title: 'Pay to Owner',
                   subtitle: hasHostPayment
-                      ? 'Pay directly to the landlord via eSewa, Khalti, or QR code.'
+                      ? 'Pay directly to landlord via eSewa, Khalti, or QR.'
                       : 'Owner hasn\'t set up direct payment yet.',
                   badge: 'DIRECT',
-                  icon: Icons.send_rounded,
+                  icon: Icons.person_rounded,
                   iconColor: const Color(0xFF6366F1),
                   features: hasHostPayment
                       ? ['eSewa / Khalti', 'Owner QR Code', 'Instant Transfer']
@@ -439,45 +439,36 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         curve: Curves.easeOut,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected ? activeColor : const Color(0xFFE8EDF2),
-            width: isSelected ? 2 : 1,
+            width: isSelected ? 1.8 : 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected
-                  ? activeColor.withOpacity(0.08)
-                  : Colors.black.withOpacity(0.03),
-              blurRadius: isSelected ? 18 : 6,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Top section ──────────────────────────────────
             Padding(
-              padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Icon bubble
                   Container(
-                    width: 44,
-                    height: 44,
+                    width: 40,
+                    height: 40,
                     decoration: BoxDecoration(
                       color: disabled
                           ? const Color(0xFFF1F5F9)
                           : isEscrow
                               ? AppTheme.brandColor.withOpacity(0.10)
                               : const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
                       icon,
-                      size: 22,
+                      size: 20,
                       color: disabled
                           ? const Color(0xFFCBD5E1)
                           : isEscrow
@@ -485,7 +476,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                               : const Color(0xFF1E293B),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
 
                   // Title + description
                   Expanded(
@@ -497,7 +488,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                             Text(
                               title,
                               style: GoogleFonts.plusJakartaSans(
-                                fontSize: 14.5,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w800,
                                 color: disabled
                                     ? const Color(0xFFCBD5E1)
@@ -507,19 +498,23 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                             ),
                             const SizedBox(width: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                               decoration: BoxDecoration(
-                                color: disabled
-                                    ? const Color(0xFFF1F5F9)
-                                    : isEscrow
-                                        ? AppTheme.brandColor.withOpacity(0.10)
-                                        : const Color(0xFFF1F5F9),
+                                color: Colors.transparent,
                                 borderRadius: BorderRadius.circular(4),
+                                border: Border.all(
+                                  color: disabled
+                                      ? const Color(0xFFCBD5E1)
+                                      : isEscrow
+                                          ? AppTheme.brandColor.withOpacity(0.4)
+                                          : const Color(0xFFCBD5E1),
+                                  width: 1,
+                                ),
                               ),
                               child: Text(
                                 badge,
                                 style: GoogleFonts.inter(
-                                  fontSize: 8.5,
+                                  fontSize: 8,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 0.5,
                                   color: disabled
@@ -532,12 +527,12 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 3),
+                        const SizedBox(height: 2),
                         Text(
                           subtitle,
                           style: GoogleFonts.inter(
                             fontSize: 11.5,
-                            height: 1.45,
+                            height: 1.35,
                             color: disabled
                                 ? const Color(0xFFCBD5E1)
                                 : const Color(0xFF64748B),
@@ -667,6 +662,11 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         name,
         style: GoogleFonts.inter(
           fontSize: 10.5,
+          fontWeight: FontWeight.w700,
+          color: color,
+        ),
+      ),
+    );
   }
 
   // ── STEP 2 OF 3: SELECT METHOD ──
