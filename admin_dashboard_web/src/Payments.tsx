@@ -368,11 +368,21 @@ export const Payments = () => {
 
                   <div className="space-y-4">
                     <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#E5E5E5]">
-                      <div className="flex items-center gap-2 mb-3">
+                      <div className="flex items-center gap-2 mb-2">
                         <User size={14} strokeWidth={1.5} className="text-[#A3A3A3]" />
                         <span className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest">Payer</span>
                       </div>
                       <p className="text-[14px] font-semibold text-[#171717]">{selectedPayment.bookings?.guest?.full_name || 'Guest User'}</p>
+                    </div>
+
+                    <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#E5E5E5]">
+                      <div className="flex items-center gap-2 mb-1">
+                        <QrCode size={14} strokeWidth={1.5} className="text-[#A3A3A3]" />
+                        <span className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest">Transaction Ref ID (Mandatory)</span>
+                      </div>
+                      <p className="text-[14px] font-mono font-bold text-emerald-600">
+                        {selectedPayment.reference_id || selectedPayment.referenceId || 'No Code Attached'}
+                      </p>
                     </div>
 
                     <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#E5E5E5]">

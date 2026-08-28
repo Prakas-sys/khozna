@@ -1666,7 +1666,9 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             controller: _transactionController,
             style: GoogleFonts.inter(fontSize: 13),
             decoration: InputDecoration(
-              hintText: 'Transaction ID / Ref No. (Optional)',
+              labelText: 'Transaction ID / Ref Code *',
+              hintText: 'Enter eSewa / Khalti Transaction Code (Required)',
+              labelStyle: GoogleFonts.inter(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.w600),
               hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 12),
               filled: true,
               fillColor: const Color(0xFFF8FAFC),
@@ -1684,11 +1686,27 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
   Future<void> _proceed() async {
     setState(() => _isSubmitting = true);
+    final refCode = _transactionController.text.trim();
+
     if (_proofImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please upload a payment screenshot first.', style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
           backgroundColor: Colors.black,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.only(bottom: 85, left: 16, right: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+      setState(() => _isSubmitting = false);
+      return;
+    }
+
+    if (refCode.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please enter the Transaction ID / Ref Code.', style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
+          backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.only(bottom: 85, left: 16, right: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
