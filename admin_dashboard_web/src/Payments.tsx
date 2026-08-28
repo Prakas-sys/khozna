@@ -171,42 +171,69 @@ export const Payments = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-3">
-          {payments.map((p) => (
-            <div key={p.id} className="card-minimal p-5 flex items-center justify-between group hover:border-[#A3A3A3] transition-all">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-[#F5F5F5] flex items-center justify-center text-[#171717]">
-                  <CreditCard size={18} strokeWidth={1.5} />
-                </div>
-                <div>
-                  <h4 className="text-[14px] font-semibold text-[#171717]">{p.bookings?.properties?.title || 'Unknown Asset'}</h4>
-                  <div className="flex items-center gap-2.5 mt-0.5">
-                    <span className="text-[11px] font-medium text-[#737373]">{p.bookings?.guest?.full_name || 'Anonymous'}</span>
-                    <span className="w-1 h-1 rounded-full bg-[#E5E5E5]"></span>
-                    <span className="text-[11px] text-[#A3A3A3]">{new Date(p.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>
+          {payments.map((p) => {
+            const proofUrl = p.proof_image_url || p.bookings?.payment_proof_url || p.bookings?.proof_image_url;
+            return (
+              <div 
+                key={p.id} 
+                onClick={() => setSelectedPayment(p)}
+                className="card-minimal p-4 flex items-center justify-between group hover:border-[#171717] cursor-pointer transition-all bg-white rounded-xl border border-[#E5E5E5] shadow-xs"
+              >
+                <div className="flex items-center gap-4">
+                  {/* Proof Thumbnail Image */}
+                  <div className="w-12 h-12 rounded-lg bg-[#F5F5F5] overflow-hidden border border-[#E5E5E5] flex items-center justify-center relative shrink-0">
+                    {proofUrl ? (
+                      <img 
+                        src={proofUrl} 
+                        alt="Receipt" 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                      />
+                    ) : (
+                      <CreditCard size={18} strokeWidth={1.5} className="text-[#737373]" />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-[14px] font-semibold text-[#171717]">{p.bookings?.properties?.title || 'Direct Booking'}</h4>
+                      {proofUrl && (
+                        <span className="text-[10px] font-semibold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full border border-blue-100 flex items-center gap-1">
+                          📷 Image Uploaded
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2.5 mt-1">
+                      <span className="text-[11px] font-medium text-[#737373]">Guest: {p.bookings?.guest?.full_name || 'Guest User'}</span>
+                      <span className="w-1 h-1 rounded-full bg-[#E5E5E5]"></span>
+                      <span className="text-[11px] text-[#A3A3A3]">{new Date(p.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-10">
-                <div className="text-right">
-                  <p className="text-[15px] font-semibold text-[#171717]">NPR {p.amount.toLocaleString()}</p>
-                  <span className={`text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md border ${
-                    p.status === 'verified' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                    p.status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-orange-50 text-orange-600 border-orange-100'
-                  }`}>
-                    {p.status}
-                  </span>
+                <div className="flex items-center gap-6">
+                  <div className="text-right">
+                    <p className="text-[15px] font-semibold text-[#171717]">NPR {p.amount.toLocaleString()}</p>
+                    <span className={`text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md border ${
+                      p.status === 'verified' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                      p.status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-orange-50 text-orange-600 border-orange-100'
+                    }`}>
+                      {p.status}
+                    </span>
+                  </div>
+                  
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedPayment(p);
+                    }}
+                    className="h-9 px-4 bg-[#171717] text-white rounded-lg text-[12px] font-semibold hover:bg-[#0A0A0A] transition-all shadow-xs flex items-center gap-2"
+                  >
+                    <span>View Image & Verify</span>
+                    <ExternalLink size={13} strokeWidth={1.5} />
+                  </button>
                 </div>
-                
-                <button 
-                  onClick={() => setSelectedPayment(p)}
-                  className="h-9 px-5 bg-[#171717] text-white rounded-lg text-[12px] font-semibold hover:bg-[#0A0A0A] transition-all shadow-sm"
-                >
-                  Verify
-                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
