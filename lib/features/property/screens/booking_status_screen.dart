@@ -1192,7 +1192,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
                 MaterialPageRoute(
                   builder: (_) => PaymentChoiceScreen(booking: _booking),
                 ),
-              ).then((_) => _fetchBookingDetails());
+              ).then((_) => _refreshBooking());
             },
           ),
           const SizedBox(height: 10),

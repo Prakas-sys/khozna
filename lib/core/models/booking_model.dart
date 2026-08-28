@@ -8,6 +8,7 @@ class BookingModel {
   final double totalPrice;
   final double khoznaFee;
   final String? paymentType;
+  final String? paymentProofUrl;
   final String status;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -27,6 +28,7 @@ class BookingModel {
     required this.totalPrice,
     required this.khoznaFee,
     this.paymentType,
+    this.paymentProofUrl,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
@@ -48,6 +50,7 @@ class BookingModel {
       totalPrice: double.tryParse(map['total_price']?.toString() ?? '0') ?? 0,
       khoznaFee: double.tryParse(map['khozna_fee']?.toString() ?? '0') ?? 0,
       paymentType: map['payment_type'],
+      paymentProofUrl: map['payment_proof_url'],
       status: map['status'] ?? 'pending_approval',
       createdAt: DateTime.parse(map['created_at']),
       updatedAt: DateTime.parse(map['updated_at']),

@@ -17,26 +17,7 @@ export const Payments = () => {
   const fetchPayments = async () => {
     setLoading(true);
     try {
-      // 1. Fetch payments table
-      const { data: paymentsData, error: paymentsErr } = await supabase
-        .from('payments')
-        .select(`
-          *,
-          bookings (
-            id,
-            guest_id,
-            owner_id,
-            payment_proof_url,
-            properties (title),
-            guest:profiles!bookings_guest_id_fkey (full_name),
-            owner:profiles!bookings_owner_id_fkey (full_name, esewa_number, khalti_number, qr_code_url)
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (paymentsErr) console.error('Error fetching payments:', paymentsErr);
-
-      // 2. Fetch all bookings to ensure no payment proof screenshots are missed
+      // 1. Fetch all bookings with property & profile info
       const { data: bookingsData, error: bookingsErr } = await supabase
         .from('bookings')
         .select(`
@@ -56,13 +37,47 @@ export const Payments = () => {
 
       if (bookingsErr) console.error('Error fetching bookings:', bookingsErr);
 
-      const combined: any[] = [...(paymentsData || [])];
-      const existingBookingIds = new Set(combined.map((p) => p.booking_id));
+      // Create a quick lookup map for bookings by ID
+      const bookingMap = new Map<string, any>();
+      if (bookingsData) {
+        bookingsData.forEach((b: any) => bookingMap.set(b.id, b));
+      }
 
+      // 2. Fetch payments table entries
+      const { data: paymentsData, error: paymentsErr } = await supabase
+        .from('payments')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (paymentsErr) console.error('Error fetching payments:', paymentsErr);
+
+      const combined: any[] = [];
+      const processedBookingIds = new Set<string>();
+
+      // First add payments from payments table
+      if (paymentsData) {
+        paymentsData.forEach((p: any) => {
+          const bookingObj = bookingMap.get(p.booking_id);
+          if (p.booking_id) processedBookingIds.add(p.booking_id);
+
+          combined.push({
+            id: p.id,
+            booking_id: p.booking_id,
+            payer_id: p.payer_id,
+            amount: p.amount || bookingObj?.total_price || 0,
+            payment_method: p.payment_method || bookingObj?.payment_type || 'esewa',
+            proof_image_url: p.proof_image_url || bookingObj?.payment_proof_url,
+            status: p.status || (bookingObj?.status === 'confirmed' ? 'verified' : 'pending'),
+            created_at: p.created_at,
+            bookings: bookingObj || null,
+          });
+        });
+      }
+
+      // Then add any bookings that are paid/under review or have proof_image_url that were not in payments table
       if (bookingsData) {
         bookingsData.forEach((b: any) => {
-          if (!existingBookingIds.has(b.id)) {
-            // Include booking record
+          if (!processedBookingIds.has(b.id) && (b.payment_proof_url || b.status === 'paid' || b.status === 'awaiting_payment' || b.status === 'confirmed')) {
             combined.push({
               id: `b_${b.id}`,
               booking_id: b.id,
