@@ -18,7 +18,8 @@ export const Payments = () => {
     setLoading(true);
     try {
       // 1. Fetch all bookings with property & profile info
-      const { data: bookingsData, error: bookingsErr } = await supabase
+      let bookingsData: any[] | null = null;
+      const { data: bData, error: bookingsErr } = await supabase
         .from('bookings')
         .select(`
           id,
@@ -35,7 +36,27 @@ export const Payments = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (bookingsErr) console.error('Error fetching bookings:', bookingsErr);
+      if (bookingsErr) {
+        // Fallback without payment_proof_url if column does not exist on bookings table
+        const { data: fallbackData } = await supabase
+          .from('bookings')
+          .select(`
+            id,
+            guest_id,
+            owner_id,
+            total_price,
+            status,
+            payment_type,
+            created_at,
+            properties (title),
+            guest:profiles!bookings_guest_id_fkey (full_name),
+            owner:profiles!bookings_owner_id_fkey (full_name, esewa_number, khalti_number, qr_code_url)
+          `)
+          .order('created_at', { ascending: false });
+        bookingsData = fallbackData;
+      } else {
+        bookingsData = bData;
+      }
 
       // Create a quick lookup map for bookings by ID
       const bookingMap = new Map<string, any>();
