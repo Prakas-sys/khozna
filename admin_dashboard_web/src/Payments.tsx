@@ -205,14 +205,31 @@ export const Payments = () => {
   };
 
   const handleDelete = async (payment: any) => {
-    if (!window.confirm('Are you sure you want to DELETE this payment/booking record permanently?')) return;
+    if (!window.confirm('Are you sure you want to DELETE this payment record permanently?')) return;
     try {
-      if (payment.id && !payment.id.toString().startsWith('b_')) {
+      const isRealPayment = payment.id && !payment.id.toString().startsWith('b_');
+
+      if (isRealPayment) {
+        // Delete only this specific payment row
         await supabase.from('payments').delete().eq('id', payment.id);
-      }
-      if (payment.booking_id) {
+
+        // Check if there are any OTHER payment records for the same booking
+        if (payment.booking_id) {
+          const { data: remaining } = await supabase
+            .from('payments')
+            .select('id')
+            .eq('booking_id', payment.booking_id);
+
+          // Only delete the booking if this was the LAST payment for it
+          if (!remaining || remaining.length === 0) {
+            await supabase.from('bookings').delete().eq('id', payment.booking_id);
+          }
+        }
+      } else if (payment.booking_id) {
+        // Booking-only record (prefixed b_) — safe to delete just the booking
         await supabase.from('bookings').delete().eq('id', payment.booking_id);
       }
+
       setSelectedPayment(null);
       fetchPayments();
     } catch (e) {
