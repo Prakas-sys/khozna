@@ -1235,8 +1235,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => BookingStatusScreen(
+                          builder: (context) => PaymentChoiceScreen(
                             booking: booking,
+                            propertyTitle: booking.propertyTitle ?? '',
                           ),
                         ),
                       );
@@ -1251,8 +1252,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => BookingStatusScreen(
+                          builder: (context) => PaymentChoiceScreen(
                             booking: filtered.first,
+                            propertyTitle: filtered.first.propertyTitle ?? '',
                           ),
                         ),
                       );
@@ -1261,16 +1263,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   }
                   if (mounted) Navigator.pop(context);
                 },
-                icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                icon: const Icon(Icons.upload_file_rounded, size: 18),
                 label: Text(
-                  'View Visit Status',
+                  'Re-upload Payment Receipt',
                   style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w700,
                     fontSize: 13.5,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.brandColor,
+                  backgroundColor: const Color(0xFF16A34A),
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(

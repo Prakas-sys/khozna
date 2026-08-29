@@ -922,110 +922,53 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
   // ── Payment Under Review Card ─────────────────────────────────────────────
 
   Widget _buildPaymentUnderReviewCard() {
-    final submittedAt = _booking.updatedAt;
-    final dateStr = DateFormat('MMM d, yyyy • h:mm a').format(submittedAt);
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: _card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _border),
+        color: const Color(0xFFFEF3C7),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFFDE68A)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          // Header row
-          Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0FDF4),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Icons.receipt_long_rounded,
-                    color: Color(0xFF16A34A), size: 18),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Payment Submitted',
-                      style: GoogleFonts.plusJakartaSans(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: _ink),
-                    ),
-                    Text(
-                      'Waiting for admin verification',
-                      style: GoogleFonts.inter(
-                          fontSize: 11.5, color: _inkSub),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFF59E0B)),
-                ),
-                child: Text(
-                  'PENDING',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFFD97706),
-                    letterSpacing: 0.6,
+          const Icon(Icons.hourglass_top_rounded, color: Color(0xFFD97706), size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Payment Submitted',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF92400E),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Divider
-          Container(height: 1, color: _border),
-          const SizedBox(height: 16),
-          // Detail rows
-          _reviewRow(Icons.calendar_today_outlined, 'Submitted', dateStr),
-          const SizedBox(height: 10),
-          _reviewRow(Icons.home_outlined, 'Property', _booking.propertyTitle ?? 'Property Listing'),
-          const SizedBox(height: 10),
-          _reviewRow(Icons.tag_rounded, 'Booking ID',
-              _booking.id.length > 8 ? _booking.id.substring(0, 8).toUpperCase() : _booking.id.toUpperCase()),
-          const SizedBox(height: 16),
-          // Note
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.info_outline_rounded,
-                    size: 14, color: Color(0xFF64748B)),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Admin typically verifies within a few hours. You\'ll get notified.',
-                    style: GoogleFonts.inter(
-                        fontSize: 11.5,
-                        color: _inkSub,
-                        height: 1.4),
+                Text(
+                  'Under admin review • Verified soon',
+                  style: GoogleFonts.inter(
+                    fontSize: 11.5,
+                    color: const Color(0xFFB45309),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 14),
-          _outlineBtn(
-            label: 'Browse More Properties',
-            onTap: () => Navigator.pop(context),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              'Submitted',
+              style: GoogleFonts.inter(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFFD97706),
+              ),
+            ),
           ),
         ],
       ),
