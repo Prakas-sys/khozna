@@ -299,27 +299,16 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
           ? const Center(
               child: CircularProgressIndicator(color: _brand, strokeWidth: 2))
           : SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildHeroStatus(),
-                  const SizedBox(height: 16),
-                  // Journey tracker only shown for active visit flow, not after payment
+                  const SizedBox(height: 14),
                   if (!isPostPayment) _buildJourneyTracker(),
-                  if (!isPostPayment) const SizedBox(height: 16),
-                  _buildPropertyCard(),
-                  // Visit details only relevant before payment
-                  if (!isPostPayment) ...[
-                    const SizedBox(height: 16),
-                    _buildVisitDetails(),
-                  ],
-                  if (_booking.status == 'visit_accepted' ||
-                      _booking.status == 'awaiting_payment') ...[
-                    const SizedBox(height: 16),
-                    _buildMapPreview(),
-                  ],
-                  const SizedBox(height: 20),
+                  if (!isPostPayment) const SizedBox(height: 14),
+                  _buildUnifiedReservationCard(),
+                  const SizedBox(height: 18),
                   if (_showVisitedQuestion)
                     _buildVisitedQuestion()
                   else if (_showLikedQuestion)
@@ -370,91 +359,87 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
   Widget _buildHeroStatus() {
     final cfg = _statusConfig(_booking.status);
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: _card,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: _border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
         children: [
-          // Top Status Pill
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: cfg.bgColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: cfg.borderColor, width: 1),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: cfg.color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      cfg.badgeLabel.toUpperCase(),
+                      style: GoogleFonts.inter(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w800,
+                        color: cfg.color,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               color: cfg.bgColor,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: cfg.borderColor, width: 1),
+              shape: BoxShape.circle,
+              border: Border.all(color: cfg.borderColor, width: 1.5),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 7,
-                  height: 7,
-                  decoration: BoxDecoration(
-                    color: cfg.color,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 7),
-                Text(
-                  cfg.badgeLabel.toUpperCase(),
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: cfg.color,
-                    letterSpacing: 0.8,
-                  ),
-                ),
-              ],
-            ),
+            child: Icon(cfg.icon, color: cfg.color, size: 24),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
 
-          // Central Icon Badge
-          ScaleTransition(
-            scale: _booking.status == 'pending_approval'
-                ? _pulseAnim
-                : const AlwaysStoppedAnimation(1.0),
-            child: Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: cfg.bgColor,
-                shape: BoxShape.circle,
-                border: Border.all(color: cfg.borderColor, width: 1.5),
-              ),
-              child: Icon(cfg.icon, color: cfg.color, size: 30),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Title
           Text(
             cfg.title,
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 20,
+              fontSize: 18,
               fontWeight: FontWeight.w800,
               color: _ink,
-              letterSpacing: -0.4,
+              letterSpacing: -0.3,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
 
-          // Subtitle
           Text(
             cfg.subtitle,
             style: GoogleFonts.inter(
-                fontSize: 13.5, color: _inkSub, height: 1.5),
+                fontSize: 13, color: _inkSub, height: 1.45),
             textAlign: TextAlign.center,
           ),
 
@@ -463,29 +448,29 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
                   _booking.status == 'payment_rejected') &&
               _booking.rejectionReason != null &&
               _booking.rejectionReason!.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: const Color(0xFFFFF1F2),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFFFECDD3)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Icon(Icons.info_outline_rounded,
-                      color: Color(0xFFE11D48), size: 18),
-                  const SizedBox(width: 10),
+                      color: Color(0xFFE11D48), size: 16),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Rejection Reason: ${_booking.rejectionReason}',
                       style: GoogleFonts.inter(
-                          fontSize: 13,
+                          fontSize: 12.5,
                           color: const Color(0xFFBE123C),
                           fontWeight: FontWeight.w600,
-                          height: 1.4),
+                          height: 1.35),
                     ),
                   ),
                 ],
@@ -493,42 +478,10 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
             ),
           ],
 
-          // Security note for accepted
-          if (_booking.status == 'visit_accepted') ...[
-            const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFBBF7D0)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.shield_outlined,
-                      color: Color(0xFF16A34A), size: 16),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Payment is only required after physically inspecting the property.',
-                      style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: const Color(0xFF15803D),
-                          fontWeight: FontWeight.w600,
-                          height: 1.4),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-
-          // Countdown
           if ((_booking.status == 'visit_accepted' ||
                   _booking.status == 'awaiting_payment') &&
               _timeUntilVisit > Duration.zero) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             _buildCountdown(),
           ],
         ],
@@ -546,22 +499,22 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
             ? '$h h $m m remaining'
             : '$m m $s s remaining';
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
       decoration: BoxDecoration(
         color: _brand.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _brand.withValues(alpha: 0.18)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.schedule_rounded, color: _brand, size: 16),
-          const SizedBox(width: 8),
+          const Icon(Icons.schedule_rounded, color: _brand, size: 15),
+          const SizedBox(width: 7),
           Text(
             label,
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 13.5,
+              fontSize: 12.5,
               fontWeight: FontWeight.w800,
               color: _brand,
             ),
@@ -571,10 +524,9 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
     );
   }
 
-  // ── JOURNEY TRACKER GRID ─────────────────────────────────────────────────
+  // ── JOURNEY TRACKER ───────────────────────────────────────────────────
 
   Widget _buildJourneyTracker() {
-    // 3 real logical stages in the Khozna flow
     const steps = [
       _Step('Requested', Icons.send_rounded),
       _Step('Visit', Icons.door_front_door_outlined),
@@ -584,19 +536,18 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
     int current;
     switch (_booking.status) {
       case 'pending_approval':
-        current = 0; // active: Requested
+        current = 0;
         break;
       case 'visit_accepted':
-        current = 1; // active: Visit
+        current = 1;
         break;
       case 'awaiting_payment':
-        current = 1; // still on Visit stage (visited, now paying)
+        current = 1;
         break;
       default:
         current = 0;
     }
 
-    // Hide tracker for terminal / post-payment states
     if (_booking.status == 'rejected' ||
         _booking.status == 'cancelled' ||
         _booking.status == 'paid' ||
@@ -606,10 +557,10 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 18),
       decoration: BoxDecoration(
         color: _card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: _border),
       ),
       child: Row(
@@ -620,7 +571,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
             return Expanded(
               child: Container(
                 height: 2,
-                margin: const EdgeInsets.only(bottom: 22),
+                margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
                   color: isCompletedLine ? _brand : const Color(0xFFCBD5E1),
                   borderRadius: BorderRadius.circular(2),
@@ -636,8 +587,8 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
             children: [
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                width: 36,
-                height: 36,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: done
@@ -647,23 +598,14 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
                     color: done || active ? _brand : const Color(0xFFCBD5E1),
                     width: 2,
                   ),
-                  boxShadow: active
-                      ? [
-                          BoxShadow(
-                            color: _brand.withValues(alpha: 0.22),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ]
-                      : null,
                 ),
                 child: Icon(
                   done ? Icons.check_rounded : steps[idx].icon,
-                  size: 16,
+                  size: 15,
                   color: done ? Colors.white : (active ? _brand : _inkSub),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
@@ -684,295 +626,251 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
     );
   }
 
-  // ── PROPERTY CARD ─────────────────────────────────────────────────────────
+  // ── UNIFIED RESERVATION TICKET CARD ──────────────────────────────────────
 
-  Widget _buildPropertyCard() {
+  Widget _buildUnifiedReservationCard() {
+    final bookingIdShort = _booking.id.length >= 8
+        ? _booking.id.substring(0, 8).toUpperCase()
+        : _booking.id.toUpperCase();
+    final isLocationUnlocked = _booking.status == 'visit_accepted' ||
+        _booking.status == 'awaiting_payment' ||
+        _booking.status == 'paid' ||
+        _booking.status == 'confirmed';
+
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: _card,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: _border),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: _brand.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(Icons.home_work_rounded, color: _brand, size: 24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        ],
+      ),
+      child: Column(
+        children: [
+          // Section 1: Property & Owner Chat
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
               children: [
-                Text(
-                  _booking.propertyTitle ?? 'Property Listing',
-                  style: GoogleFonts.plusJakartaSans(
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w800,
-                      color: _ink),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: _brand.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.home_work_rounded, color: _brand, size: 22),
                 ),
-                const SizedBox(height: 3),
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        'Owner: ${_ownerProfile?.fullName ?? 'Owner'}',
-                        style: GoogleFonts.inter(fontSize: 12, color: _inkSub),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _booking.propertyTitle ?? 'Property Listing',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w700,
+                          color: _ink,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              'Owner: ${_ownerProfile?.fullName ?? 'Owner'}',
+                              style: GoogleFonts.inter(fontSize: 12, color: _inkSub),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.verified_rounded,
+                              color: Color(0xFF0EA5E9), size: 13),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                if (_ownerProfile != null) ...[
+                  const SizedBox(width: 8),
+                  InkWell(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => chat_page.ChatScreen(
+                            ownerId: _booking.ownerId,
+                            name: _ownerProfile?.fullName ?? 'Owner',
+                            avatar: _ownerProfile?.avatarUrl ?? '',
+                            online: true,
+                          ),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: _brand,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.chat_rounded, color: Colors.white, size: 13),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Chat',
+                            style: GoogleFonts.plusJakartaSans(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.verified_rounded,
-                        color: Color(0xFF0EA5E9), size: 13),
-                  ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          _divider(),
+
+          // Section 2: Visit Date, Time & Ref Code
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Column(
+              children: [
+                _detailItemRow(
+                  Icons.calendar_today_rounded,
+                  'Schedule',
+                  '${DateFormat('EEE, d MMM yyyy').format(_booking.checkIn)} at ${DateFormat('h:mm a').format(_booking.checkIn)}',
+                ),
+                const SizedBox(height: 10),
+                _detailItemRow(
+                  Icons.tag_rounded,
+                  'Reference',
+                  '#$bookingIdShort',
+                  canCopy: true,
+                  copyValue: '#$bookingIdShort',
                 ),
               ],
             ),
           ),
-          if (_ownerProfile != null) ...[
-            const SizedBox(width: 10),
-            GestureDetector(
-              onTap: () {
-                HapticFeedback.lightImpact();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => chat_page.ChatScreen(
-                      ownerId: _booking.ownerId,
-                      name: _ownerProfile?.fullName ?? 'Owner',
-                      avatar: _ownerProfile?.avatarUrl ?? '',
-                      online: true,
+
+          // Section 3: Property Directions (if unlocked)
+          if (isLocationUnlocked) ...[
+            _divider(),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFEF2F2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.location_on_rounded,
+                        color: Color(0xFFEF4444), size: 18),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Property Location',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: _ink,
+                          ),
+                        ),
+                        Text(
+                          'Unlocked for your visit',
+                          style: GoogleFonts.inter(fontSize: 11, color: _inkSub),
+                        ),
+                      ],
                     ),
                   ),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: _brand,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: _brand.withValues(alpha: 0.25),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.chat_rounded,
-                        color: Colors.white, size: 14),
-                    const SizedBox(width: 5),
-                    Text(
-                      'Chat',
-                      style: GoogleFonts.plusJakartaSans(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 12.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  // ── VISIT DETAILS ─────────────────────────────────────────────────────────
-
-  Widget _buildVisitDetails() {
-    final bookingIdShort = _booking.id.length >= 8
-        ? _booking.id.substring(0, 8).toUpperCase()
-        : _booking.id.toUpperCase();
-
-    return Container(
-      decoration: BoxDecoration(
-        color: _card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _border),
-      ),
-      child: Column(
-        children: [
-          _detailRow(
-            Icons.calendar_today_rounded,
-            'Visit Date',
-            DateFormat('EEE, d MMM yyyy').format(_booking.checkIn),
-          ),
-          _divider(),
-          _detailRow(
-            Icons.access_time_rounded,
-            'Visit Time',
-            DateFormat('hh:mm a').format(_booking.checkIn),
-          ),
-          _divider(),
-          _detailRow(
-            Icons.confirmation_number_outlined,
-            'Booking Ref',
-            '#$bookingIdShort',
-            canCopy: true,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _detailRow(IconData icon, String label, String value,
-      {bool canCopy = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
-      child: Row(
-        children: [
-          Icon(icon, size: 17, color: _inkSub),
-          const SizedBox(width: 12),
-          Text(label,
-              style: GoogleFonts.inter(fontSize: 13.5, color: _inkSub)),
-          const Spacer(),
-          Text(value,
-              style: GoogleFonts.inter(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w700,
-                  color: _ink)),
-          if (canCopy) ...[
-            const SizedBox(width: 6),
-            GestureDetector(
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: value));
-                _showSnack('Booking ID copied to clipboard', _brand);
-              },
-              child: const Icon(Icons.copy_rounded,
-                  size: 14, color: Color(0xFF94A3B8)),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _divider() => Container(
-      height: 1,
-      color: _border,
-      margin: const EdgeInsets.symmetric(horizontal: 18));
-
-  // ── MAP PREVIEW ───────────────────────────────────────────────────────────
-
-  Widget _buildMapPreview() {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: _card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.location_on_rounded,
-                  color: Color(0xFFEF4444), size: 18),
-              const SizedBox(width: 8),
-              Text(
-                'Property Location',
-                style: GoogleFonts.plusJakartaSans(
-                    fontSize: 14, fontWeight: FontWeight.w800, color: _ink),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDCFCE7),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Unlocked',
-                  style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF16A34A)),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: Container(
-              height: 120,
-              width: double.infinity,
-              color: const Color(0xFFF1F5F9),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Icon(Icons.map_rounded,
-                      color: const Color(0xFFCBD5E1), size: 56),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.08),
-                            blurRadius: 8,
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        'Tap below for Google Maps directions',
-                        style: GoogleFonts.inter(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: _inkSub),
-                      ),
+                  ElevatedButton.icon(
+                    onPressed: () => launchUrl(Uri.parse(
+                      'https://www.google.com/maps/search/?api=1&query=${_booking.checkIn.toIso8601String()}',
+                    )),
+                    icon: const Icon(Icons.directions_rounded, size: 14),
+                    label: Text('Maps',
+                        style: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.w700, fontSize: 12)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0F172A),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      elevation: 0,
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton.icon(
-              onPressed: () => launchUrl(Uri.parse(
-                'https://www.google.com/maps/search/?api=1&query=${_booking.checkIn.toIso8601String()}',
-              )),
-              icon: const Icon(Icons.directions_rounded, size: 18),
-              label: Text('Open Google Maps',
-                  style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.w700, fontSize: 14)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _brand,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14)),
-                elevation: 0,
-              ),
-            ),
-          ),
+          ],
         ],
       ),
     );
   }
+
+  Widget _detailItemRow(IconData icon, String label, String value,
+      {bool canCopy = false, String? copyValue}) {
+    return Row(
+      children: [
+        Icon(icon, size: 15, color: _inkSub),
+        const SizedBox(width: 8),
+        Text(label, style: GoogleFonts.inter(fontSize: 12.5, color: _inkSub)),
+        const Spacer(),
+        Flexible(
+          child: Text(
+            value,
+            style: GoogleFonts.inter(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              color: _ink,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.right,
+          ),
+        ),
+        if (canCopy && copyValue != null) ...[
+          const SizedBox(width: 6),
+          GestureDetector(
+            onTap: () {
+              Clipboard.setData(ClipboardData(text: copyValue));
+              _showSnack('Copied to clipboard', _brand);
+            },
+            child: const Icon(Icons.copy_rounded,
+                size: 13, color: Color(0xFF94A3B8)),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _divider() => Container(height: 1, color: _border);
 
   // ── ACTION AREAS ──────────────────────────────────────────────────────────
 
@@ -1208,27 +1106,23 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
   // ── Rejected Actions ──────────────────────────────────────────────────────
 
   Widget _buildRejectedActions() {
-    final hasPaymentProof =
-        _booking.paymentProofUrl?.isNotEmpty == true || _booking.status == 'payment_rejected';
     return Column(
       children: [
-        if (hasPaymentProof) ...[
-          _primaryBtn(
-            label: 'Re-upload Payment Receipt',
-            icon: Icons.upload_file_rounded,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => PaymentChoiceScreen(
-                  booking: _booking,
-                  propertyTitle: _booking.propertyTitle ?? '',
-                ),
+        _primaryBtn(
+          label: 'Re-upload Payment Receipt',
+          icon: Icons.upload_file_rounded,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PaymentChoiceScreen(
+                booking: _booking,
+                propertyTitle: _booking.propertyTitle ?? '',
               ),
-            ).then((_) => _refreshBooking()),
-            color: const Color(0xFF16A34A),
-          ),
-          const SizedBox(height: 10),
-        ],
+            ),
+          ).then((_) => _refreshBooking()),
+          color: const Color(0xFF16A34A),
+        ),
+        const SizedBox(height: 10),
         _outlineBtn(
           label: 'Browse Other Properties',
           onTap: () => Navigator.pop(context),
