@@ -2362,7 +2362,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => BookingStatusScreen(booking: booking),
+                  builder: (_) => BookingStatusScreen(booking: booking, property: widget.property),
                 ),
               ).then((_) => _updateBookingStatus());
             }

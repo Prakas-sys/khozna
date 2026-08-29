@@ -6,31 +6,49 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/models/user_model.dart';
 import 'package:khozna/core/models/booking_model.dart';
+import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/features/property/screens/payment_choice_screen.dart';
+import 'package:khozna/features/property/screens/visit_request_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Design tokens
+// ─────────────────────────────────────────────────────────────────────────────
+const _bg         = Color(0xFFF7F8FA);
+const _card       = Colors.white;
+const _ink        = Color(0xFF111827);
+const _inkSub     = Color(0xFF6B7280);
+const _border     = Color(0xFFE9EAED);
+const _brand      = AppTheme.brandColor;
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 class BookingStatusScreen extends StatefulWidget {
   final BookingModel booking;
-  const BookingStatusScreen({super.key, required this.booking});
+  final Property? property; // pass property so "Try Again" can navigate back
+  const BookingStatusScreen({super.key, required this.booking, this.property});
 
   @override
   State<BookingStatusScreen> createState() => _BookingStatusScreenState();
 }
 
-class _BookingStatusScreenState extends State<BookingStatusScreen> {
+class _BookingStatusScreenState extends State<BookingStatusScreen>
+    with SingleTickerProviderStateMixin {
   late BookingModel _booking;
   bool _isLoading = false;
   UserModel? _ownerProfile;
   Timer? _countdownTimer;
   Duration _timeUntilVisit = Duration.zero;
 
-  // Post-visit states
   bool _showVisitedQuestion = false;
-  bool _showLikedQuestion = false;
-  bool _isActing = false;
+  bool _showLikedQuestion   = false;
+  bool _isActing            = false;
+
+  late AnimationController _pulseCtrl;
+  late Animation<double>   _pulseAnim;
 
   @override
   void initState() {
@@ -39,121 +57,95 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     _loadOwnerProfile();
     _startCountdown();
     _checkPostVisit();
+
+    _pulseCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+    _pulseAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
+    );
   }
 
   @override
   void dispose() {
     _countdownTimer?.cancel();
+    _pulseCtrl.dispose();
     super.dispose();
   }
 
+  // ── Timer ─────────────────────────────────────────────────────────────────
+
   void _startCountdown() {
-    final now = DateTime.now();
-    final visitTime = _booking.checkIn;
-    if (visitTime.isAfter(now)) {
-      _timeUntilVisit = visitTime.difference(now);
-      _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        final remaining = _booking.checkIn.difference(DateTime.now());
-        if (remaining.isNegative || remaining == Duration.zero) {
-          timer.cancel();
-          if (mounted) {
-            setState(() {
-              _timeUntilVisit = Duration.zero;
-              _checkPostVisit();
-            });
-          }
+    final now  = DateTime.now();
+    final visit = _booking.checkIn;
+    if (visit.isAfter(now)) {
+      _timeUntilVisit = visit.difference(now);
+      _countdownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+        final rem = _booking.checkIn.difference(DateTime.now());
+        if (!mounted) return t.cancel();
+        if (rem.isNegative || rem == Duration.zero) {
+          t.cancel();
+          setState(() { _timeUntilVisit = Duration.zero; _checkPostVisit(); });
         } else {
-          if (mounted) {
-            setState(() {
-              _timeUntilVisit = remaining;
-            });
-          }
+          setState(() => _timeUntilVisit = rem);
         }
       });
     }
   }
 
   void _checkPostVisit() {
-    final isPastVisit = DateTime.now().isAfter(_booking.checkIn);
-    final isVisitAccepted = _booking.status == 'visit_accepted';
-    // Only show post-visit prompt if it was an accepted physical visit request
-    if (isPastVisit && isVisitAccepted && (_booking.visitConfirmed == null)) {
+    final past     = DateTime.now().isAfter(_booking.checkIn);
+    final accepted = _booking.status == 'visit_accepted';
+    if (past && accepted && _booking.visitConfirmed == null) {
       setState(() => _showVisitedQuestion = true);
     }
   }
 
+  // ── Data ──────────────────────────────────────────────────────────────────
+
   Future<void> _loadOwnerProfile() async {
-    final profile = await SupabaseService.getUserProfile(_booking.ownerId);
-    if (mounted) setState(() => _ownerProfile = profile);
+    final p = await SupabaseService.getUserProfile(_booking.ownerId);
+    if (mounted) setState(() => _ownerProfile = p);
   }
 
   Future<void> _refreshBooking() async {
     setState(() => _isLoading = true);
     try {
-      final updated = await SupabaseService.getVisitById(_booking.id);
-      if (updated != null && mounted) {
-        setState(() => _booking = updated);
+      final up = await SupabaseService.getVisitById(_booking.id);
+      if (up != null && mounted) {
+        setState(() => _booking = up);
         _checkPostVisit();
       }
     } catch (_) {}
     if (mounted) setState(() => _isLoading = false);
   }
 
+  // ── Actions ───────────────────────────────────────────────────────────────
+
   Future<void> _remindOwner() async {
     setState(() => _isActing = true);
     try {
       await BookingRepository.remindOwner(_booking.id);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '🔔 Reminder sent to owner!',
-              style: GoogleFonts.mukta(fontWeight: FontWeight.bold),
-            ),
-            backgroundColor: AppTheme.brandColor,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } catch (_) {
-    } finally {
+      if (mounted) _showSnack('Reminder sent to the host!', _brand);
+    } catch (_) {} finally {
       if (mounted) setState(() => _isActing = false);
     }
   }
 
   Future<void> _cancelRequest() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          'Cancel Visit?',
-          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
-        ),
-        content: Text(
-          'Are you sure you want to cancel this visit request?',
-          style: GoogleFonts.inter(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('No'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Yes, Cancel'),
-          ),
-        ],
-      ),
+    final ok = await _showConfirmDialog(
+      title: 'Cancel Visit Request?',
+      message: 'This action cannot be undone. Are you sure you want to cancel?',
+      confirmLabel: 'Yes, Cancel',
+      confirmColor: const Color(0xFFE11D48),
     );
-    if (confirm != true) return;
+    if (ok != true) return;
     setState(() => _isActing = true);
     try {
       await BookingRepository.cancelBookingRequestByGuest(_booking.id);
       if (mounted) Navigator.pop(context);
-    } catch (_) {
-    } finally {
+    } catch (_) {} finally {
       if (mounted) setState(() => _isActing = false);
     }
   }
@@ -164,631 +156,239 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
       await BookingRepository.confirmVisitDone(_booking.id, visited: visited);
       await _refreshBooking();
       if (visited) {
-        setState(() {
-          _showVisitedQuestion = false;
-          _showLikedQuestion = true;
-        });
+        setState(() { _showVisitedQuestion = false; _showLikedQuestion = true; });
       } else {
         if (mounted) Navigator.pop(context);
       }
-    } catch (_) {
-    } finally {
+    } catch (_) {} finally {
       if (mounted) setState(() => _isActing = false);
     }
   }
 
   Future<void> _handleLikedAnswer(bool liked) async {
     if (!liked) {
-      final reasons = [
-        'Too expensive',
-        'Not as described',
-        'Bad location',
-        'Owner behavior',
-      ];
+      const reasons = ['Too expensive', 'Not as described', 'Bad location', 'Host behavior'];
       String? selected;
       await showModalBottomSheet(
         context: context,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
+        backgroundColor: Colors.transparent,
         builder: (ctx) => StatefulBuilder(
-          builder: (ctx, setS) => Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Why didn\'t you like it? (Optional)',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 18,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ...reasons.map(
-                  (r) => RadioListTile<String>(
-                    title: Text(r, style: GoogleFonts.inter()),
-                    value: r,
-                    groupValue: selected,
-                    activeColor: AppTheme.brandColor,
-                    onChanged: (v) => setS(() => selected = v),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.brandColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: Text(
-                      'Continue Browsing',
-                      style: GoogleFonts.mukta(fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          builder: (ctx, setS) => _FeedbackSheet(
+            reasons: reasons,
+            selected: selected,
+            onChanged: (v) => setS(() => selected = v),
+            onContinue: () => Navigator.pop(ctx),
           ),
         ),
       );
       setState(() => _isActing = true);
       try {
-        await BookingRepository.confirmVisitLiked(
-          _booking.id,
-          liked: false,
-          feedbackReason: selected,
-        );
+        await BookingRepository.confirmVisitLiked(_booking.id, liked: false, feedbackReason: selected);
         _showReviewSheet();
-      } catch (_) {
-      } finally {
-        if (mounted) {
-          setState(() => _isActing = false);
-          Navigator.pop(context);
-        }
+      } catch (_) {} finally {
+        if (mounted) { setState(() => _isActing = false); Navigator.pop(context); }
       }
       return;
     }
-    // Liked — unlock payment
     setState(() => _isActing = true);
     try {
       await BookingRepository.confirmVisitLiked(_booking.id, liked: true);
       await _refreshBooking();
-      setState(() {
-        _showLikedQuestion = false;
-      });
+      setState(() => _showLikedQuestion = false);
       _showReviewSheet();
-    } catch (_) {
-    } finally {
+    } catch (_) {} finally {
       if (mounted) setState(() => _isActing = false);
     }
   }
 
   void _showReviewSheet() {
-    int rating = 5;
-    final commentCtrl = TextEditingController();
-    bool isSubmitting = false;
-    final Set<String> selectedTags = {};
-
-    final negativeTags = [
-      'पानीको अभाव (No Water)',
-      'होहल्ला हुने (Noisy)',
-      'फोहोर कोठा (Dirty)',
-      'नराम्रो बानी (Rude Owner)',
-      'तस्वीर भन्दा फरक (Mismatch)',
-    ];
-
-    final positiveTags = [
-      'सफा कोठा (Clean Room)',
-      'भद्र घरबेटी (Polite Landlord)',
-      'पानीको सुविधा (Water Available)',
-      'शान्त वातावरण (Quiet Area)',
-      'सही तस्वीर (Accurate Photos)',
-    ];
-
-    String getEmoji(int r) {
-      switch (r) {
-        case 1:
-          return '😞';
-        case 2:
-          return '😕';
-        case 3:
-          return '🙂';
-        case 4:
-          return '😊';
-        case 5:
-        default:
-          return '😍';
-      }
-    }
-
-    String getNepaliFeedbackText(int r) {
-      switch (r) {
-        case 1:
-          return 'मन परेन (Disappointed)';
-        case 2:
-          return 'ठीकै थियो (Fair)';
-        case 3:
-          return 'राम्रो थियो (Good)';
-        case 4:
-          return 'धेरै राम्रो (Very Good)';
-        case 5:
-        default:
-          return 'एकदमै उत्कृष्ट! (Excellent)';
-      }
-    }
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setS) {
-          final activeTags = rating <= 2 ? negativeTags : positiveTags;
-
-          return Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-            ),
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
-              top: 32,
-              left: 24,
-              right: 24,
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 48,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Rate Your Visit',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 22,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'घरबेटी र कोठाको अवलोकन कस्तो भयो? समीक्षा गर्नुहोस्।',
-                    style: GoogleFonts.mukta(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  // Emoji response display
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    child: Column(
-                      key: ValueKey<int>(rating),
-                      children: [
-                        Text(
-                          getEmoji(rating),
-                          style: const TextStyle(fontSize: 48),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          getNepaliFeedbackText(rating),
-                          style: GoogleFonts.mukta(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            color: rating <= 2 ? Colors.redAccent : AppTheme.brandColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Stars
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(5, (index) {
-                      final starIdx = index + 1;
-                      final isSelected = starIdx <= rating;
-                      return GestureDetector(
-                        onTap: () {
-                          HapticFeedback.mediumImpact();
-                          setS(() {
-                            rating = starIdx;
-                            // Clear tag selections when rating type switches (positive vs negative)
-                            selectedTags.clear();
-                          });
-                        },
-                        child: AnimatedScale(
-                          scale: isSelected ? 1.15 : 1.0,
-                          duration: const Duration(milliseconds: 150),
-                          child: Icon(
-                            Icons.star_rounded,
-                            color: isSelected ? Colors.amber : Colors.grey[200],
-                            size: 46,
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 24),
-                  // Tag selection chips
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Quick Tags (ट्यागहरू रोज्नुहोस्):',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    alignment: WrapAlignment.start,
-                    children: activeTags.map((tag) {
-                      final isSelected = selectedTags.contains(tag);
-                      return ChoiceChip(
-                        label: Text(
-                          tag,
-                          style: GoogleFonts.mukta(
-                            fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                            color: isSelected ? Colors.white : Colors.grey[700],
-                          ),
-                        ),
-                        selected: isSelected,
-                        selectedColor: rating <= 2 ? Colors.redAccent : AppTheme.brandColor,
-                        backgroundColor: const Color(0xFFF1F5F9),
-                        checkmarkColor: Colors.white,
-                        onSelected: (selected) {
-                          HapticFeedback.selectionClick();
-                          setS(() {
-                            if (selected) {
-                              selectedTags.add(tag);
-                            } else {
-                              selectedTags.remove(tag);
-                            }
-                          });
-                        },
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 24),
-                  TextField(
-                    controller: commentCtrl,
-                    maxLines: 3,
-                    style: GoogleFonts.inter(fontSize: 14),
-                    decoration: InputDecoration(
-                      hintText: 'थप केही भन्तर चाहनुहुन्छ? (Write a comment...)',
-                      hintStyle: GoogleFonts.mukta(color: Colors.grey[400], fontSize: 13),
-                      filled: true,
-                      fillColor: const Color(0xFFF8FAFC),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.5),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: isSubmitting
-                          ? null
-                          : () async {
-                              setS(() => isSubmitting = true);
-                              try {
-                                // Combine chips with comment
-                                String finalComment = commentCtrl.text.trim();
-                                if (selectedTags.isNotEmpty) {
-                                  final cleanTags = selectedTags.map((t) => '[${t.split(' (')[0]}]').join(' ');
-                                  finalComment = finalComment.isNotEmpty
-                                      ? '$cleanTags\n$finalComment'
-                                      : cleanTags;
-                                }
-
-                                await BookingRepository.submitReview(
-                                  bookingId: _booking.id,
-                                  propertyId: _booking.propertyId,
-                                  ownerId: _booking.ownerId,
-                                  rating: rating,
-                                  comment: finalComment.isNotEmpty ? finalComment : null,
-                                );
-                                if (mounted) {
-                                  Navigator.pop(ctx);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Review submitted successfully! धन्यवाद।',
-                                        style: GoogleFonts.mukta(fontWeight: FontWeight.bold),
-                                      ),
-                                      backgroundColor: Colors.green,
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
-                                  if (_booking.visitLiked != true) {
-                                    Navigator.pop(context); // Go back if not liked
-                                  }
-                                }
-                              } catch (_) {
-                                setS(() => isSubmitting = false);
-                              }
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: rating <= 2 ? Colors.redAccent : AppTheme.brandColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        elevation: 2,
-                        shadowColor: (rating <= 2 ? Colors.redAccent : AppTheme.brandColor).withOpacity(0.4),
-                      ),
-                      child: isSubmitting
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : Text(
-                              'Submit Review',
-                              style: GoogleFonts.plusJakartaSans(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                              ),
-                            ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
+      builder: (ctx) => _ReviewSheet(
+        bookingId: _booking.id,
+        propertyId: _booking.propertyId,
+        ownerId: _booking.ownerId,
+        visitLiked: _booking.visitLiked,
+        onDone: () {
+          if (mounted && _booking.visitLiked != true) Navigator.pop(context);
         },
       ),
     );
   }
 
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  void _showSnack(String msg, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13)),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  Future<bool?> _showConfirmDialog({
+    required String title,
+    required String message,
+    required String confirmLabel,
+    required Color confirmColor,
+  }) => showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: Text(title, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 17)),
+      content: Text(message, style: GoogleFonts.inter(fontSize: 14, color: _inkSub, height: 1.5)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: Text('Keep it', style: GoogleFonts.inter(color: _inkSub, fontWeight: FontWeight.w600)),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: Text(confirmLabel, style: GoogleFonts.inter(color: confirmColor, fontWeight: FontWeight.w700)),
+        ),
+      ],
+    ),
+  );
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BUILD
+  // ─────────────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Colors.black,
-            size: 20,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Visit Status',
-          style: GoogleFonts.plusJakartaSans(
-            color: Colors.black,
-            fontWeight: FontWeight.w800,
-            fontSize: 18,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppTheme.brandColor),
-            onPressed: _refreshBooking,
-          ),
-        ],
-      ),
+      backgroundColor: _bg,
+      appBar: _buildAppBar(),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: AppTheme.brandColor),
-            )
+          ? const Center(child: CircularProgressIndicator(color: _brand, strokeWidth: 2))
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildStepProgress(),
-                  const SizedBox(height: 24),
-                  _buildStatusCard(),
+                  _buildHeroStatus(),
+                  const SizedBox(height: 16),
+                  _buildJourneyTracker(),
                   const SizedBox(height: 16),
                   _buildPropertyCard(),
                   const SizedBox(height: 16),
+                  _buildVisitDetails(),
                   if (_booking.status == 'visit_accepted' ||
-                      _booking.status == 'awaiting_payment')
+                      _booking.status == 'awaiting_payment') ...[
+                    const SizedBox(height: 16),
                     _buildMapPreview(),
+                  ],
                   const SizedBox(height: 16),
-                  if (_showVisitedQuestion) _buildVisitedQuestion(),
-                  if (_showLikedQuestion && !_showVisitedQuestion)
-                    _buildLikedQuestion(),
-                  if (!_showVisitedQuestion && !_showLikedQuestion)
+                  if (_showVisitedQuestion)
+                    _buildVisitedQuestion()
+                  else if (_showLikedQuestion)
+                    _buildLikedQuestion()
+                  else
                     _buildActionArea(),
-                  const SizedBox(height: 40),
                 ],
               ),
             ),
     );
   }
 
-  Widget _buildStepProgress() {
-    int currentStep = 0;
-    if (_booking.status == 'pending_approval') {
-      currentStep = 0;
-    } else if (_booking.status == 'visit_accepted' || _booking.status == 'awaiting_payment') {
-      currentStep = 1;
-    } else if (_booking.status == 'confirmed' || _booking.status == 'paid') {
-      currentStep = 2;
-    }
+  // ── AppBar ────────────────────────────────────────────────────────────────
 
-    final steps = [
-      {'label': 'Requested', 'icon': Icons.send_rounded},
-      {'label': 'Approved', 'icon': Icons.check_circle_rounded},
-      {'label': 'Move-In', 'icon': Icons.home_rounded},
-    ];
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      backgroundColor: _card,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: _ink, size: 18),
+        onPressed: () => Navigator.pop(context),
       ),
-      child: Row(
-        children: List.generate(steps.length, (index) {
-          final isCompleted = index < currentStep;
-          final isActive = index == currentStep;
-          final isLast = index == steps.length - 1;
-          final color = isCompleted || isActive ? AppTheme.brandColor : Colors.grey.shade300;
-
-          return Expanded(
-            child: Row(
-              children: [
-                Column(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: isCompleted ? AppTheme.brandColor : (isActive ? Colors.white : Colors.grey.shade50),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: color,
-                          width: 2,
-                        ),
-                        boxShadow: isActive ? [
-                          BoxShadow(
-                            color: AppTheme.brandColor.withOpacity(0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          )
-                        ] : null,
-                      ),
-                      child: Icon(
-                        isCompleted ? Icons.check : (steps[index]['icon'] as IconData),
-                        size: 16,
-                        color: isCompleted ? Colors.white : color,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      steps[index]['label'] as String,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 10,
-                        fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
-                        color: color,
-                      ),
-                    ),
-                  ],
-                ),
-                if (!isLast)
-                  Expanded(
-                    child: Container(
-                      height: 2,
-                      margin: const EdgeInsets.only(bottom: 20),
-                      color: isCompleted ? AppTheme.brandColor : Colors.grey.shade200,
-                    ),
-                  ),
-              ],
-            ),
-          );
-        }),
+      title: Text(
+        'Visit Status',
+        style: GoogleFonts.plusJakartaSans(
+          color: _ink, fontWeight: FontWeight.w800, fontSize: 17, letterSpacing: -0.3,
+        ),
       ),
+      centerTitle: true,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.refresh_rounded, color: _brand, size: 22),
+          onPressed: _refreshBooking,
+          tooltip: 'Refresh',
+        ),
+      ],
     );
   }
 
-  Widget _buildStatusCard() {
-    final cfg = _getStatusConfig(_booking.status);
+  // ── HERO STATUS CARD ──────────────────────────────────────────────────────
+
+  Widget _buildHeroStatus() {
+    final cfg = _statusConfig(_booking.status);
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: cfg.color.withOpacity(0.08),
+        color: _card,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: cfg.color.withOpacity(0.2)),
+        boxShadow: [
+          BoxShadow(color: cfg.color.withValues(alpha: 0.08), blurRadius: 24, offset: const Offset(0, 8)),
+        ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(cfg.icon, color: cfg.color, size: 28),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      cfg.title,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 16,
-                        color: cfg.color,
-                      ),
-                    ),
-                    Text(
-                      cfg.subtitle,
-                      style: GoogleFonts.notoSansDevanagari(
-                        fontSize: 13,
-                        color: cfg.color.withOpacity(0.8),
-                      ),
-                    ),
-                  ],
-                ),
+          // Icon badge
+          ScaleTransition(
+            scale: _booking.status == 'pending_approval' ? _pulseAnim : const AlwaysStoppedAnimation(1.0),
+            child: Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: cfg.color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
               ),
-            ],
+              child: Icon(cfg.icon, color: cfg.color, size: 34),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            cfg.title,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 20, fontWeight: FontWeight.w900,
+              color: cfg.color, letterSpacing: -0.4,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            cfg.subtitle,
+            style: GoogleFonts.inter(fontSize: 13.5, color: _inkSub, height: 1.5),
+            textAlign: TextAlign.center,
           ),
 
-          // Trust Hint: Only show for explicit physical visit requests
-          if (_booking.status == 'visit_accepted') ...[
-            const SizedBox(height: 12),
+          // Rejection reason box
+          if (_booking.status == 'rejected' && _booking.rejectionReason != null) ...[
+            const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.all(12),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                color: const Color(0xFFFEF2F2),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFFFECACA)),
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
-                    Icons.security_rounded,
-                    color: Colors.blue,
-                    size: 18,
-                  ),
+                  const Icon(Icons.error_outline_rounded, color: Color(0xFFDC2626), size: 18),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'सुरक्षित रहनुहोस्: अवलोकनपछि मात्र भुक्तानी प्रक्रिया अघि बढ्नेछ।',
-                      style: GoogleFonts.notoSansDevanagari(
-                        fontSize: 12,
-                        color: Colors.blue.shade900,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      'Reason: ${_booking.rejectionReason}',
+                      style: GoogleFonts.inter(fontSize: 13, color: const Color(0xFFB91C1C), fontWeight: FontWeight.w600, height: 1.4),
                     ),
                   ),
                 ],
@@ -796,28 +396,24 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
             ),
           ],
 
-          // Rejection reason
-          if (_booking.status == 'rejected' &&
-              _booking.rejectionReason != null) ...[
-            const SizedBox(height: 12),
+          // Security note for accepted
+          if (_booking.status == 'visit_accepted') ...[
+            const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.all(12),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: const Color(0xFFEFF6FF),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline, color: Colors.red, size: 18),
-                  const SizedBox(width: 8),
+                  const Icon(Icons.shield_rounded, color: Color(0xFF1D4ED8), size: 16),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Declined Reason: ${_booking.rejectionReason}',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: Colors.red.shade800,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      'Payment only after physically visiting the property.',
+                      style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF1D4ED8), fontWeight: FontWeight.w600, height: 1.4),
                     ),
                   ),
                 ],
@@ -825,36 +421,12 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
             ),
           ],
 
-          // Countdown timer (when accepted and visit is in the future)
-          if ((_booking.status == 'awaiting_payment' ||
-                  _booking.status == 'visit_accepted') &&
+          // Countdown
+          if ((_booking.status == 'visit_accepted' || _booking.status == 'awaiting_payment') &&
               _timeUntilVisit > Duration.zero) ...[
             const SizedBox(height: 16),
             _buildCountdown(),
           ],
-
-          // Visit date
-          const SizedBox(height: 12),
-          const Divider(),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(
-                Icons.calendar_today_rounded,
-                size: 16,
-                color: Colors.grey,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Visit: ${DateFormat('EEE, MMM dd, yyyy \'at\' hh:mm a').format(_booking.checkIn)}',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade700,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -865,34 +437,23 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     final m = _timeUntilVisit.inMinutes % 60;
     final s = _timeUntilVisit.inSeconds % 60;
     final label = h > 24
-        ? 'Visit ${DateFormat('EEE, hh:mm a').format(_booking.checkIn)}'
-        : h > 0
-        ? 'Visit in ${h}h ${m}m'
-        : 'Visit in ${m}m ${s}s';
-
+        ? 'Visit on ${DateFormat('EEE, MMM d • hh:mm a').format(_booking.checkIn)}'
+        : h > 0 ? '$h h $m m remaining' : '$m m $s s remaining';
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.brandColor.withOpacity(0.1),
-            blurRadius: 10,
-          ),
-        ],
+        color: _brand.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.timer_outlined, color: AppTheme.brandColor),
-          const SizedBox(width: 10),
+          const Icon(Icons.timer_outlined, color: _brand, size: 18),
+          const SizedBox(width: 8),
           Text(
             label,
             style: GoogleFonts.plusJakartaSans(
-              fontWeight: FontWeight.w800,
-              fontSize: 16,
-              color: AppTheme.brandColor,
+              fontSize: 14, fontWeight: FontWeight.w800, color: _brand,
             ),
           ),
         ],
@@ -900,33 +461,105 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     );
   }
 
+  // ── JOURNEY TRACKER ───────────────────────────────────────────────────────
+
+  Widget _buildJourneyTracker() {
+    const steps = [
+      _Step('Requested', Icons.send_rounded),
+      _Step('Approved', Icons.check_circle_outlined),
+      _Step('Move In', Icons.home_rounded),
+    ];
+    int current = 0;
+    if (_booking.status == 'pending_approval') current = 0;
+    else if (_booking.status == 'visit_accepted' || _booking.status == 'awaiting_payment') current = 1;
+    else if (_booking.status == 'confirmed' || _booking.status == 'paid') current = 2;
+
+    // For rejected/cancelled, don't show tracker
+    if (_booking.status == 'rejected' || _booking.status == 'cancelled') return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+      decoration: BoxDecoration(
+        color: _card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _border),
+      ),
+      child: Row(
+        children: List.generate(steps.length * 2 - 1, (i) {
+          if (i.isOdd) {
+            final idx = i ~/ 2;
+            return Expanded(
+              child: Container(
+                height: 2,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: current > idx ? _brand : _border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            );
+          }
+          final idx = i ~/ 2;
+          final done   = current > idx;
+          final active = current == idx;
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: 36, height: 36,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: done ? _brand : (active ? _card : const Color(0xFFF3F4F6)),
+                  border: Border.all(
+                    color: done || active ? _brand : _border,
+                    width: 2,
+                  ),
+                  boxShadow: active ? [
+                    BoxShadow(color: _brand.withValues(alpha: 0.25), blurRadius: 8, offset: const Offset(0, 3)),
+                  ] : null,
+                ),
+                child: Icon(
+                  done ? Icons.check_rounded : steps[idx].icon,
+                  size: 16,
+                  color: done ? Colors.white : (active ? _brand : _inkSub),
+                ),
+              ),
+              const SizedBox(height: 7),
+              Text(
+                steps[idx].label,
+                style: GoogleFonts.inter(
+                  fontSize: 10.5,
+                  fontWeight: active || done ? FontWeight.w700 : FontWeight.w500,
+                  color: active || done ? _ink : _inkSub,
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+
+  // ── PROPERTY CARD ─────────────────────────────────────────────────────────
+
   Widget _buildPropertyCard() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _card,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        border: Border.all(color: _border),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            width: 52, height: 52,
             decoration: BoxDecoration(
-              color: AppTheme.brandColor.withOpacity(0.08),
+              color: _brand.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(
-              Icons.home_work_rounded,
-              color: AppTheme.brandColor,
-              size: 26,
-            ),
+            child: const Icon(Icons.home_work_rounded, color: _brand, size: 26),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -935,121 +568,160 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
               children: [
                 Text(
                   _booking.propertyTitle ?? 'Property',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15,
-                  ),
+                  style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800, color: _ink),
+                  maxLines: 1, overflow: TextOverflow.ellipsis,
                 ),
+                const SizedBox(height: 3),
                 Text(
-                  'Owner: ${_ownerProfile?.fullName ?? "..."}',
-                  style: GoogleFonts.inter(color: Colors.grey, fontSize: 12),
+                  'Host: ${_ownerProfile?.fullName ?? '...'}',
+                  style: GoogleFonts.inter(fontSize: 12, color: _inkSub),
                 ),
               ],
             ),
           ),
-          if (_ownerProfile != null)
+          if (_ownerProfile != null) ...[
+            const SizedBox(width: 10),
             GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
+              onTap: () {
+                HapticFeedback.lightImpact();
+                Navigator.push(context, MaterialPageRoute(
                   builder: (_) => chat_page.ChatScreen(
                     ownerId: _booking.ownerId,
-                    name: _ownerProfile?.fullName ?? 'Owner',
+                    name: _ownerProfile?.fullName ?? 'Host',
                     avatar: _ownerProfile?.avatarUrl ?? '',
                     online: true,
                   ),
-                ),
-              ),
+                ));
+              },
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppTheme.brandColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(50),
+                  color: _brand.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(30),
                 ),
                 child: Text(
                   'Chat',
-                  style: GoogleFonts.mukta(
-                    color: AppTheme.brandColor,
-                    fontWeight: FontWeight.w800,
+                  style: GoogleFonts.plusJakartaSans(
+                    color: _brand, fontWeight: FontWeight.w700, fontSize: 13,
                   ),
                 ),
               ),
             ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildMapPreview() {
+  // ── VISIT DETAILS ─────────────────────────────────────────────────────────
+
+  Widget _buildVisitDetails() {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+        color: _card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _border),
+      ),
+      child: Column(
+        children: [
+          _detailRow(
+            Icons.calendar_today_rounded,
+            'Visit Date',
+            DateFormat('EEE, d MMM yyyy').format(_booking.checkIn),
+          ),
+          _divider(),
+          _detailRow(
+            Icons.access_time_rounded,
+            'Visit Time',
+            DateFormat('hh:mm a').format(_booking.checkIn),
+          ),
+          _divider(),
+          _detailRow(
+            Icons.confirmation_number_rounded,
+            'Booking ID',
+            '#${_booking.id.substring(0, 8).toUpperCase()}',
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _detailRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+      child: Row(
+        children: [
+          Icon(icon, size: 17, color: _inkSub),
+          const SizedBox(width: 12),
+          Text(label, style: GoogleFonts.inter(fontSize: 13.5, color: _inkSub)),
+          const Spacer(),
+          Text(value, style: GoogleFonts.inter(fontSize: 13.5, fontWeight: FontWeight.w700, color: _ink)),
+        ],
+      ),
+    );
+  }
+
+  Widget _divider() => Container(height: 1, color: _border, margin: const EdgeInsets.symmetric(horizontal: 18));
+
+  // ── MAP PREVIEW ───────────────────────────────────────────────────────────
+
+  Widget _buildMapPreview() {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: _card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.location_on_rounded, color: Colors.red),
+              const Icon(Icons.location_on_rounded, color: Color(0xFFEF4444), size: 18),
               const SizedBox(width: 8),
               Text(
-                'कोठाको स्थान (Room Location)',
-                style: GoogleFonts.notoSansDevanagari(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 15,
+                'Property Location',
+                style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _ink),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDCFCE7),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Unlocked',
+                  style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: const Color(0xFF16A34A)),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           ClipRRect(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             child: Container(
-              height: 150,
+              height: 130,
               width: double.infinity,
-              color: Colors.blue.shade50,
+              color: const Color(0xFFEFF6FF),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  // This would be a real Google Map widget in production
-                  Icon(Icons.map_outlined, color: Colors.blue.shade200, size: 50),
-                  Positioned(
-                    bottom: 12,
+                  Icon(Icons.map_outlined, color: const Color(0xFFBFDBFE), size: 60),
+                  Align(
+                    alignment: Alignment.bottomCenter,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 4,
-                          ),
-                        ],
+                        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 8)],
                       ),
                       child: Text(
-                        'Map Unlocked! 🔓',
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green.shade700,
-                        ),
+                        'Tap for directions →',
+                        style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: _brand),
                       ),
                     ),
                   ),
@@ -1057,28 +729,21 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
+            height: 48,
             child: ElevatedButton.icon(
-              onPressed: () {
-                // Launch Google Maps
-                final url =
-                    'https://www.google.com/maps/search/?api=1&query=${_booking.checkIn.toIso8601String()}'; // Placeholder logic
-                launchUrl(Uri.parse(url));
-              },
-              icon: const Icon(Icons.directions_rounded),
-              label: Text(
-                'बाटो हेर्नुहोस् (Get Directions)',
-                style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.w800),
-              ),
+              onPressed: () => launchUrl(Uri.parse(
+                'https://www.google.com/maps/search/?api=1&query=${_booking.checkIn.toIso8601String()}',
+              )),
+              icon: const Icon(Icons.directions_rounded, size: 18),
+              label: Text('Get Directions', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 14)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00A3E1),
+                backgroundColor: _brand,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                elevation: 0,
               ),
             ),
           ),
@@ -1087,95 +752,144 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     );
   }
 
+  // ── ACTION AREAS ──────────────────────────────────────────────────────────
+
   Widget _buildActionArea() {
     if (_isActing) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppTheme.brandColor),
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 32),
+        child: Center(child: CircularProgressIndicator(color: _brand, strokeWidth: 2)),
       );
     }
-
     switch (_booking.status) {
-      case 'pending_approval':
-        return _buildPendingActions();
-      case 'awaiting_payment':
+      case 'pending_approval':  return _buildPendingActions();
       case 'visit_accepted':
-        return _buildAwaitingPaymentActions();
-      case 'rejected':
-        return _buildRejectedActions();
+      case 'awaiting_payment':  return _buildAwaitingPaymentActions();
+      case 'rejected':          return _buildRejectedActions();
       case 'visit_completed':
       case 'confirmed':
       case 'paid':
-        return Column(
-          children: [
-            _actionBtn(
-              label: 'कोठाको बारेमा सिफारिस दिनुहोस् (Give Recommendation)',
-              color: Colors.amber[800]!,
-              onTap: _showReviewSheet,
-            ),
-            const SizedBox(height: 12),
-            _actionBtn(
-              label: 'Browse More Rooms',
-              color: AppTheme.brandColor,
-              outlined: true,
-              onTap: () => Navigator.pop(context),
-            ),
-          ],
-        );
-      default:
-        // Even for other states, show a review button if visit was confirmed
-        if (_booking.visitConfirmed == true) {
-          return _actionBtn(
-            label: 'सिफारिस दिनुहोस् (Give Recommendation)',
-            color: Colors.amber[800]!,
+        return Column(children: [
+          _primaryBtn(
+            label: 'Leave a Review',
+            icon: Icons.star_rounded,
             onTap: _showReviewSheet,
+            color: const Color(0xFFF59E0B),
+          ),
+          const SizedBox(height: 12),
+          _outlineBtn(label: 'Browse More Properties', onTap: () => Navigator.pop(context)),
+        ]);
+      default:
+        if (_booking.visitConfirmed == true) {
+          return _primaryBtn(
+            label: 'Leave a Review',
+            icon: Icons.star_rounded,
+            onTap: _showReviewSheet,
+            color: const Color(0xFFF59E0B),
           );
         }
         return const SizedBox.shrink();
     }
   }
 
-  Widget _buildAwaitingPaymentActions() {
-    final bool hasProof = _booking.paymentProofUrl != null && _booking.paymentProofUrl!.isNotEmpty;
+  // ── Pending ────────────────────────────────────────────────────────────────
 
+  Widget _buildPendingActions() {
+    return Column(
+      children: [
+        // Info banner
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF7ED),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFFDE68A)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.hourglass_top_rounded, color: Color(0xFFD97706), size: 20),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Waiting for host approval',
+                      style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _ink),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'Most hosts respond within 24 hours.',
+                      style: GoogleFonts.inter(fontSize: 12, color: _inkSub),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        _primaryBtn(
+          label: 'Remind Host',
+          icon: Icons.notifications_rounded,
+          onTap: _remindOwner,
+          color: _brand,
+        ),
+        const SizedBox(height: 10),
+        _outlineBtn(
+          label: 'Cancel Request',
+          onTap: _cancelRequest,
+          color: const Color(0xFFE11D48),
+        ),
+      ],
+    );
+  }
+
+  // ── Awaiting Payment ───────────────────────────────────────────────────────
+
+  Widget _buildAwaitingPaymentActions() {
+    final hasProof = _booking.paymentProofUrl?.isNotEmpty == true;
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppTheme.brandColor.withOpacity(0.06),
-                Colors.green.withOpacity(0.06),
-              ],
-            ),
+            color: _card,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppTheme.brandColor.withOpacity(0.2)),
+            border: Border.all(color: const Color(0xFFBBF7D0)),
           ),
           child: Column(
             children: [
-              Icon(
-                hasProof ? Icons.verified_rounded : Icons.account_balance_wallet_rounded,
-                color: hasProof ? Colors.green : AppTheme.brandColor,
-                size: 40,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                hasProof ? 'भुक्तानी प्राप्त भयो! 🎉' : 'भुक्तानी रसिद अपलोड गर्नुहोस् 💳',
-                style: GoogleFonts.notoSansDevanagari(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 17,
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: hasProof ? const Color(0xFFDCFCE7) : const Color(0xFFEFF6FF),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  hasProof ? Icons.verified_rounded : Icons.account_balance_wallet_rounded,
+                  color: hasProof ? const Color(0xFF16A34A) : _brand,
+                  size: 32,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 12),
+              Text(
+                hasProof ? 'Payment Submitted!' : 'Ready to Pay?',
+                style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w900, color: _ink, letterSpacing: -0.3),
+              ),
+              const SizedBox(height: 6),
               Text(
                 hasProof
-                    ? 'तपाईंको भुक्तानी रसिद Khozna Secure मा पठाइएको छ।\nप्रशासकले प्रमाणीकरण गरेपछि बुकिङ पक्का हुनेछ।'
-                    : 'कोठा बुकिङ पूरा गर्न eSewa/Khalti मार्फत भुक्तानी पठाएर रसिदको फोटो अपलोड गर्नुहोस्।',
-                style: GoogleFonts.notoSansDevanagari(
-                  fontSize: 12,
-                  color: Colors.grey.shade700,
-                  height: 1.5,
-                ),
+                    ? 'Your receipt has been received. Our team will verify and confirm your booking shortly.'
+                    : 'You liked the room — send your payment receipt via eSewa or Khalti to complete booking.',
+                style: GoogleFonts.inter(fontSize: 13, color: _inkSub, height: 1.5),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -1183,216 +897,124 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
         ),
         const SizedBox(height: 14),
         if (!hasProof || _booking.status == 'awaiting_payment') ...[
-          _actionBtn(
-            label: 'भुक्तानी रसिद पठाउनुहोस् (Upload Payment Receipt)',
-            color: const Color(0xFF22C55E),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => PaymentChoiceScreen(booking: _booking),
-                ),
-              ).then((_) => _refreshBooking());
-            },
+          _primaryBtn(
+            label: 'Upload Payment Receipt',
+            icon: Icons.upload_rounded,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => PaymentChoiceScreen(booking: _booking)),
+            ).then((_) => _refreshBooking()),
+            color: const Color(0xFF16A34A),
           ),
           const SizedBox(height: 10),
         ],
-        _actionBtn(
-          label: 'Browse More Rooms',
-          color: AppTheme.brandColor,
-          outlined: true,
-          onTap: () => Navigator.pop(context),
-        ),
+        _outlineBtn(label: 'Browse More Properties', onTap: () => Navigator.pop(context)),
       ],
     );
   }
 
-  Widget _buildPendingActions() {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.orange.shade50,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.orange.shade200),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.hourglass_empty_rounded, color: Colors.orange),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'मालिकको जवाफको प्रतीक्षा गर्दैछौं…\n(Waiting for owner response)',
-                  style: GoogleFonts.notoSansDevanagari(fontSize: 14, height: 1.4),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        _actionBtn(
-          label: '🔔 Remind Owner',
-          color: AppTheme.brandColor,
-          onTap: _remindOwner,
-        ),
-        const SizedBox(height: 10),
-        _actionBtn(
-          label: 'Cancel Request',
-          color: Colors.red,
-          outlined: true,
-          onTap: _cancelRequest,
-        ),
-      ],
-    );
-  }
-
-
+  // ── Rejected ───────────────────────────────────────────────────────────────
 
   Widget _buildRejectedActions() {
     return Column(
       children: [
+        // Empathetic info card
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.red.shade50,
-            borderRadius: BorderRadius.circular(16),
+            color: _card,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFFECACA)),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'मालिकले अवलोकन स्वीकार गर्न सक्नुभएन।',
-                style: GoogleFonts.notoSansDevanagari(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFEF2F2),
+                  shape: BoxShape.circle,
                 ),
+                child: const Icon(Icons.sentiment_dissatisfied_rounded, color: Color(0xFFDC2626), size: 30),
               ),
-              if (_booking.rejectionReason != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  'कारण: ${_booking.rejectionReason}',
-                  style: GoogleFonts.notoSansDevanagari(
-                    color: Colors.red.shade700,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
+              const SizedBox(height: 12),
+              Text(
+                'Visit Not Available',
+                style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w900, color: _ink, letterSpacing: -0.3),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'The host was unable to accommodate your visit at this time. Don\'t worry — there are plenty of great properties available.',
+                style: GoogleFonts.inter(fontSize: 13, color: _inkSub, height: 1.55),
+                textAlign: TextAlign.center,
+              ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
-        _actionBtn(
-          label: 'Browse More Rooms',
-          color: AppTheme.brandColor,
+        const SizedBox(height: 14),
+
+        // Try Again — only if we have a property reference
+        if (widget.property != null)
+          _primaryBtn(
+            label: 'Try Again',
+            icon: Icons.restart_alt_rounded,
+            onTap: () {
+              HapticFeedback.mediumImpact();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => VisitRequestScreen(property: widget.property!),
+                ),
+              );
+            },
+            color: _brand,
+          ),
+        if (widget.property != null) const SizedBox(height: 10),
+
+        _outlineBtn(
+          label: 'Browse Other Properties',
           onTap: () => Navigator.pop(context),
         ),
       ],
     );
   }
 
-  Widget _buildCompletedNoLike() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        children: [
-          const Icon(Icons.check_circle_outline_rounded, color: Colors.grey, size: 40),
-          const SizedBox(height: 12),
-          Text(
-            'अवलोकन पूरा भयो। धन्यवाद!',
-            style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.w800, fontSize: 16),
-          ),
-          const SizedBox(height: 20),
-          _actionBtn(
-            label: 'सिफारिस दिनुहोस् (Give Recommendation)',
-            color: Colors.amber[800]!,
-            onTap: _showReviewSheet,
-          ),
-          const SizedBox(height: 12),
-          _actionBtn(
-            label: 'Browse More Rooms',
-            color: AppTheme.brandColor,
-            outlined: true,
-            onTap: () => Navigator.pop(context),
-          ),
-        ],
-      ),
-    );
-  }
+  // ── Post-Visit: Visited? ───────────────────────────────────────────────────
 
   Widget _buildVisitedQuestion() {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-        border: Border.all(color: AppTheme.brandColor.withOpacity(0.1)),
+        color: _card,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: _border),
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.brandColor.withOpacity(0.05),
+              color: _brand.withValues(alpha: 0.07),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.directions_walk_rounded,
-              color: AppTheme.brandColor,
-              size: 32,
-            ),
+            child: const Icon(Icons.directions_walk_rounded, color: _brand, size: 30),
           ),
           const SizedBox(height: 16),
           Text(
-            '🚶‍♂️ कोठा हेर्न जानुभयो?',
-            style: GoogleFonts.notoSansDevanagari(
-              fontWeight: FontWeight.w900,
-              fontSize: 20,
-              letterSpacing: -0.5,
-            ),
+            'Did you visit the property?',
+            style: GoogleFonts.plusJakartaSans(fontSize: 19, fontWeight: FontWeight.w900, color: _ink, letterSpacing: -0.4),
+            textAlign: TextAlign.center,
           ),
+          const SizedBox(height: 6),
           Text(
-            'Did you visit the room?',
-            style: GoogleFonts.inter(
-              color: Colors.grey[600],
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+            'Let us know how your visit went.',
+            style: GoogleFonts.inter(fontSize: 13, color: _inkSub),
           ),
           const SizedBox(height: 24),
           Row(
             children: [
-              Expanded(
-                child: _premiumChoiceBtn(
-                  label: 'Yes, I visited',
-                  icon: Icons.check_circle_rounded,
-                  color: AppTheme.brandColor,
-                  onTap: () => _handleVisitedAnswer(true),
-                ),
-              ),
+              Expanded(child: _choiceBtn(label: 'Yes, I visited', icon: Icons.check_circle_rounded, color: _brand, onTap: () => _handleVisitedAnswer(true))),
               const SizedBox(width: 12),
-              Expanded(
-                child: _premiumChoiceBtn(
-                  label: 'No',
-                  icon: Icons.cancel_rounded,
-                  color: Colors.grey.shade400,
-                  isOutlined: true,
-                  onTap: () => _handleVisitedAnswer(false),
-                ),
-              ),
+              Expanded(child: _choiceBtn(label: 'Not yet', icon: Icons.cancel_rounded, color: const Color(0xFF9CA3AF), isOutlined: true, onTap: () => _handleVisitedAnswer(false))),
             ],
           ),
         ],
@@ -1400,108 +1022,63 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     );
   }
 
+  // ── Post-Visit: Liked? ────────────────────────────────────────────────────
+
   Widget _buildLikedQuestion() {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-        border: Border.all(color: const Color(0xFF00C853).withOpacity(0.1)),
+        color: _card,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFD1FAE5)),
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFF00C853).withOpacity(0.05),
+            decoration: const BoxDecoration(
+              color: Color(0xFFDCFCE7),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.favorite_rounded,
-              color: Color(0xFF00C853),
-              size: 32,
-            ),
+            child: const Icon(Icons.favorite_rounded, color: Color(0xFF16A34A), size: 30),
           ),
           const SizedBox(height: 16),
           Text(
-            'कोठा मन पर्यो?',
-            style: GoogleFonts.notoSansDevanagari(
-              fontWeight: FontWeight.w900,
-              fontSize: 20,
-              letterSpacing: -0.5,
-            ),
+            'Did you like the property?',
+            style: GoogleFonts.plusJakartaSans(fontSize: 19, fontWeight: FontWeight.w900, color: _ink, letterSpacing: -0.4),
+            textAlign: TextAlign.center,
           ),
-          Text(
-            'Did you like the room?',
-            style: GoogleFonts.inter(
-              color: Colors.grey[600],
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 6),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFF00C853).withOpacity(0.05),
-              borderRadius: BorderRadius.circular(12),
+              color: const Color(0xFFDCFCE7),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
-              'कोठा मन परेमा, यहाँबाट भुक्तानीको प्रक्रिया अगाडि बढाउन सक्नुहुन्छ।',
-              style: GoogleFonts.notoSansDevanagari(
-                fontSize: 12,
-                color: const Color(0xFF1B5E20),
-                fontWeight: FontWeight.bold,
-              ),
+              'If you liked it, you can proceed with payment to book it.',
+              style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF166534), fontWeight: FontWeight.w600, height: 1.5),
               textAlign: TextAlign.center,
             ),
           ),
           const SizedBox(height: 24),
           Row(
             children: [
-              Expanded(
-                child: _premiumChoiceBtn(
-                  label: 'Yes! ❤️',
-                  icon: Icons.thumb_up_rounded,
-                  color: const Color(0xFF00C853),
-                  onTap: () => _handleLikedAnswer(true),
-                ),
-              ),
+              Expanded(child: _choiceBtn(label: 'Yes, I love it ❤️', icon: Icons.thumb_up_rounded, color: const Color(0xFF16A34A), onTap: () => _handleLikedAnswer(true))),
               const SizedBox(width: 12),
-              Expanded(
-                child: _premiumChoiceBtn(
-                  label: 'No',
-                  icon: Icons.thumb_down_rounded,
-                  color: Colors.grey.shade400,
-                  isOutlined: true,
-                  onTap: () => _handleLikedAnswer(false),
-                ),
-              ),
+              Expanded(child: _choiceBtn(label: 'Not interested', icon: Icons.thumb_down_rounded, color: const Color(0xFF9CA3AF), isOutlined: true, onTap: () => _handleLikedAnswer(false))),
             ],
           ),
-          if (_booking.status == 'awaiting_payment' && (_booking.visitLiked == true)) ...[
+          if (_booking.status == 'awaiting_payment' && _booking.visitLiked == true) ...[
             const SizedBox(height: 20),
-            const Divider(),
-            const SizedBox(height: 20),
-            _actionBtn(
-              label: '💳 PROCEED TO PAYMENT',
-              color: const Color(0xFF00C853),
+            _primaryBtn(
+              label: 'Proceed to Payment',
+              icon: Icons.credit_card_rounded,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => PaymentChoiceScreen(
-                    booking: _booking,
-                    propertyTitle: _booking.propertyTitle ?? '',
-                  ),
-                ),
+                MaterialPageRoute(builder: (_) => PaymentChoiceScreen(booking: _booking, propertyTitle: _booking.propertyTitle ?? '')),
               ),
+              color: const Color(0xFF16A34A),
             ),
           ],
         ],
@@ -1509,7 +1086,59 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     );
   }
 
-  Widget _premiumChoiceBtn({
+  // ── Shared Button Widgets ─────────────────────────────────────────────────
+
+  Widget _primaryBtn({
+    required String label,
+    required VoidCallback onTap,
+    required Color color,
+    IconData? icon,
+  }) {
+    return GestureDetector(
+      onTap: () { HapticFeedback.mediumImpact(); onTap(); },
+      child: Container(
+        height: 52,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [BoxShadow(color: color.withValues(alpha: 0.25), blurRadius: 12, offset: const Offset(0, 5))],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: Colors.white, size: 18),
+              const SizedBox(width: 8),
+            ],
+            Text(label, style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _outlineBtn({
+    required String label,
+    required VoidCallback onTap,
+    Color color = _inkSub,
+  }) {
+    return GestureDetector(
+      onTap: () { HapticFeedback.lightImpact(); onTap(); },
+      child: Container(
+        height: 52,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _border, width: 1.5),
+        ),
+        child: Text(label, style: GoogleFonts.inter(color: _inkSub, fontWeight: FontWeight.w600, fontSize: 14)),
+      ),
+    );
+  }
+
+  Widget _choiceBtn({
     required String label,
     required IconData icon,
     required Color color,
@@ -1517,34 +1146,363 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     bool isOutlined = false,
   }) {
     return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        onTap();
-      },
+      onTap: () { HapticFeedback.mediumImpact(); onTap(); },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: isOutlined ? Colors.white : color,
-          borderRadius: BorderRadius.circular(20),
-          border: isOutlined ? Border.all(color: color.withOpacity(0.3), width: 2) : null,
+          borderRadius: BorderRadius.circular(18),
+          border: isOutlined ? Border.all(color: _border, width: 1.5) : null,
           boxShadow: isOutlined ? null : [
-            BoxShadow(
-              color: color.withOpacity(0.2),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
+            BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 12, offset: const Offset(0, 5)),
           ],
         ),
         child: Column(
           children: [
-            Icon(icon, color: isOutlined ? color : Colors.white, size: 24),
+            Icon(icon, color: isOutlined ? _inkSub : Colors.white, size: 24),
             const SizedBox(height: 8),
-            Text(
-              label,
-              style: GoogleFonts.plusJakartaSans(
-                color: isOutlined ? color : Colors.white,
-                fontWeight: FontWeight.w800,
-                fontSize: 13,
+            Text(label, style: GoogleFonts.plusJakartaSans(color: isOutlined ? _inkSub : Colors.white, fontWeight: FontWeight.w800, fontSize: 12.5), textAlign: TextAlign.center),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Status Config ─────────────────────────────────────────────────────────
+
+  _StatusConfig _statusConfig(String status) {
+    switch (status) {
+      case 'pending_approval':
+        return const _StatusConfig(
+          icon: Icons.hourglass_top_rounded,
+          color: Color(0xFFF59E0B),
+          title: 'Awaiting Approval',
+          subtitle: 'Your visit request has been sent. Waiting for the host to respond.',
+        );
+      case 'visit_accepted':
+        return const _StatusConfig(
+          icon: Icons.check_circle_rounded,
+          color: Color(0xFF0EA5E9),
+          title: 'Visit Approved!',
+          subtitle: 'Your visit has been approved. Head over to check out the property.',
+        );
+      case 'awaiting_payment':
+      case 'visit_liked':
+        return const _StatusConfig(
+          icon: Icons.favorite_rounded,
+          color: Color(0xFF16A34A),
+          title: 'Room Liked 🎉',
+          subtitle: 'You liked the property. Proceed with payment to complete your booking.',
+        );
+      case 'rejected':
+        return const _StatusConfig(
+          icon: Icons.cancel_rounded,
+          color: Color(0xFFDC2626),
+          title: 'Visit Declined',
+          subtitle: 'The host couldn\'t accommodate your visit right now.',
+        );
+      case 'cancelled':
+        return const _StatusConfig(
+          icon: Icons.cancel_outlined,
+          color: Color(0xFF9CA3AF),
+          title: 'Request Cancelled',
+          subtitle: 'Your visit request was cancelled.',
+        );
+      case 'paid':
+        return const _StatusConfig(
+          icon: Icons.payment_rounded,
+          color: Color(0xFF16A34A),
+          title: 'Payment Submitted',
+          subtitle: 'Your payment is under review. You\'ll be notified once confirmed.',
+        );
+      case 'confirmed':
+        return const _StatusConfig(
+          icon: Icons.home_rounded,
+          color: _brand,
+          title: 'Move-In Confirmed 🎉',
+          subtitle: 'Congratulations! The room is officially yours.',
+        );
+      case 'visit_completed':
+        return const _StatusConfig(
+          icon: Icons.done_all_rounded,
+          color: Color(0xFF6B7280),
+          title: 'Visit Completed',
+          subtitle: 'Your visit has been marked as completed.',
+        );
+      default:
+        return _StatusConfig(icon: Icons.info_rounded, color: _inkSub, title: status, subtitle: '');
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helper models
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _Step {
+  final String label;
+  final IconData icon;
+  const _Step(this.label, this.icon);
+}
+
+class _StatusConfig {
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String subtitle;
+  const _StatusConfig({required this.icon, required this.color, required this.title, required this.subtitle});
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Feedback Bottom Sheet
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _FeedbackSheet extends StatelessWidget {
+  final List<String> reasons;
+  final String? selected;
+  final ValueChanged<String?> onChanged;
+  final VoidCallback onContinue;
+  const _FeedbackSheet({required this.reasons, this.selected, required this.onChanged, required this.onContinue});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(
+        top: 28, left: 24, right: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(width: 40, height: 4,
+              decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(10))),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'What didn\'t you like?',
+            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w900, fontSize: 19, letterSpacing: -0.4),
+          ),
+          const SizedBox(height: 4),
+          Text('Optional — helps us improve.', style: GoogleFonts.inter(fontSize: 13, color: _inkSub)),
+          const SizedBox(height: 18),
+          ...reasons.map((r) => RadioListTile<String>(
+            title: Text(r, style: GoogleFonts.inter(fontSize: 14)),
+            value: r,
+            groupValue: selected,
+            activeColor: _brand,
+            onChanged: onChanged,
+            contentPadding: EdgeInsets.zero,
+          )),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton(
+              onPressed: onContinue,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _brand,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 0,
+              ),
+              child: Text('Continue', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 15)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Review Bottom Sheet
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _ReviewSheet extends StatefulWidget {
+  final String bookingId;
+  final String propertyId;
+  final String ownerId;
+  final bool? visitLiked;
+  final VoidCallback onDone;
+  const _ReviewSheet({
+    required this.bookingId,
+    required this.propertyId,
+    required this.ownerId,
+    this.visitLiked,
+    required this.onDone,
+  });
+
+  @override
+  State<_ReviewSheet> createState() => _ReviewSheetState();
+}
+
+class _ReviewSheetState extends State<_ReviewSheet> {
+  int _rating = 5;
+  final _commentCtrl = TextEditingController();
+  final Set<String> _tags = {};
+  bool _submitting = false;
+
+  static const _negTags = ['Too expensive', 'Not as described', 'Bad location', 'Rude host', 'Mismatch photos'];
+  static const _posTags = ['Clean property', 'Polite host', 'Good water supply', 'Quiet area', 'Accurate photos'];
+
+  String get _emoji => ['😞', '😕', '🙂', '😊', '😍'][_rating - 1];
+  String get _ratingText => ['Disappointed', 'Fair', 'Good', 'Very Good', 'Excellent!'][_rating - 1];
+  List<String> get _activeTags => _rating <= 2 ? _negTags : _posTags;
+  Color get _ratingColor => _rating <= 2 ? const Color(0xFFDC2626) : _brand;
+
+  @override
+  void dispose() {
+    _commentCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(
+        top: 28, left: 24, right: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Center(
+              child: Container(width: 40, height: 4,
+                decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(10))),
+            ),
+            const SizedBox(height: 24),
+            Text('Rate Your Visit',
+              style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w900, fontSize: 22, letterSpacing: -0.5)),
+            const SizedBox(height: 6),
+            Text('Help others make better decisions.',
+              style: GoogleFonts.inter(color: _inkSub, fontSize: 13)),
+            const SizedBox(height: 24),
+
+            // Emoji + label
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: Column(
+                key: ValueKey(_rating),
+                children: [
+                  Text(_emoji, style: const TextStyle(fontSize: 44)),
+                  const SizedBox(height: 6),
+                  Text(_ratingText,
+                    style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800, color: _ratingColor)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Stars
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(5, (i) {
+                final star = i + 1;
+                return GestureDetector(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    setState(() { _rating = star; _tags.clear(); });
+                  },
+                  child: AnimatedScale(
+                    scale: star <= _rating ? 1.15 : 1.0,
+                    duration: const Duration(milliseconds: 150),
+                    child: Icon(Icons.star_rounded,
+                      color: star <= _rating ? Colors.amber : const Color(0xFFE5E7EB),
+                      size: 44),
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(height: 24),
+
+            // Tags
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Quick Tags', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: _inkSub)),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8, runSpacing: 8,
+              children: _activeTags.map((tag) {
+                final sel = _tags.contains(tag);
+                return GestureDetector(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    setState(() => sel ? _tags.remove(tag) : _tags.add(tag));
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: sel ? _ratingColor : const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(30),
+                      border: sel ? null : Border.all(color: _border),
+                    ),
+                    child: Text(tag,
+                      style: GoogleFonts.inter(
+                        fontSize: 12.5, fontWeight: FontWeight.w600,
+                        color: sel ? Colors.white : _inkSub,
+                      )),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 18),
+
+            // Comment
+            TextField(
+              controller: _commentCtrl,
+              maxLines: 3,
+              style: GoogleFonts.inter(fontSize: 14),
+              decoration: InputDecoration(
+                hintText: 'Add a comment... (optional)',
+                hintStyle: GoogleFonts.inter(color: const Color(0xFFD1D5DB), fontSize: 13),
+                filled: true,
+                fillColor: const Color(0xFFF9FAFB),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: _border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: _border),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: _brand, width: 1.5),
+                ),
+                contentPadding: const EdgeInsets.all(16),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Submit
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: _submitting ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _ratingColor,
+                  disabledBackgroundColor: _ratingColor.withValues(alpha: 0.5),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 0,
+                ),
+                child: _submitting
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : Text('Submit Review', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 15)),
               ),
             ),
           ],
@@ -1553,115 +1511,27 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     );
   }
 
-  Widget _actionBtn({
-    required String label,
-    required Color color,
-    bool outlined = false,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      child: Container(
-        height: 50,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: outlined ? Colors.transparent : color,
-          borderRadius: BorderRadius.circular(30),
-          border: outlined ? Border.all(color: color, width: 1.5) : null,
-          boxShadow: outlined
-              ? null
-              : [
-                  BoxShadow(
-                    color: color.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.notoSansDevanagari(
-            color: outlined ? color : Colors.white,
-            fontWeight: FontWeight.w800,
-            fontSize: 15,
-          ),
-        ),
-      ),
-    );
-  }
-
-  _StatusConfig _getStatusConfig(String status) {
-    switch (status) {
-      case 'pending_approval':
-        return _StatusConfig(
-          Icons.hourglass_top_rounded,
-          Colors.orange,
-          'Pending Response',
-          'मालिकले अवलोकन स्वीकृत गर्न बाँकी छ',
-        );
-      case 'visit_accepted':
-        return _StatusConfig(
-          Icons.check_circle_rounded,
-          Colors.blue,
-          'Visit Accepted',
-          'अवलोकन स्वीकृत — कोठा हेर्न जानुहोस्',
-        );
-      case 'awaiting_payment':
-      case 'visit_liked':
-        return _StatusConfig(
-          Icons.favorite_rounded,
-          Colors.green,
-          'Room Liked! 🎉',
-          'कोठा मन पराउनुभयो — अब भुक्तानी गर्न सक्नुहुन्छ',
-        );
-      case 'cancelled':
-        return _StatusConfig(
-          Icons.cancel_outlined,
-          Colors.grey,
-          'Request Cancelled',
-          'तपाईंले अवलोकन अनुरोध रद्द गर्नुभयो',
-        );
-      case 'rejected':
-        return _StatusConfig(
-          Icons.cancel_rounded,
-          Colors.red,
-          'Visit Declined',
-          'यो अवलोकन अहिले सम्भव भएन',
-        );
-      case 'paid':
-        return _StatusConfig(
-          Icons.payment_rounded,
-          const Color(0xFF00C853),
-          'Payment Submitted',
-          'भुक्तानी पुष्टि हुँदैछ',
-        );
-      case 'confirmed':
-        return _StatusConfig(
-          Icons.home_rounded,
-          AppTheme.brandColor,
-          'Move-In Confirmed 🎉',
-          'बधाई! कोठा तपाईंको भयो।',
-        );
-      case 'visit_completed':
-        return _StatusConfig(
-          Icons.done_all_rounded,
-          Colors.grey,
-          'Visit Completed',
-          'अवलोकन सम्पन्न',
-        );
-      default:
-        return _StatusConfig(Icons.info_rounded, Colors.grey, status, '');
+  Future<void> _submit() async {
+    setState(() => _submitting = true);
+    try {
+      String comment = _commentCtrl.text.trim();
+      if (_tags.isNotEmpty) {
+        final tagStr = _tags.map((t) => '[$t]').join(' ');
+        comment = comment.isNotEmpty ? '$tagStr\n$comment' : tagStr;
+      }
+      await BookingRepository.submitReview(
+        bookingId: widget.bookingId,
+        propertyId: widget.propertyId,
+        ownerId: widget.ownerId,
+        rating: _rating,
+        comment: comment.isNotEmpty ? comment : null,
+      );
+      if (mounted) {
+        Navigator.pop(context);
+        widget.onDone();
+      }
+    } catch (_) {
+      if (mounted) setState(() => _submitting = false);
     }
   }
-}
-
-class _StatusConfig {
-  final IconData icon;
-  final Color color;
-  final String title;
-  final String subtitle;
-  const _StatusConfig(this.icon, this.color, this.title, this.subtitle);
 }

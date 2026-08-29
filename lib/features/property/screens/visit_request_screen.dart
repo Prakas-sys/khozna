@@ -733,7 +733,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen>
         checkIn: fullVisitDate,
         checkOut: fullVisitDate.add(const Duration(days: 30)),
         totalPrice: finalPrice,
-        message: 'अवलोकन मिति: ${DateFormat('yyyy-MM-dd HH:mm').format(fullVisitDate)}, जम्मा व्यक्ति: $_visitingCount',
+        message: 'Visit date: ${DateFormat('yyyy-MM-dd HH:mm').format(fullVisitDate)}, Visitors: $_visitingCount',
       );
 
       if (mounted) {
