@@ -52,6 +52,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Map<String, dynamic>? _ownerData;
   List<ReviewModel> _reviews = [];
   bool _isLoadingReviews = true;
+  bool _isLoadingBookingStatus = true;
   VideoPlayerController? _preVideoController;
 
   String get _currentUserId =>
@@ -71,6 +72,28 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     _isReserved =
         widget.property.status == 'booked' ||
         widget.property.status == 'pending_approval';
+
+    // ⚡️ Synchronous memory cache check for zero-flicker booking status
+    final cachedStatus = BookingRepository.propertyBookingStatusCache[widget.property.id];
+    final cachedId = BookingRepository.propertyBookingIdCache[widget.property.id];
+    if (cachedStatus != null && cachedId != null) {
+      _pendingBookingStatus = cachedStatus;
+      _pendingBookingId = cachedId;
+      _userHasPendingBooking = [
+        'pending_approval',
+        'visit_accepted',
+        'awaiting_payment',
+        'paid',
+        'confirmed',
+      ].contains(cachedStatus);
+      _hasAcceptedVisit = [
+        'visit_accepted',
+        'awaiting_payment',
+        'paid',
+        'confirmed',
+      ].contains(cachedStatus);
+      _isLoadingBookingStatus = false;
+    }
 
     // 🚀 Performance: Optimize all images for delivery immediately
     displayImages = widget.property.images.isNotEmpty
@@ -141,7 +164,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Future<void> _updateBookingStatus() async {
-    if (widget.property.id.contains('demo') || _currentUserId.isEmpty) return;
+    if (widget.property.id.contains('demo') || _currentUserId.isEmpty) {
+      if (mounted) setState(() => _isLoadingBookingStatus = false);
+      return;
+    }
     try {
       final result = await Supabase.instance.client
           .from('bookings')
@@ -154,9 +180,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       if (mounted) {
         setState(() {
           if (result.isNotEmpty) {
-            final status = result[0]['status'];
-            _pendingBookingId = result[0]['id'];
+            final status = result[0]['status']?.toString() ?? '';
+            final bId = result[0]['id']?.toString();
+            _pendingBookingId = bId;
             _pendingBookingStatus = status;
+
+            // Cache in memory for fast zero-delay render
+            if (bId != null) {
+              BookingRepository.propertyBookingStatusCache[widget.property.id] = status;
+              BookingRepository.propertyBookingIdCache[widget.property.id] = bId;
+            }
+
             if (result[0]['check_in'] != null) {
               _pendingBookingCheckIn = DateTime.tryParse(result[0]['check_in']);
               _startVisitTimer();
@@ -185,10 +219,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             _pendingBookingCheckIn = null;
             _hasAcceptedVisit = false;
             _visitTimer?.cancel();
+            BookingRepository.propertyBookingStatusCache.remove(widget.property.id);
+            BookingRepository.propertyBookingIdCache.remove(widget.property.id);
           }
+          _isLoadingBookingStatus = false;
         });
       }
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) setState(() => _isLoadingBookingStatus = false);
+    }
   }
 
   void _startVisitTimer() {
@@ -2306,6 +2345,27 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildBottomActionButtons(BuildContext context) {
+    // 0. If still checking booking status and not cached, show loading state to prevent flash/flicker
+    if (_isLoadingBookingStatus && _pendingBookingStatus.isEmpty) {
+      return Container(
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 28),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(100),
+        ),
+        child: const SizedBox(
+          width: 16,
+          height: 16,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: AppTheme.brandColor,
+          ),
+        ),
+      );
+    }
+
     // If property is booked by someone else (not current user's active booking)
     if (widget.property.status == 'booked' && !_userHasPendingBooking) {
       return _buildDisabledButton('Already Booked');
@@ -2333,10 +2393,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         label = 'Confirmed ✓';
         btnColor = const Color(0xFF22C55E);
         icon = Icons.check_circle_rounded;
-      } else if (_pendingBookingStatus == 'rejected') {
-        label = 'Payment Rejected';
-        btnColor = Colors.red.shade700;
-        icon = Icons.cancel_outlined;
+      } else if (_pendingBookingStatus == 'rejected' ||
+          _pendingBookingStatus == 'payment_rejected') {
+        label = 'Re-upload Receipt';
+        btnColor = const Color(0xFF16A34A);
+        icon = Icons.upload_file_rounded;
       }
 
       return SizedBox(
@@ -2344,8 +2405,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         child: ElevatedButton.icon(
           onPressed: () async {
             if (_pendingBookingId == null) return;
-            if (_pendingBookingStatus == 'awaiting_payment') {
-              // Direct to PaymentChoiceScreen to upload receipt/pay
+            if (_pendingBookingStatus == 'awaiting_payment' ||
+                _pendingBookingStatus == 'rejected' ||
+                _pendingBookingStatus == 'payment_rejected') {
+              // Direct to PaymentChoiceScreen to re-upload receipt/pay
               final booking = await SupabaseService.getVisitById(_pendingBookingId!);
               if (booking != null && mounted) {
                 Navigator.push(
@@ -2370,7 +2433,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           icon: Icon(icon, size: 16),
           label: Text(
             label,
-            style: GoogleFonts.inter(fontSize: 13.5, fontWeight: FontWeight.w700),
+            style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           style: ElevatedButton.styleFrom(
             backgroundColor: btnColor,

@@ -8,6 +8,9 @@ import 'package:khozna/core/security/security_utils.dart';
 class BookingRepository {
   static final _client = Supabase.instance.client;
 
+  static final Map<String, String> propertyBookingStatusCache = {};
+  static final Map<String, String> propertyBookingIdCache = {};
+
   /// Initial Load: Fetch all IDs the user has booked/pending.
   static Future<void> fetchBookedPropertyIds() async {
     final user = _client.auth.currentUser;
@@ -16,20 +19,36 @@ class BookingRepository {
     try {
       final response = await _client
           .from('bookings')
-          .select('property_id')
+          .select('id, property_id, status')
           .eq('guest_id', user.id)
-          .inFilter('status', [
-            'pending_approval',
-            'awaiting_payment',
-            'paid',
-            'confirmed',
-          ]);
+          .order('created_at', ascending: false);
 
       final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
         response,
       );
-      final set = data.map((e) => e['property_id'].toString()).toSet();
-      bookedPropertiesStore.value = set;
+
+      final Set<String> activeBooked = {};
+      propertyBookingStatusCache.clear();
+      propertyBookingIdCache.clear();
+
+      for (final row in data) {
+        final propId = row['property_id']?.toString();
+        final status = row['status']?.toString();
+        final bId = row['id']?.toString();
+
+        if (propId != null && status != null && bId != null) {
+          if (!propertyBookingStatusCache.containsKey(propId)) {
+            propertyBookingStatusCache[propId] = status;
+            propertyBookingIdCache[propId] = bId;
+          }
+
+          if (['pending_approval', 'visit_accepted', 'awaiting_payment', 'paid', 'confirmed'].contains(status)) {
+            activeBooked.add(propId);
+          }
+        }
+      }
+
+      bookedPropertiesStore.value = activeBooked;
     } catch (e) {
       debugPrint('Error fetching booked IDs: $e');
     }

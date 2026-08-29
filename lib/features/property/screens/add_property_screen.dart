@@ -26,12 +26,18 @@ class AddPropertyScreen extends StatefulWidget {
 
 class _AddPropertyScreenState extends State<AddPropertyScreen> {
   int _currentStep = 0;
-  final int _totalSteps = 10;
+  final int _totalSteps = 11;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController();
   final ScrollController _mainScrollController = ScrollController();
   final ImagePicker _picker = ImagePicker();
   late ConfettiController _confettiController;
+
+  // Availability State
+  final Set<DateTime> _blockedDates = {};
+  int _minStayNights = 1;
+  int _advanceNoticeDays = 0;
+  DateTime _calendarMonth = DateTime(DateTime.now().year, DateTime.now().month);
 
   // Form State
   final TextEditingController _otherCategoryController = TextEditingController();
@@ -329,31 +335,34 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           isValid = true;
         }
         break;
-      case 5: // House Rules (Step 6)
+      case 5: // Availability & Calendar (Step 6)
         isValid = true;
         break;
-      case 6: // Photos (Step 7)
+      case 6: // House Rules (Step 7)
+        isValid = true;
+        break;
+      case 7: // Photos (Step 8)
         if (_selectedImages.length < 5) {
           errorMessage = 'कृपया कम्तिमा ५ वटा फोटोहरू राख्नुहोस्।';
         } else {
           isValid = true;
         }
         break;
-      case 7: // Marketing (Title + Video)
+      case 8: // Marketing (Title + Video)
         if (_titleController.text.trim().isEmpty) {
           errorMessage = 'कृपया एउटा आकर्षक शीर्षक राख्नुहोस्।';
         } else {
           isValid = true;
         }
         break;
-      case 8: // Payout
+      case 9: // Payout
         if (_payoutAccountController.text.trim().isEmpty) {
           errorMessage = 'कृपया आफ्नो पेमेन्ट खाता नम्बर राख्नुहोस्।';
         } else {
           isValid = true;
         }
         break;
-      case 9: // Final Review & Publish
+      case 10: // Final Review & Publish
         isValid = true;
         break;
     }
@@ -455,6 +464,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         videoCaption: _videoCaptionController.text.trim(),
         priceNight: double.tryParse(_priceNightController.text) ?? 0.0,
         priceMonth: double.tryParse(_priceController.text) ?? 0.0,
+        blockedDates: _blockedDates.map((d) => "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}").toList(),
+        minNights: _minStayNights,
+        advanceNoticeDays: _advanceNoticeDays,
       );
 
       _confettiController.play();
@@ -597,6 +609,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     _buildStepBasics(),
                     _buildStepAmenities(),
                     _buildStepPricing(),
+                    _buildStepAvailability(),
                     _buildStepHouseRules(),
                     _buildStepPhotos(),
                     _buildStepMarketing(),
@@ -1672,6 +1685,439 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     }
   }
 
+  Widget _buildStepAvailability() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    // Calculate days in month
+    final firstDayOfMonth = DateTime(_calendarMonth.year, _calendarMonth.month, 1);
+    final daysInMonth = DateTime(_calendarMonth.year, _calendarMonth.month + 1, 0).day;
+    final leadingEmptyDays = firstDayOfMonth.weekday - 1;
+
+    final monthYearTitle = '${_getMonthName(_calendarMonth.month)} ${_calendarMonth.year}';
+
+    return StepLayout(
+      title: 'Availability & Calendar',
+      subtitle: 'Set guest booking rules and block dates on your calendar.',
+      content: [
+        // ── 1. MINIMUM STAY NIGHTS & ADVANCE NOTICE ────────────────────────
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Minimum Stay',
+                          style: GoogleFonts.inter(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF0F172A),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Minimum nights guests can book',
+                          style: GoogleFonts.inter(
+                            fontSize: 11.5,
+                            color: const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Minus button
+                      GestureDetector(
+                        onTap: _minStayNights > 1
+                            ? () {
+                                HapticFeedback.lightImpact();
+                                setState(() => _minStayNights--);
+                              }
+                            : null,
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: _minStayNights > 1
+                                  ? const Color(0xFF374151)
+                                  : const Color(0xFFE5E7EB),
+                              width: 1,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.remove,
+                            size: 16,
+                            color: _minStayNights > 1
+                                ? const Color(0xFF374151)
+                                : const Color(0xFFD1D5DB),
+                          ),
+                        ),
+                      ),
+                      // Value text
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Text(
+                          '$_minStayNights ${_minStayNights == 1 ? "night" : "nights"}',
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w400,
+                            color: const Color(0xFF111827),
+                          ),
+                        ),
+                      ),
+                      // Plus button
+                      GestureDetector(
+                        onTap: _minStayNights < 30
+                            ? () {
+                                HapticFeedback.lightImpact();
+                                setState(() => _minStayNights++);
+                              }
+                            : null,
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: const Color(0xFF374151),
+                              width: 1,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.add,
+                            size: 16,
+                            color: Color(0xFF374151),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Divider(height: 1, color: Color(0xFFE2E8F0)),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Advance Notice',
+                          style: GoogleFonts.inter(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF0F172A),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Buffer before guest check-in',
+                          style: GoogleFonts.inter(
+                            fontSize: 11.5,
+                            color: const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  DropdownButton<int>(
+                    value: _advanceNoticeDays,
+                    underline: const SizedBox.shrink(),
+                    icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.brandColor),
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF0F172A),
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: 0, child: Text('Same day')),
+                      DropdownMenuItem(value: 1, child: Text('1 day notice')),
+                      DropdownMenuItem(value: 2, child: Text('2 days notice')),
+                      DropdownMenuItem(value: 3, child: Text('3 days notice')),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) {
+                        HapticFeedback.lightImpact();
+                        setState(() => _advanceNoticeDays = val);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // ── 2. PRESET ACTIONS BAR ───────────────────────────────────────────
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'PROPERTY CALENDAR',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF94A3B8),
+                letterSpacing: 0.5,
+              ),
+            ),
+            if (_blockedDates.isNotEmpty)
+              GestureDetector(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  setState(() => _blockedDates.clear());
+                },
+                child: Text(
+                  'Reset Calendar',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.redAccent,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 10),
+
+        // ── 3. AIRBNB INTERACTIVE MONTH CALENDAR ─────────────────────────────
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              // Calendar Header (Month Switcher)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    onPressed: _calendarMonth.isAfter(DateTime(today.year, today.month))
+                        ? () {
+                            HapticFeedback.lightImpact();
+                            setState(() {
+                              _calendarMonth = DateTime(
+                                _calendarMonth.year,
+                                _calendarMonth.month - 1,
+                              );
+                            });
+                          }
+                        : null,
+                    icon: const Icon(Icons.chevron_left_rounded),
+                    color: const Color(0xFF0F172A),
+                  ),
+                  Flexible(
+                    child: Text(
+                      monthYearTitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF0F172A),
+                        letterSpacing: -0.2,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _calendarMonth.isBefore(DateTime(today.year + 1, today.month))
+                        ? () {
+                            HapticFeedback.lightImpact();
+                            setState(() {
+                              _calendarMonth = DateTime(
+                                _calendarMonth.year,
+                                _calendarMonth.month + 1,
+                              );
+                            });
+                          }
+                        : null,
+                    icon: const Icon(Icons.chevron_right_rounded),
+                    color: const Color(0xFF0F172A),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              // Weekdays Bar
+              Row(
+                children: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
+                    .map(
+                      (day) => Expanded(
+                        child: Center(
+                          child: Text(
+                            day,
+                            style: GoogleFonts.inter(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF94A3B8),
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+              const SizedBox(height: 8),
+
+              // Calendar Days Grid
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 7,
+                  mainAxisSpacing: 5,
+                  crossAxisSpacing: 5,
+                ),
+                itemCount: leadingEmptyDays + daysInMonth,
+                itemBuilder: (context, index) {
+                  if (index < leadingEmptyDays) {
+                    return const SizedBox.shrink();
+                  }
+
+                  final dayNum = index - leadingEmptyDays + 1;
+                  final date = DateTime(_calendarMonth.year, _calendarMonth.month, dayNum);
+                  final isPast = date.isBefore(today);
+                  final isBlocked = _blockedDates.contains(date);
+
+                  return GestureDetector(
+                    onTap: isPast
+                        ? null
+                        : () {
+                            HapticFeedback.lightImpact();
+                            setState(() {
+                              if (isBlocked) {
+                                _blockedDates.remove(date);
+                              } else {
+                                _blockedDates.add(date);
+                              }
+                            });
+                          },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      decoration: BoxDecoration(
+                        color: isPast
+                            ? const Color(0xFFF8FAFC)
+                            : isBlocked
+                                ? const Color(0xFFFEE2E2)
+                                : Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: isPast
+                              ? Colors.transparent
+                              : isBlocked
+                                  ? const Color(0xFFEF4444)
+                                  : const Color(0xFF22C55E),
+                          width: isBlocked ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '$dayNum',
+                          style: GoogleFonts.inter(
+                            fontSize: 12.5,
+                            fontWeight: isBlocked ? FontWeight.w700 : FontWeight.w600,
+                            letterSpacing: -0.2,
+                            color: isPast
+                                ? const Color(0xFFCBD5E1)
+                                : isBlocked
+                                    ? const Color(0xFFDC2626)
+                                    : const Color(0xFF16A34A),
+                            decoration: isBlocked ? TextDecoration.lineThrough : null,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 14),
+
+              // Status Legend & Helper text
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildLegendItem(const Color(0xFF22C55E), 'Available'),
+                  const SizedBox(width: 16),
+                  _buildLegendItem(const Color(0xFFEF4444), 'Blocked by Owner'),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Tap any date to toggle availability for guests',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF64748B),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLegendItem(Color color, String label) {
+    return Row(
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF334155),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return months[month - 1];
+  }
+
   Widget _buildStepPayout() {
     return StepLayout(
       title: 'Payout Details',
@@ -2055,6 +2501,20 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                             ),
                           ),
                         ],
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _buildReviewSpecChip(Icons.calendar_today_rounded, 'Min stay: $_minStayNights ${_minStayNights == 1 ? "night" : "nights"}'),
+                        _buildReviewSpecChip(
+                          Icons.event_busy_rounded,
+                          _blockedDates.isEmpty
+                              ? 'All dates available'
+                              : '${_blockedDates.length} blocked dates',
+                        ),
                       ],
                     ),
                   ],

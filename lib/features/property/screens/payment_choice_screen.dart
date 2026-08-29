@@ -1726,10 +1726,24 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         else throw 'Failed to create booking record.';
       }
 
+      // Normalize method to DB-allowed values
+      String normalizedMethod = _selectedMethod;
+      if (_selectedMethod.contains('esewa')) {
+        normalizedMethod = 'esewa';
+      } else if (_selectedMethod.contains('khalti')) {
+        normalizedMethod = 'khalti';
+      } else if (_selectedMethod.contains('bank')) {
+        normalizedMethod = 'bank';
+      } else if (_selectedMethod.contains('fonepay')) {
+        normalizedMethod = 'fonepay';
+      } else if (_selectedMethod.contains('qr')) {
+        normalizedMethod = 'qr';
+      }
+
       await BookingRepository.submitPayment(
         bookingId: finalBookingId,
         paymentType: _paymentDestination,
-        method: _selectedMethod,
+        method: normalizedMethod,
         amount: _currentBooking.totalPrice,
         referenceId: _transactionController.text.trim(),
         proofImageUrl: imageUrl,

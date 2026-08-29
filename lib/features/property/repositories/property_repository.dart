@@ -241,6 +241,9 @@ class PropertyRepository {
     double priceNight = 0,
     double priceMonth = 0,
     String? videoCaption,
+    List<String>? blockedDates,
+    int minNights = 1,
+    int advanceNoticeDays = 0,
   }) async {
     final user = _client.auth.currentUser;
     if (user == null) throw 'User not authenticated';
@@ -378,6 +381,9 @@ class PropertyRepository {
       'is_student_friendly': autoStudent,
       'price_night': priceNight,
       'price_month': priceMonth > 0 ? priceMonth : price,
+      'blocked_dates': blockedDates ?? [],
+      'min_nights': minNights,
+      'advance_notice_days': advanceNoticeDays,
     };
 
     dynamic response;
@@ -389,10 +395,15 @@ class PropertyRepository {
           .single();
     } catch (e) {
       debugPrint('Initial Insert Error (likely missing column): $e');
-      if (e.toString().contains('guests') || e.toString().contains('column')) {
-        debugPrint('CRITICAL: Guests column might be missing from DB. Falling back.');
-        // Fallback: Retry without the 'guests' field if it hasn't been added to the DB schema yet
+      if (e.toString().contains('guests') ||
+          e.toString().contains('blocked_dates') ||
+          e.toString().contains('min_nights') ||
+          e.toString().contains('column')) {
+        debugPrint('CRITICAL: Optional column missing from DB. Falling back.');
         insertData.remove('guests');
+        insertData.remove('blocked_dates');
+        insertData.remove('min_nights');
+        insertData.remove('advance_notice_days');
         response = await _client
             .from('properties')
             .insert(insertData)
