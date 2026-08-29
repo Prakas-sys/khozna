@@ -11,6 +11,9 @@ import 'package:khozna/core/models/user_model.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:ui' as ui;
+import 'package:flutter/rendering.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -1751,7 +1754,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
       if (mounted) {
         HapticFeedback.mediumImpact();
-        Navigator.pop(context, true);
+        await _showSuccessDialog(finalBookingId, _transactionController.text.trim());
       }
     } catch (e) {
       if (mounted) {
@@ -1768,6 +1771,223 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  Widget _receiptRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF64748B))),
+        Text(value, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+      ],
+    );
+  }
+
+  Future<void> _showSuccessDialog(String bookingId, String refCode) async {
+    final amountStr = PriceFormatter.format(_currentBooking.totalPrice.toString());
+    final dateStr = DateFormat('MMM d, yyyy').format(DateTime.now());
+    final propertyName = _currentTitle;
+    final GlobalKey receiptKey = GlobalKey();
+    bool isExporting = false;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            backgroundColor: Colors.white,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 58,
+                    height: 58,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFDCFCE7),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check_circle_rounded,
+                      color: Color(0xFF16A34A),
+                      size: 34,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Payment Submitted!',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Your payment proof is undergoing admin review.',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      fontSize: 12.5,
+                      color: const Color(0xFF64748B),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+
+                  // REAL Downloadable PNG Receipt Card
+                  RepaintBoundary(
+                    key: receiptKey,
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.brandColor,
+                                      borderRadius: BorderRadius.circular(7),
+                                    ),
+                                    child: const Icon(Icons.receipt_long_rounded, color: Colors.white, size: 14),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'KHOZNA RECEIPT',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: const Color(0xFF0F172A),
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFDCFCE7),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: const Color(0xFF86EFAC)),
+                                ),
+                                child: Text(
+                                  'UNDER REVIEW',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: const Color(0xFF15803D),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            child: Divider(height: 1, color: Color(0xFFE2E8F0)),
+                          ),
+                          _receiptRow('Property', propertyName),
+                          const SizedBox(height: 6),
+                          _receiptRow('Amount Paid', 'Rs. $amountStr'),
+                          const SizedBox(height: 6),
+                          _receiptRow('Ref Code', refCode),
+                          const SizedBox(height: 6),
+                          _receiptRow('Date', dateStr),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: isExporting
+                              ? null
+                              : () async {
+                                  setDialogState(() => isExporting = true);
+                                  try {
+                                    final boundary = receiptKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+                                    if (boundary != null) {
+                                      final image = await boundary.toImage(pixelRatio: 3.0);
+                                      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+                                      if (byteData != null) {
+                                        final pngBytes = byteData.buffer.asUint8List();
+                                        final tempDir = Directory.systemTemp;
+                                        final file = File('${tempDir.path}/Khozna_Receipt_$refCode.png');
+                                        await file.writeAsBytes(pngBytes);
+
+                                        HapticFeedback.heavyImpact();
+                                        await Share.shareXFiles(
+                                          [XFile(file.path)],
+                                          text: 'Khozna Official Payment Receipt - Ref: $refCode',
+                                          subject: 'Khozna Payment Receipt',
+                                        );
+                                      }
+                                    }
+                                  } catch (e) {
+                                    debugPrint('Error exporting receipt image: $e');
+                                  } finally {
+                                    setDialogState(() => isExporting = false);
+                                  }
+                                },
+                          icon: isExporting
+                              ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+                              : const Icon(Icons.download_rounded, size: 18),
+                          label: Text(
+                            isExporting ? 'Exporting...' : 'Download',
+                            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFF0F172A),
+                            side: const BorderSide(color: Color(0xFFCBD5E1)),
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            Navigator.pop(context, true);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.brandColor,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: Text(
+                            'Done',
+                            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }
 

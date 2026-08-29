@@ -93,9 +93,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
       final currentUserId = Supabase.instance.client.auth.currentUser?.id ?? '';
 
-      // Remove raw 'visit_request' type DB notifications — these are superseded
-      // by the richer synth_owner_ cards that include Accept / Reject buttons.
-      combined.removeWhere((n) => n['type']?.toString() == 'visit_request');
+      // Remove raw 'visit_request' type DB notifications and redundant 'Payment Proof Submitted' alerts
+      combined.removeWhere((n) {
+        final t = n['type']?.toString() ?? '';
+        final title = n['title']?.toString() ?? '';
+        return t == 'visit_request' ||
+            title.contains('भुक्तानी प्रमाण पेस भयो') ||
+            title.contains('Payment Proof Submitted') ||
+            title.contains('Payment Submitted');
+      });
 
       // 1. Synthesize Guest Visits — only if the current user is the GUEST
       for (final visit in myVisits) {
@@ -132,18 +138,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ? 'Your visit for "$propTitle" was successful. Tap to complete payment.'
                   : 'Your booking for "$propTitle" is approved! Tap to complete payment.',
               'type': 'booking_approved',
-              'created_at': timeStr,
-            });
-          } else if (visit.status == 'paid' ||
-              visit.status == 'payment_under_review') {
-            combined.add({
-              'id': synthId,
-              'booking_id': visit.id,
-              'property_id': visit.propertyId,
-              'title': 'Payment Submitted 💳',
-              'message':
-                  'Payment proof for "$propTitle" is currently under review.',
-              'type': 'booking_alert',
               'created_at': timeStr,
             });
           } else if (visit.status == 'confirmed') {

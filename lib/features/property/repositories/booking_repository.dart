@@ -416,17 +416,6 @@ class BookingRepository {
         'booking_id': bookingId,
       });
 
-      // 4. Notify guest (confirmation alert)
-      await _client.from('notifications').insert({
-        'user_id': user.id,
-        'sender_id': booking.ownerId,
-        'title': 'भुक्तानी प्रमाण पेस भयो (Payment Proof Submitted! 💳)',
-        'message': '${booking.propertyTitle ?? "प्रोपर्टी"} को लागि भुक्तानीको प्रमाण सफलतापूर्वक पेस भएको छ। समीक्षा भइरहेको छ।',
-        'type': 'booking_alert',
-        'property_id': booking.propertyId,
-        'booking_id': bookingId,
-      });
-
     } catch (e) {
       debugPrint('Submit payment error: $e');
       rethrow;

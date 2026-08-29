@@ -891,7 +891,10 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
       case 'rejected':
         return _buildRejectedActions();
       case 'paid':
-        return _buildPaymentUnderReviewCard();
+        return _outlineBtn(
+          label: 'Browse More Properties',
+          onTap: () => Navigator.pop(context),
+        );
       case 'visit_completed':
       case 'confirmed':
         return Column(children: [
@@ -919,61 +922,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
     }
   }
 
-  // ── Payment Under Review Card ─────────────────────────────────────────────
 
-  Widget _buildPaymentUnderReviewCard() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFEF3C7),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFFDE68A)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.hourglass_top_rounded, color: Color(0xFFD97706), size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Payment Submitted',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF92400E),
-                  ),
-                ),
-                Text(
-                  'Under admin review • Verified soon',
-                  style: GoogleFonts.inter(
-                    fontSize: 11.5,
-                    color: const Color(0xFFB45309),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              'Submitted',
-              style: GoogleFonts.inter(
-                fontSize: 10.5,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFFD97706),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _reviewRow(IconData icon, String label, String value) {
     return Row(
