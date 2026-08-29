@@ -29,6 +29,7 @@ export const Payments = () => {
           status,
           payment_proof_url,
           payment_type,
+          rejection_reason,
           created_at,
           properties (title),
           guest:profiles!bookings_guest_id_fkey (full_name),
@@ -47,6 +48,7 @@ export const Payments = () => {
             total_price,
             status,
             payment_type,
+            rejection_reason,
             created_at,
             properties (title),
             guest:profiles!bookings_guest_id_fkey (full_name),
@@ -95,6 +97,7 @@ export const Payments = () => {
             amount: p.amount || bookingObj?.total_price || 0,
             payment_method: p.payment_method || bookingObj?.payment_type || 'esewa',
             proof_image_url: p.proof_image_url || bookingObj?.payment_proof_url,
+            reference_id: p.reference_id || null,
             status: resolvedStatus,
             created_at: p.created_at,
             bookings: bookingObj || null,
@@ -113,6 +116,7 @@ export const Payments = () => {
               amount: b.total_price || 0,
               payment_method: b.payment_type || 'esewa',
               proof_image_url: b.payment_proof_url,
+              reference_id: null,
               status:
                 b.status === 'paid' || b.status === 'awaiting_payment'
                   ? 'pending'
@@ -172,17 +176,24 @@ export const Payments = () => {
   };
 
   const handleReject = async (payment: any) => {
+    if (!rejectReason.trim()) {
+      alert('Please enter a rejection reason before rejecting. The user will see this.');
+      return;
+    }
     try {
       if (payment.id && !payment.id.toString().startsWith('b_')) {
         await supabase.from('payments').update({ status: 'rejected' }).eq('id', payment.id);
       }
-      await supabase.from('bookings').update({ status: 'rejected' }).eq('id', payment.booking_id);
+      await supabase.from('bookings').update({
+        status: 'rejected',
+        rejection_reason: rejectReason.trim(),
+      }).eq('id', payment.booking_id);
       await supabase.from('notifications').insert({
         user_id: payment.bookings?.guest_id,
         booking_id: payment.booking_id,
         property_id: payment.bookings?.property_id,
         title: 'Payment Rejected',
-        message: `Your payment for "${payment.bookings?.properties?.title || 'Property'}" was denied. ${rejectReason ? 'Reason: ' + rejectReason : ''}`,
+        message: `Your payment for "${payment.bookings?.properties?.title || 'Property'}" was denied. Reason: ${rejectReason}`,
         type: 'booking_rejected',
       });
       setSelectedPayment(null);
@@ -271,13 +282,26 @@ export const Payments = () => {
                     <div className="flex items-center gap-2">
                       <h4 className="text-[14px] font-semibold text-[#171717]">{p.bookings?.properties?.title || 'Direct Booking'}</h4>
                       {proofUrl && (
-                        <span className="text-[10px] font-semibold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full border border-blue-100 flex items-center gap-1">
-                          📷 Image Uploaded
+                        <span className="text-[10px] font-semibold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full border border-blue-100">
+                          📷 Receipt
+                        </span>
+                      )}
+                      {p.bookings?.rejection_reason && p.status === 'pending' && (
+                        <span className="text-[10px] font-semibold bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full border border-orange-200 flex items-center gap-1">
+                          🔁 Re-upload
                         </span>
                       )}
                     </div>
                     <div className="flex items-center gap-2.5 mt-1">
                       <span className="text-[11px] font-medium text-[#737373]">Guest: {p.bookings?.guest?.full_name || 'Guest User'}</span>
+                      <span className="w-1 h-1 rounded-full bg-[#E5E5E5]"></span>
+                      {p.reference_id ? (
+                        <span className="text-[11px] font-mono font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                          Ref: {p.reference_id}
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-rose-400 font-medium">No Ref Code</span>
+                      )}
                       <span className="w-1 h-1 rounded-full bg-[#E5E5E5]"></span>
                       <span className="text-[11px] text-[#A3A3A3]">{new Date(p.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>
                     </div>
@@ -375,6 +399,15 @@ export const Payments = () => {
                     <span className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest mb-2 block">Audit Context</span>
                     <h3 className="text-[20px] font-semibold text-[#171717] tracking-tight leading-tight mb-1">{selectedPayment.bookings?.properties?.title || 'Unknown Booking'}</h3>
                     <p className="text-[#737373] text-[13px]">Manual verification required</p>
+                    {selectedPayment.bookings?.rejection_reason && selectedPayment.status === 'pending' && (
+                      <div className="mt-3 px-3 py-2 bg-orange-50 border border-orange-200 rounded-lg flex items-start gap-2">
+                        <span className="text-orange-500 text-[14px] mt-0.5">🔁</span>
+                        <div>
+                          <p className="text-[11px] font-bold text-orange-700 uppercase tracking-wider">Re-uploaded Receipt</p>
+                          <p className="text-[11px] text-orange-600 mt-0.5">Previously rejected — Reason: <span className="font-semibold">{selectedPayment.bookings.rejection_reason}</span></p>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-4">
@@ -389,11 +422,17 @@ export const Payments = () => {
                     <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#E5E5E5]">
                       <div className="flex items-center gap-2 mb-1">
                         <QrCode size={14} strokeWidth={1.5} className="text-[#A3A3A3]" />
-                        <span className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest">Transaction Ref ID (Mandatory)</span>
+                        <span className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest">Transaction Ref / Code</span>
                       </div>
-                      <p className="text-[14px] font-mono font-bold text-emerald-600">
-                        {selectedPayment.reference_id || selectedPayment.referenceId || 'No Code Attached'}
-                      </p>
+                      {selectedPayment.reference_id ? (
+                        <p className="text-[16px] font-mono font-bold text-emerald-600">
+                          {selectedPayment.reference_id}
+                        </p>
+                      ) : (
+                        <p className="text-[13px] font-semibold text-rose-500 flex items-center gap-1">
+                          <span>⚠️</span> No reference code submitted
+                        </p>
+                      )}
                     </div>
 
                     <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#E5E5E5]">
@@ -452,11 +491,13 @@ export const Payments = () => {
 
                   {selectedPayment.status === 'pending' && (
                     <div className="mt-8">
-                      <label className="block text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest mb-2">Audit Notes (Optional)</label>
+                      <label className="block text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest mb-2">
+                        Rejection Reason <span className="text-rose-400">*</span> <span className="normal-case text-[#A3A3A3] font-normal">(Required to reject — user will see this)</span>
+                      </label>
                       <textarea 
                         value={rejectReason}
                         onChange={(e) => setRejectReason(e.target.value)}
-                        placeholder="e.g. Incomplete transfer, blurry capture..."
+                        placeholder="e.g. Wrong QR code, blurry screenshot, incorrect amount..."
                         className="w-full bg-[#FAFAFA] border border-[#E5E5E5] rounded-xl p-4 text-[13px] focus:outline-none focus:border-[#171717] transition-all resize-none h-24 placeholder:text-[#D4D4D4]"
                       />
                     </div>

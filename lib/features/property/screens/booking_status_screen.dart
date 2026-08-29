@@ -289,6 +289,9 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isPostPayment = _booking.status == 'paid' ||
+        _booking.status == 'confirmed' ||
+        _booking.status == 'visit_completed';
     return Scaffold(
       backgroundColor: _bg,
       appBar: _buildAppBar(),
@@ -302,11 +305,15 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
                 children: [
                   _buildHeroStatus(),
                   const SizedBox(height: 16),
-                  _buildJourneyTracker(),
-                  const SizedBox(height: 16),
+                  // Journey tracker only shown for active visit flow, not after payment
+                  if (!isPostPayment) _buildJourneyTracker(),
+                  if (!isPostPayment) const SizedBox(height: 16),
                   _buildPropertyCard(),
-                  const SizedBox(height: 16),
-                  _buildVisitDetails(),
+                  // Visit details only relevant before payment
+                  if (!isPostPayment) ...[
+                    const SizedBox(height: 16),
+                    _buildVisitDetails(),
+                  ],
                   if (_booking.status == 'visit_accepted' ||
                       _booking.status == 'awaiting_payment') ...[
                     const SizedBox(height: 16),
@@ -567,22 +574,34 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
   // ── JOURNEY TRACKER GRID ─────────────────────────────────────────────────
 
   Widget _buildJourneyTracker() {
+    // 3 real logical stages in the Khozna flow
     const steps = [
       _Step('Requested', Icons.send_rounded),
-      _Step('Approved', Icons.check_circle_outlined),
-      _Step('Confirmed', Icons.home_rounded),
+      _Step('Visit', Icons.door_front_door_outlined),
+      _Step('Payment', Icons.receipt_rounded),
     ];
-    int current = 0;
-    if (_booking.status == 'pending_approval') {
-      current = 0;
-    } else if (_booking.status == 'visit_accepted' ||
-        _booking.status == 'awaiting_payment') {
-      current = 1;
-    } else if (_booking.status == 'confirmed' || _booking.status == 'paid') {
-      current = 2;
+
+    int current;
+    switch (_booking.status) {
+      case 'pending_approval':
+        current = 0; // active: Requested
+        break;
+      case 'visit_accepted':
+        current = 1; // active: Visit
+        break;
+      case 'awaiting_payment':
+        current = 1; // still on Visit stage (visited, now paying)
+        break;
+      default:
+        current = 0;
     }
 
-    if (_booking.status == 'rejected' || _booking.status == 'cancelled') {
+    // Hide tracker for terminal / post-payment states
+    if (_booking.status == 'rejected' ||
+        _booking.status == 'cancelled' ||
+        _booking.status == 'paid' ||
+        _booking.status == 'confirmed' ||
+        _booking.status == 'visit_completed') {
       return const SizedBox.shrink();
     }
 
@@ -973,9 +992,10 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
         return _buildAwaitingPaymentActions();
       case 'rejected':
         return _buildRejectedActions();
+      case 'paid':
+        return _buildPaymentUnderReviewCard();
       case 'visit_completed':
       case 'confirmed':
-      case 'paid':
         return Column(children: [
           _primaryBtn(
             label: 'Leave a Review',
@@ -999,6 +1019,143 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
         }
         return const SizedBox.shrink();
     }
+  }
+
+  // ── Payment Under Review Card ─────────────────────────────────────────────
+
+  Widget _buildPaymentUnderReviewCard() {
+    final submittedAt = _booking.updatedAt;
+    final dateStr = DateFormat('MMM d, yyyy • h:mm a').format(submittedAt);
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: _card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header row
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0FDF4),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.receipt_long_rounded,
+                    color: Color(0xFF16A34A), size: 18),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Payment Submitted',
+                      style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: _ink),
+                    ),
+                    Text(
+                      'Waiting for admin verification',
+                      style: GoogleFonts.inter(
+                          fontSize: 11.5, color: _inkSub),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFF59E0B)),
+                ),
+                child: Text(
+                  'PENDING',
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFFD97706),
+                    letterSpacing: 0.6,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Divider
+          Container(height: 1, color: _border),
+          const SizedBox(height: 16),
+          // Detail rows
+          _reviewRow(Icons.calendar_today_outlined, 'Submitted', dateStr),
+          const SizedBox(height: 10),
+          _reviewRow(Icons.home_outlined, 'Property', _booking.propertyTitle ?? 'Property Listing'),
+          const SizedBox(height: 10),
+          _reviewRow(Icons.tag_rounded, 'Booking ID',
+              _booking.id.length > 8 ? _booking.id.substring(0, 8).toUpperCase() : _booking.id.toUpperCase()),
+          const SizedBox(height: 16),
+          // Note
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.info_outline_rounded,
+                    size: 14, color: Color(0xFF64748B)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Admin typically verifies within a few hours. You\'ll get notified.',
+                    style: GoogleFonts.inter(
+                        fontSize: 11.5,
+                        color: _inkSub,
+                        height: 1.4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          _outlineBtn(
+            label: 'Browse More Properties',
+            onTap: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _reviewRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: _inkSub),
+        const SizedBox(width: 8),
+        Text(label,
+            style: GoogleFonts.inter(fontSize: 12.5, color: _inkSub)),
+        const Spacer(),
+        Flexible(
+          child: Text(
+            value,
+            style: GoogleFonts.inter(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: _ink),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.right,
+          ),
+        ),
+      ],
+    );
   }
 
   // ── Pending Actions ───────────────────────────────────────────────────────
@@ -1407,14 +1564,14 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
         );
       case 'paid':
         return const _StatusConfig(
-          icon: Icons.payment_rounded,
+          icon: Icons.receipt_long_rounded,
           color: Color(0xFF16A34A),
-          bgColor: Color(0xFFDCFCE7),
-          borderColor: Color(0xFF22C55E),
-          badgeLabel: 'Payment Submitted',
-          title: 'Payment Under Review',
+          bgColor: Color(0xFFF0FDF4),
+          borderColor: Color(0xFFBBF7D0),
+          badgeLabel: 'Under Review',
+          title: 'Payment Submitted',
           subtitle:
-              'Your payment proof is being verified. You will receive confirmation shortly.',
+              'Your receipt has been received. Admin is verifying your payment.',
         );
       case 'confirmed':
         return const _StatusConfig(

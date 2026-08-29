@@ -285,43 +285,47 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     ];
 
     return Container(
-      height: 40,
+      height: 38,
       margin: const EdgeInsets.only(top: 4, bottom: 12),
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: filters.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final item = filters[index];
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: filters.map((item) {
           final key = item['key']!;
           final label = item['label']!;
           final isSelected = _selectedFilter == key;
 
-          return GestureDetector(
-            onTap: () => setState(() => _selectedFilter = key),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0),
-                  width: 1,
-                ),
-              ),
-              child: Text(
-                label,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                  color: isSelected ? Colors.white : const Color(0xFF475569),
+          return Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3),
+              child: GestureDetector(
+                onTap: () => setState(() => _selectedFilter = key),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  padding: const EdgeInsets.symmetric(vertical: 7),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    label,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                      color: isSelected ? Colors.white : const Color(0xFF475569),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
             ),
           );
-        },
+        }).toList(),
       ),
     );
   }
@@ -612,32 +616,31 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        RichText(
-                                          text: TextSpan(
-                                            children: [
-                                              TextSpan(
-                                                text: sender?['full_name'] != null
-                                                    ? '${sender!['full_name']} '
-                                                    : '',
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 13.5,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black,
-                                                  height: 1.3,
-                                                ),
-                                              ),
-                                              TextSpan(
-                                                text: note['message'] ?? note['title'] ?? '',
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 13.5,
-                                                  fontWeight: FontWeight.w400,
-                                                  color: Colors.black,
-                                                  height: 1.35,
-                                                ),
-                                              ),
-                                            ],
+                                        if (note['title'] != null &&
+                                            note['title'].toString().trim().isNotEmpty) ...[
+                                          Text(
+                                            note['title'].toString(),
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 13.5,
+                                              fontWeight: FontWeight.w600,
+                                              color: const Color(0xFF0F172A),
+                                              height: 1.3,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 2),
+                                        ],
+                                        Text(
+                                          note['message'] ?? '',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w400,
+                                            color: const Color(0xFF334155),
+                                            height: 1.35,
                                           ),
                                           maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
@@ -1224,39 +1227,51 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  if (sender != null) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => chat_page.ChatScreen(
-                          ownerId: sender['id']?.toString() ?? '',
-                          name: sender['full_name'] ?? 'Owner',
-                          avatar: sender['avatar_url'] ?? '',
-                          online: true,
+                onPressed: () async {
+                  final String bookingId = note['booking_id']?.toString() ?? '';
+                  if (bookingId.isNotEmpty) {
+                    final booking = await SupabaseService.getVisitById(bookingId);
+                    if (booking != null && mounted) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookingStatusScreen(
+                            booking: booking,
+                          ),
                         ),
-                      ),
-                    );
-                  } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const OwnerBookingsScreen(),
-                      ),
-                    );
+                      );
+                      return;
+                    }
                   }
+                  final propertyId = note['property_id'];
+                  if (propertyId != null) {
+                    final bookings = await SupabaseService.getMyVisits();
+                    final filtered = bookings.where((b) => b.propertyId == propertyId).toList();
+                    if (filtered.isNotEmpty && mounted) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookingStatusScreen(
+                            booking: filtered.first,
+                          ),
+                        ),
+                      );
+                      return;
+                    }
+                  }
+                  if (mounted) Navigator.pop(context);
                 },
-                icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+                icon: const Icon(Icons.arrow_forward_rounded, size: 18),
                 label: Text(
-                  'Message Owner',
+                  'View Visit Status',
                   style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w700,
                     fontSize: 13.5,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF1F5F9),
-                  foregroundColor: const Color(0xFF334155),
+                  backgroundColor: AppTheme.brandColor,
+                  foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
