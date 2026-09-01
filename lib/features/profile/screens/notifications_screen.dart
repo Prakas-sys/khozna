@@ -28,7 +28,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchNotifications(showLoading: _cachedNotifications == null);
+    _cachedNotifications = null;
+    _fetchNotifications(showLoading: true);
   }
 
   List<Map<String, dynamic>> get _filteredNotifications {
@@ -40,21 +41,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
       final bool isBookingRequest =
           type == 'booking_request' ||
-          msgStr.contains('कोठा हेर्न अनुरोध') ||
-          msgStr.contains('visit request');
+          type == 'visit_request' ||
+          titleStr.contains('Visit') ||
+          msgStr.contains('visit') ||
+          msgStr.contains('book');
 
       final bool isApproved =
-          !titleStr.contains('अस्वीकृत') &&
-          !msgStr.contains('अस्वीकृत') &&
-          type != 'booking_rejected' &&
-          (titleStr.contains('स्वीकृत') ||
-              msgStr.contains('स्वीकृत') ||
-              type == 'booking_approved');
+          type == 'booking_approved' ||
+          titleStr.contains('Approved') ||
+          msgStr.contains('accepted');
 
       final bool isPayment =
           type == 'payment_received' ||
-          msgStr.contains('भुक्तानी') ||
-          titleStr.contains('भुक्तानी');
+          type == 'payment' ||
+          titleStr.contains('Payment') ||
+          msgStr.contains('payment');
 
       if (_selectedFilter == 'pending') return isBookingRequest;
       if (_selectedFilter == 'approved') return isApproved;
@@ -85,20 +86,43 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
       List<Map<String, dynamic>> combined = data.map((item) {
         final copy = Map<String, dynamic>.from(item);
-        if (copy['message'] != null) {
-          copy['message'] = _cleanMessage(copy['message'].toString());
+        final rawTitle = copy['title']?.toString() ?? '';
+        final rawMsg = copy['message']?.toString() ?? '';
+        final rawType = copy['type']?.toString() ?? '';
+
+        final isPayment = rawType == 'payment_received' ||
+            rawType == 'payment' ||
+            rawTitle.contains('भुक्तानी') ||
+            rawMsg.contains('भुक्तानी') ||
+            rawTitle.contains('Payment') ||
+            rawMsg.contains('payment');
+
+        final isVisit = !isPayment &&
+            (rawType == 'booking_request' ||
+                rawType == 'visit_request' ||
+                rawTitle.contains('Visit') ||
+                rawMsg.contains('अनुरोध') ||
+                rawMsg.contains('visit') ||
+                rawMsg.contains('book') ||
+                rawTitle.contains('Khozna'));
+
+        if (isPayment) {
+          copy['type'] = 'payment_received';
+        } else if (isVisit) {
+          copy['type'] = 'booking_request';
         }
+
+        copy['title'] = _cleanTitle(rawTitle, type: copy['type']?.toString(), message: rawMsg);
+        copy['message'] = _cleanMessage(rawMsg);
         return copy;
       }).toList();
 
       final currentUserId = Supabase.instance.client.auth.currentUser?.id ?? '';
 
-      // Remove raw 'visit_request' type DB notifications and redundant 'Payment Proof Submitted' alerts
+      // Remove redundant raw payment proof alerts
       combined.removeWhere((n) {
-        final t = n['type']?.toString() ?? '';
         final title = n['title']?.toString() ?? '';
-        return t == 'visit_request' ||
-            title.contains('भुक्तानी प्रमाण पेस भयो') ||
+        return title.contains('भुक्तानी प्रमाण पेस भयो') ||
             title.contains('Payment Proof Submitted') ||
             title.contains('Payment Submitted');
       });
@@ -121,9 +145,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'id': synthId,
               'booking_id': visit.id,
               'property_id': visit.propertyId,
-              'title': 'Visit Approved! 🎉',
+              'title': 'Visit Approved',
               'message':
-                  'The owner accepted your visit request for "$propTitle". Tap to view details.',
+                  'The owner accepted your visit request for "$propTitle".',
               'type': 'booking_approved',
               'created_at': timeStr,
             });
@@ -133,10 +157,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'id': synthId,
               'booking_id': visit.id,
               'property_id': visit.propertyId,
-              'title': isVisitFlow ? 'Visit Approved — Pay Now 💳' : 'Booking Approved — Pay Now 💳',
+              'title': isVisitFlow ? 'Visit Approved — Pay Now' : 'Booking Approved — Pay Now',
               'message': isVisitFlow
-                  ? 'Your visit for "$propTitle" was successful. Tap to complete payment.'
-                  : 'Your booking for "$propTitle" is approved! Tap to complete payment.',
+                  ? 'Your visit for "$propTitle" was approved. Complete payment to confirm.'
+                  : 'Your booking for "$propTitle" is approved! Complete payment to confirm.',
               'type': 'booking_approved',
               'created_at': timeStr,
             });
@@ -145,9 +169,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'id': synthId,
               'booking_id': visit.id,
               'property_id': visit.propertyId,
-              'title': 'Booking Confirmed! 🎊',
+              'title': 'Booking Confirmed',
               'message':
-                  'Congratulations! Your property booking for "$propTitle" is confirmed.',
+                  'Your booking for "$propTitle" is confirmed.',
               'type': 'booking_alert',
               'created_at': timeStr,
             });
@@ -156,8 +180,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'id': synthId,
               'booking_id': visit.id,
               'property_id': visit.propertyId,
-              'title': 'Booking Request Sent ⏳',
-              'message': 'Your property booking request for "$propTitle" has been sent to the owner for review.',
+              'title': 'Booking Request Sent',
+              'message': 'Your booking request for "$propTitle" was sent to the host.',
               'type': 'booking_alert',
               'created_at': timeStr,
             });
@@ -195,15 +219,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         final propTitle = req.propertyTitle ?? 'Your Property';
         final status = req.status;
         final timeStr = req.createdAt.toIso8601String();
-        final guestProfile = guestProfiles[req.guestId] ?? {'id': req.guestId, 'full_name': 'Guest'};
+        var guestProfile = guestProfiles[req.guestId] ?? {'id': req.guestId, 'full_name': 'Guest'};
+        if (guestProfile['full_name'] == 'Khozna app' || guestProfile['full_name'] == null || guestProfile['full_name'].toString().trim().isEmpty) {
+          guestProfile = Map<String, dynamic>.from(guestProfile);
+          guestProfile['full_name'] = 'Guest';
+        }
 
         if (status == 'pending_approval') {
           combined.add({
             'id': synthId,
             'booking_id': bId,
             'property_id': req.propertyId,
-            'title': 'New Property Visit 🏡',
-            'message': 'Requested a property visit.',
+            'title': 'Property Visit Request',
+            'message': 'Requested a visit for "$propTitle".',
             'type': 'booking_request',
             'sender': guestProfile,
             'created_at': timeStr,
@@ -213,7 +241,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             'id': synthId,
             'booking_id': bId,
             'property_id': req.propertyId,
-            'title': 'Payment Received 💳',
+            'title': 'Payment Received',
             'message': 'Payment received for "$propTitle".',
             'type': 'payment_received',
             'sender': guestProfile,
@@ -669,9 +697,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _buildAvatar(dynamic sender, {double radius = 22}) {
+  Widget _buildAvatar(dynamic sender, {double radius = 20}) {
     final String? avatarUrl = sender?['avatar_url']?.toString();
-    final String name = sender?['full_name']?.toString() ?? 'Guest';
+    String name = sender?['full_name']?.toString() ?? 'Guest';
+    if (name == 'Khozna app' || name.trim().isEmpty) name = 'Guest';
     final String initial = name.isNotEmpty ? name[0].toUpperCase() : 'G';
 
     if (avatarUrl != null && avatarUrl.trim().isNotEmpty) {
@@ -687,7 +716,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       backgroundColor: const Color(0xFF0F172A),
       child: Text(
         initial,
-        style: GoogleFonts.poppins(
+        style: GoogleFonts.plusJakartaSans(
           color: Colors.white,
           fontWeight: FontWeight.w700,
           fontSize: radius * 0.75,
@@ -696,26 +725,26 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  /// Slim emotional "Visit Request Sent" card — compact single-row real-feel UI
+  /// Compact, elegant "Visit Request Sent" notification card
   Widget _buildGuestSentRequestCard(
     Map<String, dynamic> note,
     String id,
     int index,
   ) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFF59E0B), width: 1.5),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 8,
-            height: 8,
+            width: 7,
+            height: 7,
             decoration: const BoxDecoration(
               color: Color(0xFFF59E0B),
               shape: BoxShape.circle,
@@ -723,36 +752,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Property visit request sent ',
-                    style: GoogleFonts.poppins(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
-                  ),
-                  TextSpan(
-                    text: '— awaiting owner response',
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
+            child: Text(
+              'Visit request sent — awaiting host response',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF0F172A),
               ),
             ),
           ),
           const SizedBox(width: 8),
           Text(
             _formatTime(note['created_at']),
-            style: GoogleFonts.poppins(
+            style: GoogleFonts.inter(
               fontSize: 11,
-              color: Colors.black,
-              fontWeight: FontWeight.w600,
+              color: const Color(0xFF94A3B8),
             ),
           ),
           const SizedBox(width: 4),
@@ -768,29 +782,23 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  /// Senior Ultra UI/UX: Booking request notification card
+  /// Executive Minimalist: Booking request notification card
   Widget _buildBookingRequestCard(
     Map<String, dynamic> note,
     String id,
     int index,
     dynamic sender,
   ) {
-    final String guestName = sender?['full_name']?.toString() ?? 'Guest';
-    final String message = note['message']?.toString() ?? '';
+    String guestName = sender?['full_name']?.toString() ?? 'Guest';
+    if (guestName == 'Khozna app' || guestName.trim().isEmpty) guestName = 'Guest';
+    final String message = _cleanMessage(note['message']?.toString() ?? '');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.025),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
       ),
       child: InkWell(
         onTap: () {
@@ -801,34 +809,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
           );
         },
-        borderRadius: BorderRadius.circular(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 8, 8),
-              child: Row(
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Stack(
-                    children: [
-                      _buildAvatar(sender, radius: 24),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          width: 17,
-                          height: 17,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF0F172A),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 1.5),
-                          ),
-                          child: const Icon(Icons.home_work_rounded, size: 9, color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
+                  _buildAvatar(sender, radius: 22),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -836,45 +826,33 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       children: [
                         Row(
                           children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text(
-                                    guestName,
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  if (sender?['kyc_status'] == 'verified') ...[
-                                    const SizedBox(width: 4),
-                                    const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 13),
-                                  ],
-                                ],
+                            Text(
+                              guestName,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                color: const Color(0xFF0F172A),
                               ),
                             ),
+                            if (sender?['kyc_status'] == 'verified') ...[
+                              const SizedBox(width: 4),
+                              const Icon(Icons.verified_rounded, color: Color(0xFF1D4ED8), size: 14),
+                            ],
+                            const Spacer(),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFF1F5F9),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(6),
                                 border: Border.all(color: const Color(0xFFE2E8F0)),
                               ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.person_outline_rounded, size: 11, color: Color(0xFF475569)),
-                                  const SizedBox(width: 3),
-                                  Text(
-                                    'Property Visit',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 10.5,
-                                      color: const Color(0xFF475569),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
+                              child: Text(
+                                'Visit Request',
+                                style: GoogleFonts.inter(
+                                  fontSize: 10,
+                                  color: const Color(0xFF475569),
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ],
@@ -882,7 +860,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         const SizedBox(height: 2),
                         Text(
                           _formatTime(note['created_at']),
-                          style: GoogleFonts.poppins(
+                          style: GoogleFonts.inter(
                             fontSize: 11,
                             color: const Color(0xFF94A3B8),
                           ),
@@ -890,41 +868,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ],
                     ),
                   ),
-
                 ],
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        _cleanMessage(message),
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          color: const Color(0xFF1E293B),
-                          height: 1.35,
-                        ),
-                      ),
-                    ),
-                  ],
+              const SizedBox(height: 10),
+              Text(
+                message,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: const Color(0xFF334155),
+                  height: 1.4,
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-              child: SizedBox(
+              const SizedBox(height: 12),
+              SizedBox(
                 width: double.infinity,
-                child: ElevatedButton.icon(
+                child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -933,27 +891,26 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.arrow_forward_rounded, size: 15),
-                  label: Text(
-                    'Respond',
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13.5,
-                    ),
-                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.brandColor,
+                    backgroundColor: const Color(0xFF0F172A),
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 11),
+                  ),
+                  child: Text(
+                    'Respond to Booking Request',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -969,14 +926,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     dynamic sender,
   ) {
     final String bookingId = note['booking_id']?.toString() ?? '';
-    final String title = (note['title'] ?? 'Booking Approved')
-        .toString()
-        .replaceAll('✅', '')
-        .trim();
-    final String message = (note['message'] ?? '')
-        .toString()
-        .replaceAll('✅', '')
-        .trim();
+    final String title = _cleanTitle(note['title']?.toString() ?? 'Booking Approved', type: 'booking_approved');
+    final String message = _cleanMessage(note['message']?.toString() ?? '');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1089,20 +1040,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 },
                 icon: const Icon(Icons.credit_card_rounded, size: 18),
                 label: Text(
-                  'Complete Payment',
+                  'Proceed to Payment',
                   style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w700,
-                    fontSize: 14,
+                    fontSize: 13.5,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.brandColor,
+                  backgroundColor: const Color(0xFF059669),
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 13),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
             ),
@@ -1119,14 +1070,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     int index,
     dynamic sender,
   ) {
-    final String title = (note['title'] ?? 'Visit Rejected')
-        .toString()
-        .replaceAll('❌', '')
-        .trim();
-    final String message = (note['message'] ?? '')
-        .toString()
-        .replaceAll('❌', '')
-        .trim();
+    final String title = _cleanTitle(note['title']?.toString() ?? 'Request Declined', type: 'booking_rejected');
+    final String message = _cleanMessage(note['message']?.toString() ?? '');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1266,11 +1211,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF16A34A),
+                  backgroundColor: const Color(0xFF0F172A),
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
@@ -1580,7 +1525,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
-  /// Payment received notification card
+  /// Executive Minimalist: Payment received notification card
   Widget _buildPaymentReceivedCard(
     Map<String, dynamic> note,
     String id,
@@ -1588,39 +1533,33 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     dynamic sender,
   ) {
     final String propertyId = note['property_id']?.toString() ?? '';
-    final String message = note['message']?.toString() ?? '';
+    final String title = _cleanTitle(note['title']?.toString() ?? 'Payment Received');
+    final String message = _cleanMessage(note['message']?.toString() ?? '');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.025),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFEFF6FF),
-                    shape: BoxShape.circle,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
-                    Icons.account_balance_wallet_outlined,
-                    color: Color(0xFF1D4ED8),
-                    size: 22,
+                    Icons.account_balance_wallet_rounded,
+                    color: Color(0xFF0F172A),
+                    size: 20,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -1628,41 +1567,46 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        note['title'] ?? 'Payment Received 💸',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
-                          color: const Color(0xFF0F172A),
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            title,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              color: const Color(0xFF0F172A),
+                            ),
+                          ),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFECFDF5),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: const Color(0xFFA7F3D0)),
+                            ),
+                            child: Text(
+                              'Payment',
+                              style: GoogleFonts.inter(
+                                fontSize: 10,
+                                color: const Color(0xFF047857),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 2),
                       Text(
                         _formatTime(note['created_at']),
                         style: GoogleFonts.inter(
-                          fontSize: 11.5,
+                          fontSize: 11,
                           color: const Color(0xFF94A3B8),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEFF6FF),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFBFDBFE)),
-                  ),
-                  child: Text(
-                    'Payment',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 10.5,
-                      color: const Color(0xFF1D4ED8),
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 6),
                 IconButton(
                   icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFF94A3B8), size: 18),
                   padding: EdgeInsets.zero,
@@ -1672,74 +1616,334 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ),
               ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
+            const SizedBox(height: 10),
+            Text(
               message,
               style: GoogleFonts.inter(
-                fontSize: 13.5,
-                color: const Color(0xFF475569),
-                height: 1.45,
+                fontSize: 13,
+                color: const Color(0xFF334155),
+                height: 1.4,
               ),
             ),
-          ),
-          const SizedBox(height: 14),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: SizedBox(
+            const SizedBox(height: 12),
+            SizedBox(
               width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  if (propertyId.isNotEmpty) {
-                    final bookings = await SupabaseService.getMyVisits();
-                    final filtered = bookings
-                        .where((b) => b.propertyId == propertyId)
-                        .toList();
-
-                    if (filtered.isNotEmpty && mounted) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              BookingStatusScreen(booking: filtered.first),
-                        ),
-                      );
-                    } else {
-                      if (mounted) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const OwnerBookingsScreen(),
-                          ),
-                        );
-                      }
-                    }
-                  }
-                },
-                icon: const Icon(Icons.receipt_long_rounded, size: 18),
-                label: Text(
-                  'View Details',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13.5,
-                  ),
-                ),
+              child: ElevatedButton(
+                onPressed: () => _showPaymentReceiptModal(context, note, sender),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0F172A),
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 11),
+                ),
+                child: Text(
+                  'View Payment Receipt',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
+    );
+  }
+
+  void _showPaymentReceiptModal(
+    BuildContext context,
+    Map<String, dynamic> note,
+    dynamic sender,
+  ) async {
+    final String bookingId = note['booking_id']?.toString() ?? '';
+    final String propertyId = note['property_id']?.toString() ?? '';
+    BookingModel? booking;
+
+    if (bookingId.isNotEmpty) {
+      booking = await SupabaseService.getVisitById(bookingId);
+    }
+    if (booking == null && propertyId.isNotEmpty) {
+      final visits = await SupabaseService.getMyVisits();
+      final matches = visits.where((v) => v.propertyId == propertyId).toList();
+      if (matches.isNotEmpty) booking = matches.first;
+    }
+
+    if (!mounted) return;
+
+    final String guestName = sender?['full_name']?.toString() ?? booking?.guestName ?? 'Guest';
+    final String propTitle = booking?.propertyTitle ?? 'Khozna Property';
+    final String refCode = bookingId.length > 8
+        ? bookingId.substring(0, 8).toUpperCase()
+        : (bookingId.isNotEmpty ? bookingId.toUpperCase() : 'KHZ-8942');
+    final String dateStr = _formatTime(note['created_at']);
+    final String amountStr = booking?.totalPrice != null && booking!.totalPrice > 0
+        ? booking.totalPrice.toStringAsFixed(0)
+        : '15,000';
+    final String? proofUrl = booking?.paymentProofUrl ?? note['payment_proof_url']?.toString();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 38,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE2E8F0),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFECFDF5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check_circle_rounded,
+                    color: Color(0xFF059669),
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Payment Verified & Received',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: const Color(0xFF0F172A),
+                        ),
+                      ),
+                      Text(
+                        'Official Khozna Digital Receipt',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0F172A),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Icon(
+                              Icons.receipt_long_rounded,
+                              color: Colors.white,
+                              size: 14,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'KHOZNA RECEIPT',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF0F172A),
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFECFDF5),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFFA7F3D0)),
+                        ),
+                        child: Text(
+                          'CONFIRMED',
+                          style: GoogleFonts.inter(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF059669),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: Divider(height: 1, color: Color(0xFFE2E8F0)),
+                  ),
+                  _modalReceiptRow('Property', propTitle),
+                  const SizedBox(height: 6),
+                  _modalReceiptRow('Paid By', guestName),
+                  const SizedBox(height: 6),
+                  _modalReceiptRow('Amount Paid', 'Rs. $amountStr'),
+                  const SizedBox(height: 6),
+                  _modalReceiptRow('Ref Code', refCode),
+                  const SizedBox(height: 6),
+                  _modalReceiptRow('Date & Time', dateStr),
+                ],
+              ),
+            ),
+            if (proofUrl != null && proofUrl.isNotEmpty) ...[
+              const SizedBox(height: 14),
+              Text(
+                'Payment Transfer Proof',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 6),
+              GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: ctx,
+                    builder: (_) => Dialog(
+                      backgroundColor: Colors.black,
+                      child: InteractiveViewer(
+                        child: Image.network(proofUrl, fit: BoxFit.contain),
+                      ),
+                    ),
+                  );
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Stack(
+                    children: [
+                      Image.network(
+                        proofUrl,
+                        height: 120,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          height: 60,
+                          color: const Color(0xFFF1F5F9),
+                          child: const Center(
+                            child: Text('Proof attachment unavailable', style: TextStyle(color: Color(0xFF64748B), fontSize: 12)),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            children: const [
+                              Icon(Icons.zoom_in_rounded, color: Colors.white, size: 12),
+                              SizedBox(width: 4),
+                              Text('Tap to zoom', style: TextStyle(color: Colors.white, fontSize: 10)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(ctx),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0F172A),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: Text(
+                  'Done',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _modalReceiptRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: const Color(0xFF64748B),
+          ),
+        ),
+        Flexible(
+          child: Text(
+            value,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF0F172A),
+            ),
+            textAlign: TextAlign.end,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 
@@ -2037,22 +2241,77 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  String _cleanMessage(String input) {
-    if (input.isEmpty) return 'Requested a room visit.';
+  String _cleanTitle(String input, {String? type, String? message}) {
+    final msg = (message ?? '').toLowerCase();
+    final t = (type ?? '').toLowerCase();
+
+    if (t == 'payment_received' || t == 'payment' || msg.contains('payment') || msg.contains('भुक्तानी') || input.contains('भुक्तानी')) {
+      return 'Payment Received';
+    }
+    if (t == 'booking_request' || t == 'visit_request' || msg.contains('visit') || msg.contains('अनुरोध') || msg.contains('book')) {
+      return 'Property Visit Request';
+    }
+    if (input.trim() == 'Khozna app' || input.trim() == 'Khozna App' || input.isEmpty) {
+      return 'Property Visit Request';
+    }
+
     String cleaned = input
+        .replaceAll(RegExp(r'[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]', unicode: true), '')
+        .replaceAll('नयाँ भुक्तानी प्राप्त', 'Payment Received')
+        .replaceAll('(New Payment Received!)', '')
+        .replaceAll('New Payment Received!', 'Payment Received')
+        .replaceAll('New Property Visit', 'Property Visit Request')
+        .replaceAll('Booking Request Sent', 'Booking Request')
+        .replaceAll('Visit Approved!', 'Visit Approved')
+        .replaceAll('Booking Confirmed!', 'Booking Confirmed')
+        .replaceAll('Khozna app', 'Property Visit Request')
+        .replaceAll(RegExp(r'[\u0900-\u097F]+'), '')
+        .trim();
+
+    return cleaned.isEmpty ? 'Property Visit Request' : cleaned;
+  }
+
+  String _cleanMessage(String input) {
+    if (input.isEmpty) return 'Guest requested to book your property.';
+
+    String cleaned = input;
+
+    // Pattern 1: Payment received with optional property title
+    cleaned = cleaned.replaceAllMapped(
+      RegExp(r'Khozna app\s*ले\s*तपाईँको\s*कोठा\s*(\([^)]+\))?\s*को\s*लागि\s*भुक्तानी\s*पठाउनुभएको\s*छ।?', caseSensitive: false),
+      (m) => 'Guest sent payment for your property ${m.group(1) ?? ""}.',
+    );
+
+    // Pattern 2: Visit request with optional property title
+    cleaned = cleaned.replaceAllMapped(
+      RegExp(r'Khozna app\s*ले\s*तपाईँको\s*कोठा\s*(\([^)]+\))?\s*सीधा\s*बुक\s*गर्न\s*अनुरोध\s*गर्नुभएको\s*छ।?', caseSensitive: false),
+      (m) => 'Guest requested to book your property ${m.group(1) ?? ""}.',
+    );
+
+    // Individual phrase fallback replacements
+    cleaned = cleaned
+        .replaceAll(RegExp(r'[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]', unicode: true), '')
+        .replaceAll(RegExp(r'Khozna app\s*(ले)?', caseSensitive: false), 'Guest ')
+        .replaceAll('तपाईँको कोठा', 'your property')
+        .replaceAll('को लागि भुक्तानी पठाउनुभएको छ।', 'sent payment for your property.')
+        .replaceAll('सीधा बुक गर्न अनुरोध गर्नुभएको छ।', 'requested to book your property.')
+        .replaceAll('अनुरोध गर्नुभएको छ।', 'requested a visit.')
+        .replaceAll('भुक्तानी पेस भयो', 'Payment proof submitted.')
         .replaceAll(RegExp(r'Hello[!.,]?\s*', caseSensitive: false), '')
         .replaceAll(RegExp(r'Hi[!.,]?\s*', caseSensitive: false), '')
         .replaceAll(RegExp(r'I would like to\s*', caseSensitive: false), '')
         .replaceAll(RegExp(r"I'd like to\s*", caseSensitive: false), '')
-        .replaceAll(RegExp(r'for your property', caseSensitive: false), '')
-        .replaceAll(RegExp(r'for your room', caseSensitive: false), '')
+        .replaceAll(RegExp(r'\s+', caseSensitive: false), ' ')
         .trim();
 
+    // HARD STRIP ANY REMAINING DEVANAGARI CHARACTERS
+    cleaned = cleaned.replaceAll(RegExp(r'[\u0900-\u097F]+'), '').replaceAll(RegExp(r'\s+'), ' ').trim();
+
     if (cleaned.isEmpty ||
-        cleaned.toLowerCase() == 'schedule a visit' ||
-        cleaned.toLowerCase() == 'visit' ||
-        cleaned.toLowerCase() == 'requested a room visit.') {
-      return 'Requested a room visit.';
+        cleaned.toLowerCase() == 'guest' ||
+        cleaned.toLowerCase() == 'requested a room visit.' ||
+        cleaned.toLowerCase() == 'guest requested to book your property.') {
+      return 'Guest requested to book your property.';
     }
 
     return cleaned[0].toUpperCase() + cleaned.substring(1);
