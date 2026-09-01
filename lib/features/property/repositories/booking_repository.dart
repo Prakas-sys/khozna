@@ -409,8 +409,8 @@ class BookingRepository {
       await _client.from('notifications').insert({
         'user_id': booking.ownerId,
         'sender_id': user.id,
-        'title': 'नयाँ भुक्तानी प्राप्त (New Payment Received! 💸)',
-        'message': '$guestName ले तपाइँको कोठा (${booking.propertyTitle ?? "Property"}) को लागी भुक्तानी पठाउनुभएको छ।',
+        'title': 'New Payment Received 💸',
+        'message': '$guestName sent payment for your property (${booking.propertyTitle ?? "Property"}) via Khozna Escrow.',
         'type': 'payment_received',
         'property_id': booking.propertyId,
         'booking_id': bookingId,

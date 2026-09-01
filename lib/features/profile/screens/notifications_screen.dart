@@ -1204,14 +1204,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 },
                 icon: const Icon(Icons.upload_file_rounded, size: 18),
                 label: Text(
-                  'Re-upload Payment Receipt',
+                  'Dismiss Alert',
                   style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w700,
                     fontSize: 13.5,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F172A),
+                  backgroundColor: const Color(0xFF475569),
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -1674,7 +1674,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     if (!mounted) return;
 
-    final String guestName = sender?['full_name']?.toString() ?? booking?.guestName ?? 'Guest';
+    final String rawGuestName = sender?['full_name']?.toString() ?? '';
+    final String guestName = (rawGuestName.isEmpty || rawGuestName.toLowerCase().contains('khozna'))
+        ? 'Guest (Verified Payer)'
+        : rawGuestName;
     final String propTitle = booking?.propertyTitle ?? 'Khozna Property';
     final String refCode = bookingId.length > 8
         ? bookingId.substring(0, 8).toUpperCase()
@@ -1690,231 +1693,333 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(ctx).size.height * 0.85,
+        ),
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 38,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE2E8F0),
-                  borderRadius: BorderRadius.circular(2),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 38,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE2E8F0),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFECFDF5),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.check_circle_rounded,
-                    color: Color(0xFF059669),
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Payment Verified & Received',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                          color: const Color(0xFF0F172A),
-                        ),
-                      ),
-                      Text(
-                        'Official Khozna Digital Receipt',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: const Color(0xFF64748B),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
-                  onPressed: () => Navigator.pop(ctx),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 16),
+              Row(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF0F172A),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: const Icon(
-                              Icons.receipt_long_rounded,
-                              color: Colors.white,
-                              size: 14,
-                            ),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFEFF6FF),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.shield_outlined,
+                      color: Color(0xFF1D4ED8),
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Payment Received (Khozna Escrow)',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                            color: const Color(0xFF0F172A),
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'KHOZNA RECEIPT',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w800,
-                              color: const Color(0xFF0F172A),
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFECFDF5),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: const Color(0xFFA7F3D0)),
                         ),
-                        child: Text(
-                          'CONFIRMED',
+                        Text(
+                          'Official Khozna Escrow Receipt',
                           style: GoogleFonts.inter(
-                            fontSize: 9.5,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF059669),
+                            fontSize: 12,
+                            color: const Color(0xFF64748B),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    child: Divider(height: 1, color: Color(0xFFE2E8F0)),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                    onPressed: () => Navigator.pop(ctx),
                   ),
-                  _modalReceiptRow('Property', propTitle),
-                  const SizedBox(height: 6),
-                  _modalReceiptRow('Paid By', guestName),
-                  const SizedBox(height: 6),
-                  _modalReceiptRow('Amount Paid', 'Rs. $amountStr'),
-                  const SizedBox(height: 6),
-                  _modalReceiptRow('Ref Code', refCode),
-                  const SizedBox(height: 6),
-                  _modalReceiptRow('Date & Time', dateStr),
                 ],
               ),
-            ),
-            if (proofUrl != null && proofUrl.isNotEmpty) ...[
-              const SizedBox(height: 14),
-              Text(
-                'Payment Transfer Proof',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF0F172A),
+              const SizedBox(height: 16),
+
+              // -- Clear Landlord Escrow Notice Banner --
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0FDF4),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFBBF7D0)),
                 ),
-              ),
-              const SizedBox(height: 6),
-              GestureDetector(
-                onTap: () {
-                  showDialog(
-                    context: ctx,
-                    builder: (_) => Dialog(
-                      backgroundColor: Colors.black,
-                      child: InteractiveViewer(
-                        child: Image.network(proofUrl, fit: BoxFit.contain),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.check_circle_rounded, color: Color(0xFF16A34A), size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Money Deposited in Khozna Escrow',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13.5,
+                              color: const Color(0xFF15803D),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'The guest paid Rs. $amountStr via Khozna App into the official Khozna Escrow Account. Your money is 100% secured and will be disbursed directly to your wallet/bank account after guest check-in.',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: const Color(0xFF166534),
+                        height: 1.45,
                       ),
                     ),
-                  );
-                },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Stack(
-                    children: [
-                      Image.network(
-                        proofUrl,
-                        height: 120,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          height: 60,
-                          color: const Color(0xFFF1F5F9),
-                          child: const Center(
-                            child: Text('Proof attachment unavailable', style: TextStyle(color: Color(0xFF64748B), fontSize: 12)),
-                          ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // -- Responsive Stepper indicator for Escrow Process --
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(child: _buildEscrowStep('1. Guest Paid', Icons.check_circle_rounded, Colors.green)),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 2),
+                      child: Icon(Icons.arrow_forward_ios_rounded, size: 9, color: Color(0xFF94A3B8)),
+                    ),
+                    Expanded(child: _buildEscrowStep('2. In Escrow', Icons.shield_rounded, const Color(0xFF1D4ED8))),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 2),
+                      child: Icon(Icons.arrow_forward_ios_rounded, size: 9, color: Color(0xFF94A3B8)),
+                    ),
+                    Expanded(child: _buildEscrowStep('3. Owner Payout', Icons.account_balance_wallet_outlined, const Color(0xFF64748B))),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // -- Receipt details --
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF0F172A),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Icon(
+                                Icons.receipt_long_rounded,
+                                color: Colors.white,
+                                size: 14,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'RECEIPT DETAILS',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xFF0F172A),
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      Positioned(
-                        bottom: 8,
-                        right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.7),
+                            color: const Color(0xFFEFF6FF),
                             borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFFBFDBFE)),
                           ),
-                          child: Row(
-                            children: const [
-                              Icon(Icons.zoom_in_rounded, color: Colors.white, size: 12),
-                              SizedBox(width: 4),
-                              Text('Tap to zoom', style: TextStyle(color: Colors.white, fontSize: 10)),
-                            ],
+                          child: Text(
+                            'KHOZNA ESCROW',
+                            style: GoogleFonts.inter(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF1D4ED8),
+                            ),
                           ),
                         ),
+                      ],
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: Divider(height: 1, color: Color(0xFFE2E8F0)),
+                    ),
+                    _modalReceiptRow('Property', propTitle),
+                    const SizedBox(height: 6),
+                    _modalReceiptRow('Paid By', guestName),
+                    const SizedBox(height: 6),
+                    _modalReceiptRow('Total Amount', 'Rs. $amountStr'),
+                    const SizedBox(height: 6),
+                    _modalReceiptRow('Destination Account', 'Khozna Escrow Account'),
+                    const SizedBox(height: 6),
+                    _modalReceiptRow('Ref Code', refCode),
+                    const SizedBox(height: 6),
+                    _modalReceiptRow('Date & Time', dateStr),
+                  ],
+                ),
+              ),
+
+              if (proofUrl != null && proofUrl.isNotEmpty) ...[
+                const SizedBox(height: 14),
+                Text(
+                  'Payment Transfer Proof',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: ctx,
+                      builder: (_) => Dialog(
+                        backgroundColor: Colors.black,
+                        child: InteractiveViewer(
+                          child: Image.network(proofUrl, fit: BoxFit.contain),
+                        ),
                       ),
-                    ],
+                    );
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Stack(
+                      children: [
+                        Image.network(
+                          proofUrl,
+                          height: 120,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            height: 60,
+                            color: const Color(0xFFF1F5F9),
+                            child: const Center(
+                              child: Text('Proof attachment unavailable', style: TextStyle(color: Color(0xFF64748B), fontSize: 12)),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 8,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.7),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              children: const [
+                                Icon(Icons.zoom_in_rounded, color: Colors.white, size: 12),
+                                SizedBox(width: 4),
+                                Text('Tap to zoom', style: TextStyle(color: Colors.white, fontSize: 10)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0F172A),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                  ),
+                  child: Text(
+                    'Got It',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
               ),
             ],
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(ctx),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F172A),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-                child: Text(
-                  'Done',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildEscrowStep(String title, IconData icon, Color color) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.center,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: color),
+          const SizedBox(width: 3),
+          Text(
+            title,
+            style: GoogleFonts.inter(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -2292,6 +2397,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     cleaned = cleaned
         .replaceAll(RegExp(r'[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]', unicode: true), '')
         .replaceAll(RegExp(r'Khozna app\s*(ले)?', caseSensitive: false), 'Guest ')
+        .replaceAll(RegExp(r'Khozna\s*app', caseSensitive: false), 'Guest')
         .replaceAll('तपाईँको कोठा', 'your property')
         .replaceAll('को लागि भुक्तानी पठाउनुभएको छ।', 'sent payment for your property.')
         .replaceAll('सीधा बुक गर्न अनुरोध गर्नुभएको छ।', 'requested to book your property.')
