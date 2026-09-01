@@ -11,8 +11,9 @@ import 'package:khozna/core/models/user_model.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'dart:ui' as ui;
-import 'package:flutter/rendering.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -1778,16 +1779,262 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF64748B))),
-        Text(value, style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
+        Flexible(
+          child: Text(
+            value,
+            style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A)),
+            textAlign: TextAlign.right,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
     );
   }
 
+  /// Builds a real bank-style PDF receipt document.
+  Future<pw.Document> _generateReceiptPdf({
+    required String propertyName,
+    required String amountStr,
+    required String refCode,
+    required String dateStr,
+    required String bookingId,
+    required String paymentMethod,
+  }) async {
+    final pdf = pw.Document();
+
+    // Brand colours (CMYK-safe)
+    const brandBlue = PdfColor.fromInt(0xFF1D4ED8);
+    const ink = PdfColor.fromInt(0xFF0F172A);
+    const inkSub = PdfColor.fromInt(0xFF64748B);
+    const green = PdfColor.fromInt(0xFF15803D);
+    const greenBg = PdfColor.fromInt(0xFFDCFCE7);
+    const border = PdfColor.fromInt(0xFFE2E8F0);
+    const bgLight = PdfColor.fromInt(0xFFF8FAFC);
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(0),
+        build: (pw.Context ctx) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+            children: [
+
+              // ── Header band ──────────────────────────────────────────────
+              pw.Container(
+                color: const PdfColor.fromInt(0xFF0F172A),
+                padding: const pw.EdgeInsets.symmetric(horizontal: 48, vertical: 36),
+                child: pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text(
+                          'KHOZNA',
+                          style: pw.TextStyle(
+                            fontSize: 28,
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColors.white,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        pw.SizedBox(height: 4),
+                        pw.Text(
+                          'Property Rental Platform',
+                          style: pw.TextStyle(fontSize: 11, color: const PdfColor.fromInt(0xFF94A3B8)),
+                        ),
+                      ],
+                    ),
+                    pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.end,
+                      children: [
+                        pw.Text(
+                          'PAYMENT RECEIPT',
+                          style: pw.TextStyle(
+                            fontSize: 13,
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColors.white,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                        pw.SizedBox(height: 6),
+                        pw.Container(
+                          padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: pw.BoxDecoration(
+                            color: greenBg,
+                            borderRadius: pw.BorderRadius.circular(4),
+                          ),
+                          child: pw.Text(
+                            'UNDER ADMIN REVIEW',
+                            style: pw.TextStyle(
+                              fontSize: 9,
+                              fontWeight: pw.FontWeight.bold,
+                              color: green,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // ── Body ─────────────────────────────────────────────────────
+              pw.Expanded(
+                child: pw.Container(
+                  color: bgLight,
+                  padding: const pw.EdgeInsets.fromLTRB(48, 40, 48, 40),
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+                    children: [
+
+                      // Amount block
+                      pw.Container(
+                        padding: const pw.EdgeInsets.all(24),
+                        decoration: pw.BoxDecoration(
+                          color: PdfColors.white,
+                          borderRadius: pw.BorderRadius.circular(12),
+                          border: pw.Border.all(color: border),
+                        ),
+                        child: pw.Row(
+                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                          children: [
+                            pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.start,
+                              children: [
+                                pw.Text('AMOUNT PAID', style: pw.TextStyle(fontSize: 9, color: inkSub, letterSpacing: 1.2)),
+                                pw.SizedBox(height: 6),
+                                pw.Text(
+                                  'Rs. $amountStr',
+                                  style: pw.TextStyle(fontSize: 30, fontWeight: pw.FontWeight.bold, color: ink),
+                                ),
+                              ],
+                            ),
+                            pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.end,
+                              children: [
+                                pw.Text('DATE', style: pw.TextStyle(fontSize: 9, color: inkSub, letterSpacing: 1.2)),
+                                pw.SizedBox(height: 6),
+                                pw.Text(dateStr, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: ink)),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      pw.SizedBox(height: 24),
+
+                      // Details table
+                      pw.Container(
+                        decoration: pw.BoxDecoration(
+                          color: PdfColors.white,
+                          borderRadius: pw.BorderRadius.circular(12),
+                          border: pw.Border.all(color: border),
+                        ),
+                        child: pw.Column(
+                          children: [
+                            _pdfRow('Property', propertyName, isFirst: true),
+                            _pdfDivider(),
+                            _pdfRow('Payment Method', paymentMethod.toUpperCase()),
+                            _pdfDivider(),
+                            _pdfRow('Transaction / Ref ID', refCode),
+                            _pdfDivider(),
+                            _pdfRow('Booking Reference', bookingId.length > 16 ? '${bookingId.substring(0, 16)}…' : bookingId),
+                            _pdfDivider(),
+                            _pdfRow('Status', 'Under Admin Review', valueColor: green),
+                          ],
+                        ),
+                      ),
+
+                      pw.SizedBox(height: 24),
+
+                      // Notice box
+                      pw.Container(
+                        padding: const pw.EdgeInsets.all(16),
+                        decoration: pw.BoxDecoration(
+                          color: greenBg,
+                          borderRadius: pw.BorderRadius.circular(10),
+                          border: pw.Border.all(color: const PdfColor.fromInt(0xFF86EFAC)),
+                        ),
+                        child: pw.Row(
+                          children: [
+                            pw.Text('ℹ', style: pw.TextStyle(fontSize: 14, color: green)),
+                            pw.SizedBox(width: 10),
+                            pw.Expanded(
+                              child: pw.Text(
+                                'Your payment proof has been received and is currently being verified by the Khozna admin team. '
+                                'You will be notified once verification is complete. Please keep this receipt for your records.',
+                                style: pw.TextStyle(fontSize: 10.5, color: green, lineSpacing: 2),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // ── Footer ───────────────────────────────────────────────────
+              pw.Container(
+                color: PdfColors.white,
+                padding: const pw.EdgeInsets.symmetric(horizontal: 48, vertical: 20),
+                child: pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text(
+                      'This is an official Khozna payment receipt.',
+                      style: pw.TextStyle(fontSize: 9.5, color: inkSub),
+                    ),
+                    pw.Text(
+                      'khozna.com  •  Generated $dateStr',
+                      style: pw.TextStyle(fontSize: 9.5, color: inkSub),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    return pdf;
+  }
+
+  pw.Widget _pdfRow(String label, String value, {bool isFirst = false, PdfColor? valueColor}) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        children: [
+          pw.Text(label, style: pw.TextStyle(fontSize: 11, color: const PdfColor.fromInt(0xFF64748B))),
+          pw.Flexible(
+            child: pw.Text(
+              value,
+              style: pw.TextStyle(
+                fontSize: 11.5,
+                fontWeight: pw.FontWeight.bold,
+                color: valueColor ?? const PdfColor.fromInt(0xFF0F172A),
+              ),
+              textAlign: pw.TextAlign.right,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _pdfDivider() => pw.Divider(height: 1, thickness: 1, color: const PdfColor.fromInt(0xFFE2E8F0));
+
   Future<void> _showSuccessDialog(String bookingId, String refCode) async {
     final amountStr = PriceFormatter.format(_currentBooking.totalPrice.toString());
-    final dateStr = DateFormat('MMM d, yyyy').format(DateTime.now());
+    final dateStr = DateFormat('MMM d, yyyy  •  h:mm a').format(DateTime.now());
     final propertyName = _currentTitle;
-    final GlobalKey receiptKey = GlobalKey();
+    final paymentMethod = _selectedMethod.replaceAll('khozna_', '').replaceAll('host_', '');
     bool isExporting = false;
 
     await showDialog(
@@ -1804,108 +2051,68 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Success icon
                   Container(
                     width: 58,
                     height: 58,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFDCFCE7),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.check_circle_rounded,
-                      color: Color(0xFF16A34A),
-                      size: 34,
-                    ),
+                    decoration: const BoxDecoration(color: Color(0xFFDCFCE7), shape: BoxShape.circle),
+                    child: const Icon(Icons.check_circle_rounded, color: Color(0xFF16A34A), size: 34),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     'Payment Submitted!',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 19,
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF0F172A),
-                    ),
+                    style: GoogleFonts.plusJakartaSans(fontSize: 19, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A)),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Your payment proof is undergoing admin review.',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
-                      fontSize: 12.5,
-                      color: const Color(0xFF64748B),
-                    ),
+                    style: GoogleFonts.inter(fontSize: 12.5, color: const Color(0xFF64748B)),
                   ),
+
                   const SizedBox(height: 18),
 
-                  // REAL Downloadable PNG Receipt Card
-                  RepaintBoundary(
-                    key: receiptKey,
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.brandColor,
-                                      borderRadius: BorderRadius.circular(7),
-                                    ),
-                                    child: const Icon(Icons.receipt_long_rounded, color: Colors.white, size: 14),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'KHOZNA RECEIPT',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 11.5,
-                                      fontWeight: FontWeight.w800,
-                                      color: const Color(0xFF0F172A),
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFDCFCE7),
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: const Color(0xFF86EFAC)),
+                  // Summary receipt card (UI only — PDF is the real download)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(color: AppTheme.brandColor, borderRadius: BorderRadius.circular(7)),
+                                  child: const Icon(Icons.receipt_long_rounded, color: Colors.white, size: 14),
                                 ),
-                                child: Text(
-                                  'UNDER REVIEW',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 9.5,
-                                    fontWeight: FontWeight.w800,
-                                    color: const Color(0xFF15803D),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 10),
-                            child: Divider(height: 1, color: Color(0xFFE2E8F0)),
-                          ),
-                          _receiptRow('Property', propertyName),
-                          const SizedBox(height: 6),
-                          _receiptRow('Amount Paid', 'Rs. $amountStr'),
-                          const SizedBox(height: 6),
-                          _receiptRow('Ref Code', refCode),
-                          const SizedBox(height: 6),
-                          _receiptRow('Date', dateStr),
-                        ],
-                      ),
+                                const SizedBox(width: 8),
+                                Text('KHOZNA RECEIPT', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A), letterSpacing: 0.5)),
+                              ],
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(6), border: Border.all(color: const Color(0xFF86EFAC))),
+                              child: Text('UNDER REVIEW', style: GoogleFonts.inter(fontSize: 9.5, fontWeight: FontWeight.w800, color: const Color(0xFF15803D))),
+                            ),
+                          ],
+                        ),
+                        const Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Divider(height: 1, color: Color(0xFFE2E8F0))),
+                        _receiptRow('Property', propertyName),
+                        const SizedBox(height: 6),
+                        _receiptRow('Amount Paid', 'Rs. $amountStr'),
+                        const SizedBox(height: 6),
+                        _receiptRow('Ref Code', refCode),
+                        const SizedBox(height: 6),
+                        _receiptRow('Date', DateFormat('MMM d, yyyy').format(DateTime.now())),
+                      ],
                     ),
                   ),
 
@@ -1920,35 +2127,34 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                               : () async {
                                   setDialogState(() => isExporting = true);
                                   try {
-                                    final boundary = receiptKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-                                    if (boundary != null) {
-                                      final image = await boundary.toImage(pixelRatio: 3.0);
-                                      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-                                      if (byteData != null) {
-                                        final pngBytes = byteData.buffer.asUint8List();
-                                        final tempDir = Directory.systemTemp;
-                                        final file = File('${tempDir.path}/Khozna_Receipt_$refCode.png');
-                                        await file.writeAsBytes(pngBytes);
+                                    final pdf = await _generateReceiptPdf(
+                                      propertyName: propertyName,
+                                      amountStr: amountStr,
+                                      refCode: refCode,
+                                      dateStr: dateStr,
+                                      bookingId: bookingId,
+                                      paymentMethod: paymentMethod,
+                                    );
+                                    final pdfBytes = await pdf.save();
 
-                                        HapticFeedback.heavyImpact();
-                                        await Share.shareXFiles(
-                                          [XFile(file.path)],
-                                          text: 'Khozna Official Payment Receipt - Ref: $refCode',
-                                          subject: 'Khozna Payment Receipt',
-                                        );
-                                      }
-                                    }
+                                    HapticFeedback.heavyImpact();
+
+                                    // Open native print/save/share sheet
+                                    await Printing.sharePdf(
+                                      bytes: pdfBytes,
+                                      filename: 'Khozna_Receipt_$refCode.pdf',
+                                    );
                                   } catch (e) {
-                                    debugPrint('Error exporting receipt image: $e');
+                                    debugPrint('PDF export error: $e');
                                   } finally {
                                     setDialogState(() => isExporting = false);
                                   }
                                 },
                           icon: isExporting
                               ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
-                              : const Icon(Icons.download_rounded, size: 18),
+                              : const Icon(Icons.picture_as_pdf_rounded, size: 18),
                           label: Text(
-                            isExporting ? 'Exporting...' : 'Download',
+                            isExporting ? 'Generating...' : 'Download PDF',
                             style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13),
                           ),
                           style: OutlinedButton.styleFrom(
@@ -1973,10 +2179,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 13),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
-                          child: Text(
-                            'Done',
-                            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13),
-                          ),
+                          child: Text('Done', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13)),
                         ),
                       ),
                     ],
