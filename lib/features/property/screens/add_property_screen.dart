@@ -1068,65 +1068,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           controller: _priceNightController,
           suffix: '/ night',
         ),
-        const SizedBox(height: 24),
-
-        // Negotiable Switch
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.handshake_outlined,
-                  size: 18,
-                  color: Color(0xFF475569),
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Rent Negotiable',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                        color: const Color(0xFF0F172A),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Allow guests to discuss or negotiate rent',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: const Color(0xFF64748B),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Switch.adaptive(
-                value: _isNegotiable,
-                onChanged: (v) {
-                  HapticFeedback.lightImpact();
-                  setState(() => _isNegotiable = v);
-                },
-                activeColor: AppTheme.brandColor,
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }
@@ -1303,6 +1244,27 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
     return StepLayout(
       title: 'Photos',
+      titleWidget: Row(
+        children: [
+          Text(
+            'Photos',
+            style: GoogleFonts.inter(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF111827),
+              height: 1.2,
+            ),
+          ),
+          const Text(
+            ' *',
+            style: TextStyle(
+              color: Color(0xFFEF4444),
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
       subtitle: 'Add high quality photos of your property.',
       content: [
         // ── Main Upload Card ─────────────────────────────────────────
@@ -1337,13 +1299,26 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    _selectedImages.isEmpty ? 'Upload Property Photos' : 'Add More Photos',
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF0F172A),
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _selectedImages.isEmpty ? 'Upload Property Photos' : 'Add More Photos',
+                        style: GoogleFonts.inter(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF0F172A),
+                        ),
+                      ),
+                      const Text(
+                        ' *',
+                        style: TextStyle(
+                          color: Color(0xFFEF4444),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -1448,6 +1423,143 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             },
           ),
         ],
+        const SizedBox(height: 24),
+        const Divider(color: Color(0xFFF1F5F9), height: 1),
+        const SizedBox(height: 20),
+
+        // ── Property Tour Video Section (Optional) ───────────────────
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Property Tour Video',
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Text(
+                    'OPTIONAL',
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF64748B),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Add a short video walk-through (Max 5 MB • Larger HD video uploads coming soon)',
+              style: GoogleFonts.inter(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFF64748B),
+              ),
+            ),
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: _pickVideo,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: _selectedVideo != null ? const Color(0xFFF0FDF4) : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: _selectedVideo != null ? const Color(0xFF22C55E) : const Color(0xFFE2E8F0),
+                    width: _selectedVideo != null ? 1.5 : 1.0,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: _selectedVideo != null
+                            ? const Color(0xFFDCFCE7)
+                            : AppTheme.brandColor.withOpacity(0.08),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        _selectedVideo != null ? Icons.check_circle_rounded : Icons.video_library_rounded,
+                        color: _selectedVideo != null ? const Color(0xFF16A34A) : AppTheme.brandColor,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _selectedVideo != null ? 'Tour Video Attached ✓' : 'Upload Tour Video',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: _selectedVideo != null ? const Color(0xFF15803D) : const Color(0xFF0F172A),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            _selectedVideo != null
+                                ? 'Tap to change video (Max 5 MB)'
+                                : 'Max 5 MB size limit • GB upload support coming soon!',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: _selectedVideo != null ? const Color(0xFF16A34A) : const Color(0xFF94A3B8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (_selectedVideo != null)
+                      GestureDetector(
+                        onTap: () => setState(() => _selectedVideo = null),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF1F5F9),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.close, size: 16, color: Color(0xFF64748B)),
+                        ),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'Select',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF0F172A),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -1458,8 +1570,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         : 'Sanepa';
 
     return StepLayout(
-      title: 'Title & Video Tour',
-      subtitle: 'Create a catchy title and add a virtual video tour of your property.',
+      title: 'Property Title',
+      subtitle: 'Create a catchy, attractive title for your property listing.',
       content: [
         // Title Input
         PropertyFormField(
@@ -1491,79 +1603,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             _buildSmartTitleChip('Modern Studio Apartment'),
             _buildSmartTitleChip('Sunny & Spacious Room'),
           ],
-        ),
-        const SizedBox(height: 28),
-
-        // Video Tour Upload Card
-        GestureDetector(
-          onTap: _pickVideo,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: _selectedVideo != null ? const Color(0xFF22C55E) : const Color(0xFFE2E8F0),
-                width: 1.5,
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: _selectedVideo != null
-                        ? const Color(0xFFDCFCE7)
-                        : AppTheme.brandColor.withOpacity(0.08),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _selectedVideo != null
-                        ? Icons.check_rounded
-                        : Icons.video_camera_back_rounded,
-                    color: _selectedVideo != null
-                        ? const Color(0xFF16A34A)
-                        : AppTheme.brandColor,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _selectedVideo != null
-                            ? 'Property Tour Video Added ✓'
-                            : 'Add Property Tour Video',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF0F172A),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _selectedVideo != null
-                            ? 'Tap to replace tour video'
-                            : 'Upload a short walk-through video (Optional)',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: const Color(0xFF64748B),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 14,
-                  color: Color(0xFF94A3B8),
-                ),
-              ],
-            ),
-          ),
         ),
       ],
     );

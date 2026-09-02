@@ -869,20 +869,34 @@ class CategorizedAmenitiesGrid extends StatelessWidget {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 180),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppTheme.brandColor : Colors.white,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isSelected ? AppTheme.brandColor : const Color(0xFFE5E7EB),
-                          width: 1,
+                          color: isSelected ? Colors.black : const Color(0xFFE5E7EB),
+                          width: isSelected ? 2.0 : 1.0,
                         ),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            item.icon,
-                            color: isSelected ? Colors.white : const Color(0xFF6B7280),
-                            size: 20,
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Icon(
+                                item.icon,
+                                color: isSelected ? Colors.black : const Color(0xFF1E293B),
+                                size: 20,
+                              ),
+                              if (item.id == 'unfurnished' || item.id.contains('unfurnish'))
+                                Transform.rotate(
+                                  angle: -0.785398,
+                                  child: Container(
+                                    width: 24,
+                                    height: 2.8,
+                                    color: isSelected ? Colors.black : const Color(0xFF1E293B),
+                                  ),
+                                ),
+                            ],
                           ),
                           const SizedBox(height: 6),
                           Padding(
@@ -894,8 +908,8 @@ class CategorizedAmenitiesGrid extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.inter(
                                 fontSize: 11,
-                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                                color: isSelected ? Colors.white : const Color(0xFF374151),
+                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                                color: isSelected ? Colors.black : const Color(0xFF374151),
                               ),
                             ),
                           ),
@@ -950,20 +964,34 @@ class AmenitiesGrid extends StatelessWidget {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
             decoration: BoxDecoration(
-              color: isSelected ? AppTheme.brandColor : Colors.white,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isSelected ? AppTheme.brandColor : const Color(0xFFE5E7EB),
-                width: 1,
+                color: isSelected ? Colors.black : const Color(0xFFE5E7EB),
+                width: isSelected ? 2.0 : 1.0,
               ),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  icons[key],
-                  color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
-                  size: 22,
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(
+                      icons[key],
+                      color: isSelected ? Colors.black : const Color(0xFF1E293B),
+                      size: 22,
+                    ),
+                    if (key == 'unfurnished' || key.contains('unfurnish'))
+                      Transform.rotate(
+                        angle: -0.785398,
+                        child: Container(
+                          width: 24,
+                          height: 2.8,
+                          color: isSelected ? Colors.black : const Color(0xFF1E293B),
+                        ),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 6),
                 Padding(
@@ -974,8 +1002,8 @@ class AmenitiesGrid extends StatelessWidget {
                     maxLines: 2,
                     style: GoogleFonts.inter(
                       fontSize: 11.5,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                      color: isSelected ? Colors.white : const Color(0xFF6B7280),
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                      color: isSelected ? Colors.black : const Color(0xFF6B7280),
                     ),
                   ),
                 ),

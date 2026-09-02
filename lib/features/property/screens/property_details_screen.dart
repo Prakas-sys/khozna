@@ -910,7 +910,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       return (Icons.ac_unit_rounded, 'AC', Colors.blueGrey);
     }
     if (k.contains('unfurnish')) {
-      return (Icons.chair_outlined, 'Unfurnished', Colors.slate);
+      return (Icons.chair_outlined, 'Unfurnished', Colors.grey);
     }
     if (k.contains('furnish')) {
       return (Icons.chair_rounded, 'Furnished', Colors.brown);
@@ -1241,21 +1241,35 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
-                        child: svgPath != null
-                            ? SvgPicture.asset(
-                                svgPath,
-                                width: 20,
-                                height: 20,
-                                colorFilter: const ColorFilter.mode(
-                                  Color(0xFF334155),
-                                  BlendMode.srcIn,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            svgPath != null
+                                ? SvgPicture.asset(
+                                    svgPath,
+                                    width: 20,
+                                    height: 20,
+                                    colorFilter: const ColorFilter.mode(
+                                      Color(0xFF1E293B),
+                                      BlendMode.srcIn,
+                                    ),
+                                  )
+                                : Icon(
+                                    fallbackIcon,
+                                    size: 20,
+                                    color: const Color(0xFF1E293B),
+                                  ),
+                            if (label.toLowerCase().contains('unfurnish'))
+                              Transform.rotate(
+                                angle: -0.785398,
+                                child: Container(
+                                  width: 26,
+                                  height: 2.8,
+                                  color: const Color(0xFF1E293B),
                                 ),
-                              )
-                            : Icon(
-                                fallbackIcon,
-                                size: 20,
-                                color: const Color(0xFF334155),
                               ),
+                          ],
+                        ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -1360,21 +1374,35 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   width: 36,
                   height: 36,
                   alignment: Alignment.center,
-                  child: svgPath != null
-                      ? SvgPicture.asset(
-                          svgPath,
-                          width: 18,
-                          height: 18,
-                          colorFilter: const ColorFilter.mode(
-                            Color(0xFF475569),
-                            BlendMode.srcIn,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      svgPath != null
+                          ? SvgPicture.asset(
+                              svgPath,
+                              width: 18,
+                              height: 18,
+                              colorFilter: const ColorFilter.mode(
+                                Color(0xFF1E293B),
+                                BlendMode.srcIn,
+                              ),
+                            )
+                          : Icon(
+                              fallbackIcon,
+                              size: 18,
+                              color: const Color(0xFF1E293B),
+                            ),
+                      if (label.toLowerCase().contains('unfurnish'))
+                        Transform.rotate(
+                          angle: -0.785398,
+                          child: Container(
+                            width: 24,
+                            height: 2.8,
+                            color: const Color(0xFF1E293B),
                           ),
-                        )
-                      : Icon(
-                          fallbackIcon,
-                          size: 18,
-                          color: const Color(0xFF475569),
                         ),
+                    ],
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -1437,7 +1465,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     child: Icon(
                       item.$1,
                       size: 20,
-                      color: const Color(0xFF334155),
+                      color: const Color(0xFF1E293B),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -2446,7 +2474,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             fontWeight: FontWeight.w800,
                             color: Colors.black,
                             letterSpacing: -0.6,
-                            decoration: TextDecoration.none,
+                            decoration: isNegotiable
+                                ? TextDecoration.none
+                                : TextDecoration.underline,
+                            decorationColor: Colors.black,
+                            decorationThickness: 1.5,
                           ),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,

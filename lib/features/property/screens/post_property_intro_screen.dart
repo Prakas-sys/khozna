@@ -133,16 +133,8 @@ class _PostPropertyIntroScreenState extends State<PostPropertyIntroScreen> {
 
             // Bottom CTA Button
             Container(
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                  top: BorderSide(
-                    color: const Color(0xFFEBEBEB),
-                    width: 1,
-                  ),
-                ),
-              ),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+              color: Colors.white,
               child: SizedBox(
                 width: double.infinity,
                 height: 54,
