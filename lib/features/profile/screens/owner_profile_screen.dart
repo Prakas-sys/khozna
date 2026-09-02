@@ -208,23 +208,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       Stack(
                         clipBehavior: Clip.none,
                         children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppTheme.brandColor.withOpacity(0.12),
-                                  blurRadius: 28,
-                                  spreadRadius: 2,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
-                            ),
-                            child: AppTheme.buildAvatarWidget(
-                              avatarUrl: avatarUrl,
-                              radius: 50,
-                              name: widget.name,
-                            ),
+                          AppTheme.buildAvatarWidget(
+                            avatarUrl: avatarUrl,
+                            radius: 50,
+                            name: widget.name,
                           ),
                           if (_isProfileVerified)
                             Positioned(
@@ -257,50 +244,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                           color: const Color(0xFF0F172A),
                           letterSpacing: -0.3,
                         ),
-                      ),
-                      const SizedBox(height: 6),
-
-                      // Location + Joined
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (_realLocation.isNotEmpty) ...[
-                            const Icon(
-                              Icons.location_on_outlined,
-                              size: 14,
-                              color: Color(0xFF94A3B8),
-                            ),
-                            const SizedBox(width: 3),
-                            Text(
-                              _realLocation,
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                color: const Color(0xFF64748B),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              child: Text(
-                                '·',
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  color: const Color(0xFFCBD5E1),
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ],
-                          Text(
-                            'Joined $_joinedDate',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              color: const Color(0xFF94A3B8),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
                       ),
                       const SizedBox(height: 24),
 
@@ -359,68 +302,67 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       ),
                       const SizedBox(height: 18),
 
-                      // Identity Row Only
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          children: [
-                            Icon(
-                              _isProfileVerified
-                                  ? Icons.verified_user_rounded
-                                  : Icons.shield_outlined,
-                              color: _isProfileVerified
-                                  ? const Color(0xFF16A34A)
-                                  : const Color(0xFF64748B),
-                              size: 22,
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Text(
-                                'Identity',
+                      // Identity Row
+                      _buildConfirmedRow(
+                        icon: _isProfileVerified
+                            ? Icons.verified_user_rounded
+                            : Icons.shield_outlined,
+                        iconColor: _isProfileVerified
+                            ? const Color(0xFF16A34A)
+                            : const Color(0xFF64748B),
+                        label: 'Identity',
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _isProfileVerified
+                                ? const Color(0xFFDCFCE7)
+                                : const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (_isProfileVerified) ...[
+                                const Icon(
+                                  Icons.check_circle_rounded,
+                                  size: 13,
+                                  color: Color(0xFF166534),
+                                ),
+                                const SizedBox(width: 4),
+                              ],
+                              Text(
+                                _isProfileVerified ? 'Verified' : 'Unverified',
                                 style: GoogleFonts.inter(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF0F172A),
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: _isProfileVerified
+                                      ? const Color(0xFF166534)
+                                      : const Color(0xFF64748B),
                                 ),
                               ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: _isProfileVerified
-                                    ? const Color(0xFFDCFCE7)
-                                    : const Color(0xFFF1F5F9),
-                                borderRadius: BorderRadius.circular(100),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (_isProfileVerified) ...[
-                                    const Icon(
-                                      Icons.check_circle_rounded,
-                                      size: 13,
-                                      color: Color(0xFF166534),
-                                    ),
-                                    const SizedBox(width: 4),
-                                  ],
-                                  Text(
-                                    _isProfileVerified ? 'Verified' : 'Unverified',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 12.5,
-                                      fontWeight: FontWeight.w700,
-                                      color: _isProfileVerified
-                                          ? const Color(0xFF166534)
-                                          : const Color(0xFF64748B),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
+                      ),
+
+                      // Location Row
+                      if (_realLocation.isNotEmpty)
+                        _buildConfirmedRow(
+                          icon: Icons.location_on_outlined,
+                          iconColor: const Color(0xFF64748B),
+                          label: 'Location',
+                          value: _realLocation,
+                        ),
+
+                      // Joined Row
+                      _buildConfirmedRow(
+                        icon: Icons.calendar_today_outlined,
+                        iconColor: const Color(0xFF64748B),
+                        label: 'Joined',
+                        value: _joinedDate,
                       ),
 
                       // Clickable Listings Row
@@ -704,6 +646,44 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               color: const Color(0xFF334155),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConfirmedRow({
+    required IconData icon,
+    required Color iconColor,
+    required String label,
+    String? value,
+    Widget? trailing,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: iconColor),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF0F172A),
+              ),
+            ),
+          ),
+          if (trailing != null) trailing,
+          if (value != null && trailing == null)
+            Text(
+              value,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF64748B),
+              ),
+            ),
         ],
       ),
     );
