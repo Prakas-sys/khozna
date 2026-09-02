@@ -200,43 +200,38 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // ── Hero Profile Card ────────────────────────────────────
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(24, 32, 24, 28),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    border: Border(
-                      bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1),
-                    ),
-                  ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
                   child: Column(
                     children: [
                       // Avatar
                       Stack(
+                        clipBehavior: Clip.none,
                         children: [
                           Container(
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 8),
+                                  color: AppTheme.brandColor.withOpacity(0.12),
+                                  blurRadius: 28,
+                                  spreadRadius: 2,
+                                  offset: const Offset(0, 10),
                                 ),
                               ],
                             ),
                             child: AppTheme.buildAvatarWidget(
                               avatarUrl: avatarUrl,
-                              radius: 52,
+                              radius: 50,
                               name: widget.name,
                             ),
                           ),
                           if (_isProfileVerified)
                             Positioned(
-                              bottom: 4,
-                              right: 4,
+                              bottom: 2,
+                              right: 2,
                               child: Container(
-                                padding: const EdgeInsets.all(3),
+                                padding: const EdgeInsets.all(2.5),
                                 decoration: const BoxDecoration(
                                   color: Colors.white,
                                   shape: BoxShape.circle,
@@ -244,86 +239,106 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                 child: const Icon(
                                   Icons.verified_rounded,
                                   color: AppTheme.brandColor,
-                                  size: 24,
+                                  size: 22,
                                 ),
                               ),
                             ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
 
                       // Name
                       Text(
                         widget.name,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 24,
+                          fontSize: 22,
                           fontWeight: FontWeight.w800,
                           color: const Color(0xFF0F172A),
-                          letterSpacing: -0.5,
+                          letterSpacing: -0.3,
                         ),
                       ),
                       const SizedBox(height: 6),
 
-                      // Joined date
-                      Text(
-                        'Joined $_joinedDate',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: const Color(0xFF94A3B8),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-
-                      // ── 3-Stat Row ──────────────────────
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 20,
-                          horizontal: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: const Color(0xFFE2E8F0),
-                            width: 1,
+                      // Location + Joined
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_realLocation.isNotEmpty) ...[
+                            const Icon(
+                              Icons.location_on_outlined,
+                              size: 14,
+                              color: Color(0xFF94A3B8),
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              _realLocation,
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                color: const Color(0xFF64748B),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              child: Text(
+                                '·',
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  color: const Color(0xFFCBD5E1),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
+                          Text(
+                            'Joined $_joinedDate',
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: const Color(0xFF94A3B8),
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            // Reviews
-                            _buildBigStat(
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      // ── 3-Stat Row (borderless, clean) ──────────────
+                      Row(
+                        children: [
+                          // Reviews
+                          Expanded(
+                            child: _buildCleanStat(
                               value: '${_ownerReviews.length}',
                               label: 'Reviews',
                             ),
-                            _buildStatDivider(),
-                            // Rating
-                            _buildBigStat(
+                          ),
+                          Container(height: 32, width: 1, color: const Color(0xFFE2E8F0)),
+                          // Rating
+                          Expanded(
+                            child: _buildCleanStat(
                               value: avgRating != null
                                   ? avgRating.toStringAsFixed(1)
                                   : '–',
                               label: 'Rating',
-                              icon: avgRating != null
-                                  ? const Icon(
-                                      Icons.star_rounded,
-                                      color: Colors.amber,
-                                      size: 18,
-                                    )
+                              trailing: avgRating != null
+                                  ? const Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 16)
                                   : null,
                             ),
-                            _buildStatDivider(),
-                            // Years on Khozna
-                            _buildBigStat(
+                          ),
+                          Container(height: 32, width: 1, color: const Color(0xFFE2E8F0)),
+                          // Years
+                          Expanded(
+                            child: _buildCleanStat(
                               value: '$_yearsHosting',
-                              label: _yearsHosting == 1
-                                  ? 'Year on Khozna'
-                                  : 'Years on Khozna',
+                              label: _yearsHosting == 1 ? 'Year hosting' : 'Years hosting',
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 24),
+                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
                     ],
                   ),
                 ),
@@ -337,48 +352,80 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       Text(
                         '${widget.name.split(' ').first}\'s confirmed info',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
                           color: const Color(0xFF0F172A),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 18),
 
-                      // Identity verified / not verified
-                      _buildVerificationRow(
-                        label: 'Identity',
-                        isVerified: _isProfileVerified,
-                      ),
-
-                      // Owner Address with Global Icon & Underline
-                      if (_realLocation.isNotEmpty || widget.location.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 14),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.public_rounded,
-                                color: Color(0xFF64748B),
-                                size: 20,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  _realLocation.isNotEmpty ? _realLocation : widget.location,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w500,
-                                    color: const Color(0xFF0F172A),
-                                    decoration: TextDecoration.underline,
-                                  ),
+                      // Identity Row Only
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          children: [
+                            Icon(
+                              _isProfileVerified
+                                  ? Icons.verified_user_rounded
+                                  : Icons.shield_outlined,
+                              color: _isProfileVerified
+                                  ? const Color(0xFF16A34A)
+                                  : const Color(0xFF64748B),
+                              size: 22,
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Text(
+                                'Identity',
+                                style: GoogleFonts.inter(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF0F172A),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _isProfileVerified
+                                    ? const Color(0xFFDCFCE7)
+                                    : const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(100),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (_isProfileVerified) ...[
+                                    const Icon(
+                                      Icons.check_circle_rounded,
+                                      size: 13,
+                                      color: Color(0xFF166534),
+                                    ),
+                                    const SizedBox(width: 4),
+                                  ],
+                                  Text(
+                                    _isProfileVerified ? 'Verified' : 'Unverified',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: _isProfileVerified
+                                          ? const Color(0xFF166534)
+                                          : const Color(0xFF64748B),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
+                      ),
 
-                      // Clickable Listings Count Row below Global Location
-                      GestureDetector(
+                      // Clickable Listings Row
+                      const SizedBox(height: 8),
+                      InkWell(
                         onTap: () {
                           HapticFeedback.lightImpact();
                           Navigator.push(
@@ -391,30 +438,30 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                             ),
                           );
                         },
+                        borderRadius: BorderRadius.circular(12),
                         child: Padding(
-                          padding: const EdgeInsets.only(bottom: 14),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           child: Row(
                             children: [
                               const Icon(
-                                Icons.home_work_outlined,
+                                Icons.home_work_rounded,
                                 color: Color(0xFF64748B),
-                                size: 20,
+                                size: 22,
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: 14),
                               Expanded(
                                 child: Text(
                                   '${widget.totalListings > 0 ? widget.totalListings : 1} ${widget.totalListings == 1 ? 'listing' : 'listings'} on Khozna',
                                   style: GoogleFonts.inter(
                                     fontSize: 15,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w600,
                                     color: const Color(0xFF0F172A),
-                                    decoration: TextDecoration.underline,
                                   ),
                                 ),
                               ),
                               const Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                size: 14,
+                                Icons.chevron_right_rounded,
+                                size: 20,
                                 color: Color(0xFF94A3B8),
                               ),
                             ],
@@ -422,9 +469,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 20),
                       const Divider(color: Color(0xFFF1F5F9), thickness: 1),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),

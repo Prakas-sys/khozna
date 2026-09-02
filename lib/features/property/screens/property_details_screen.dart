@@ -958,6 +958,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   (String?, IconData) _getAmenityAssetOrIcon(String feature) {
     final k = feature.toLowerCase().trim();
+    if (k == 'drinking_water' || k.contains('drinking')) {
+      return (null, Icons.local_drink_rounded);
+    }
     if (k.contains('wifi') || k.contains('internet')) {
       return ('assets/icons/Vector wifi.svg', Icons.wifi_outlined);
     }
@@ -987,18 +990,18 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   IconData _getFeatureIcon(String feature) {
     final k = feature.toLowerCase().trim();
+    if (k == 'drinking_water' || k.contains('drinking')) {
+      return Icons.local_drink_rounded;
+    }
     if (k.contains('car') || (k.contains('parking') && !k.contains('bike'))) {
       return Icons.directions_car_outlined;
     }
     if (k.contains('wifi') || k.contains('internet')) {
       return Icons.wifi_outlined;
     }
-    if (k.contains('drinking_water')) {
-      return Icons.water_drop_outlined;
-    }
     if (k.contains('water') || k.contains('melamchi') || k.contains('boring')) {
       if (k.contains('hot_water') || k.contains('hot')) return Icons.hot_tub_outlined;
-      return Icons.water_damage_outlined;
+      return Icons.water_drop_outlined;
     }
     if (k.contains('cctv') || k.contains('security')) {
       return Icons.security_rounded;
@@ -1146,9 +1149,133 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         .join(' ');
   }
 
-  Widget _buildSeeMoreButton() {
+  void _showAllAmenitiesModal(List<(String?, IconData, String)> items) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'What this place offers',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF0F172A),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${items.length} amenities & facilities included',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: const Color(0xFF64748B),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close_rounded, size: 22),
+                    style: IconButton.styleFrom(
+                      backgroundColor: const Color(0xFFF1F5F9),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: Color(0xFFE2E8F0)),
+            Expanded(
+              child: ListView.separated(
+                padding: const EdgeInsets.all(20),
+                itemCount: items.length,
+                separatorBuilder: (_, __) => const Divider(
+                  height: 24,
+                  thickness: 0.5,
+                  color: Color(0xFFE2E8F0),
+                ),
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  final String? svgPath = item.$1;
+                  final IconData fallbackIcon = item.$2;
+                  final String label = item.$3;
+
+                  return Row(
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF1F5F9),
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: svgPath != null
+                            ? SvgPicture.asset(
+                                svgPath,
+                                width: 20,
+                                height: 20,
+                                colorFilter: const ColorFilter.mode(
+                                  Color(0xFF334155),
+                                  BlendMode.srcIn,
+                                ),
+                              )
+                            : Icon(
+                                fallbackIcon,
+                                size: 20,
+                                color: const Color(0xFF334155),
+                              ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          label,
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF1E293B),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSeeMoreButton(List<(String?, IconData, String)> items) {
     return GestureDetector(
-      onTap: () => setState(() => _showAllAmenities = true),
+      onTap: () => _showAllAmenitiesModal(items),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -1160,7 +1287,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'See More',
+              'Show all ${items.length} amenities',
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -1193,10 +1320,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
     if (items.isEmpty) return const SizedBox.shrink();
 
-    final int displayCount = _showAllAmenities
-        ? items.length
-        : (items.length > 8 ? 8 : items.length);
-    final bool hasMore = items.length > 8;
+    final int displayCount = items.length > 6 ? 6 : items.length;
+    final bool hasMore = items.length > 6;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1262,9 +1387,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             );
           },
         ),
-        if (hasMore && !_showAllAmenities) ...[
+        if (hasMore) ...[
           const SizedBox(height: 20),
-          _buildSeeMoreButton(),
+          _buildSeeMoreButton(items),
         ],
       ],
     );
@@ -1635,25 +1760,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     final bool isVerified =
         _ownerData?['is_verified'] ?? widget.property.isOwnerVerified ?? false;
 
-    // Location extraction
-    final String location = (_ownerData?['area_name']?.toString() ??
-            _ownerData?['address']?.toString() ??
-            widget.property.ownerLocation ??
-            widget.property.location ??
-            'Kathmandu, Nepal')
-        .replaceAll(', Nepal', '')
-        .trim();
-
-    // Joined date extraction
-    String joinedDate = 'Verified Host';
-    if (_ownerData?['created_at'] != null) {
-      try {
-        final dt = DateTime.parse(_ownerData!['created_at'].toString());
-        final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        joinedDate = 'Joined ${months[dt.month - 1]} ${dt.year}';
-      } catch (_) {}
-    }
-
     return InkWell(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -1665,24 +1771,18 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               name: name,
               avatar: avatarUrl ?? '',
               isVerified: isVerified,
-              location: location,
+              location: _ownerData?['area_name'] ?? widget.property.location,
               totalListings: 1,
             ),
           ),
         );
       },
       borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         child: Row(
           children: [
             Stack(
-              clipBehavior: Clip.none,
               children: [
                 Container(
                   padding: const EdgeInsets.all(2),
@@ -1698,8 +1798,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ),
                 if (isVerified)
                   Positioned(
-                    bottom: -2,
-                    right: -2,
+                    bottom: 0,
+                    right: 0,
                     child: Container(
                       padding: const EdgeInsets.all(2),
                       decoration: const BoxDecoration(
@@ -1707,91 +1807,43 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
-                        Icons.verified_rounded,
+                        Icons.check_circle_rounded,
                         color: AppTheme.brandColor,
-                        size: 18,
+                        size: 16,
                       ),
                     ),
                   ),
               ],
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Hosted by $name',
+                    'Stay with $name',
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF0F172A),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on_rounded,
-                        size: 13,
-                        color: Color(0xFF64748B),
-                      ),
-                      const SizedBox(width: 3),
-                      Flexible(
-                        child: Text(
-                          location,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: const Color(0xFF64748B),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Container(
-                        width: 3,
-                        height: 3,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFCBD5E1),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      const Icon(
-                        Icons.calendar_month_rounded,
-                        size: 13,
-                        color: Color(0xFF64748B),
-                      ),
-                      const SizedBox(width: 3),
-                      Text(
-                        joinedDate,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFF64748B),
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 2),
+                  Text(
+                    'Profile',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 12,
-                color: Color(0xFF64748B),
-              ),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+              color: Colors.grey,
             ),
           ],
         ),
@@ -1900,107 +1952,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     }
 
     if (_reviews.isEmpty) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Icon(Icons.star_rounded, color: Colors.black, size: 28),
-              const SizedBox(width: 8),
-              Text(
-                'New',
-                style: GoogleFonts.outfit(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                '·',
-                style: GoogleFonts.inter(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[400],
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                '0 Reviews',
-                style: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.rate_review_outlined,
-                    color: AppTheme.brandColor,
-                    size: 26,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'No reviews yet for this listing',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15,
-                    color: const Color(0xFF1E293B),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Reviews and ratings appear here after verified renters visit this property.',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: const Color(0xFF64748B),
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                OutlinedButton(
-                  onPressed: _showAllReviewsModal,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    side: const BorderSide(color: Colors.black, width: 1.2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                  ),
-                  child: Text(
-                    'How Khozna Reviews Work',
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
+      return const SizedBox.shrink();
     }
 
     final double avgRating =
