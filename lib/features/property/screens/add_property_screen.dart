@@ -1143,6 +1143,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           {'id': 'girls_only', 'icon': Icons.woman_rounded, 'label': 'Girls Only', 'desc': 'Space reserved for female tenants'},
           {'id': 'couples_allowed', 'icon': Icons.favorite_border_rounded, 'label': 'Couples Welcome', 'desc': 'Couples can rent this property'},
         ],
+      },
       {
         'title': 'PROPERTY CARE & CLEANLINESS',
         'rules': [
