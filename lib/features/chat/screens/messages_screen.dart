@@ -303,16 +303,16 @@ class _MessagesScreenState extends State<MessagesScreen>
     switch (_selectedTab) {
       case 1:
         title = 'All Caught Up!';
-        subtitle = 'तपाईंसँग अहिले कुनै नपढिएका सन्देशहरू छैनन् ।';
+        subtitle = 'You have no unread messages at the moment.';
         break;
       case 2:
         title = 'No Groups Yet';
-        subtitle = 'समूहगत कुराकानीहरू यहाँ देखा पर्नेछन् ।';
+        subtitle = 'Group conversations will appear here when created.';
         break;
       default:
         title = 'No Messages Yet';
         subtitle =
-            'घरधनीहरूसँग जोडिएपछि तपाईंका कुराकानीहरू यहाँ देखा पर्नेछन् ।';
+            'When you message property owners or hosts, your conversations will appear here.';
     }
 
     return Center(
@@ -321,59 +321,44 @@ class _MessagesScreenState extends State<MessagesScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                // Outer glow ring
-                Container(
-                  width: 110,
-                  height: 110,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.05),
-                    shape: BoxShape.circle,
+            Container(
+              width: 80,
+              height: 80,
+              decoration: const BoxDecoration(
+                color: Color(0xFFEFF6FF),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: SvgPicture.asset(
+                  'assets/icons/Message neww.svg',
+                  width: 36,
+                  height: 36,
+                  colorFilter: const ColorFilter.mode(
+                    AppTheme.brandColor,
+                    BlendMode.srcIn,
                   ),
                 ),
-                // Inner icon container
-                Container(
-                  width: 88,
-                  height: 88,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.08),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: SvgPicture.asset(
-                      'assets/icons/Message neww.svg',
-                      width: 42,
-                      height: 42,
-                      colorFilter: const ColorFilter.mode(
-                        Colors.black,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
             Text(
               title,
               textAlign: TextAlign.center,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 22,
+                fontSize: 20,
                 fontWeight: FontWeight.w800,
-                color: const Color(0xFF1A1A1A),
-                letterSpacing: -0.5,
+                color: const Color(0xFF0F172A),
+                letterSpacing: -0.4,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Text(
               subtitle,
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 14,
-                color: const Color(0xFF9CA3AF),
-                height: 1.6,
+                color: const Color(0xFF64748B),
+                height: 1.5,
               ),
             ),
           ],

@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
@@ -49,8 +51,13 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   String? _email;
   String? _userType;
   String? _organization;
+  String? _gender;
+  String? _education;
+  String? _languages;
+  String? _interests;
   String? _fetchedAvatar;
   bool _isProfileVerified = false;
+  List<String> _socialLinks = [];
 
   @override
   void initState() {
@@ -67,7 +74,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         Supabase.instance.client
             .from('profiles')
             .select(
-              'created_at, area_name, bio, phone_number, email, user_type, organization, avatar_url, kyc_status, is_verified',
+              'created_at, area_name, bio, phone_number, email, user_type, organization, gender, education, school, languages, interests, avatar_url, kyc_status, is_verified, facebook_url, instagram_url, linkedin_url, website, social_links',
             )
             .eq('id', widget.ownerId)
             .maybeSingle(),
@@ -95,10 +102,45 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             _email = profileData['email'] as String?;
             _userType = profileData['user_type'] as String?;
             _organization = profileData['organization'] as String?;
+            _gender = profileData['gender'] as String?;
+            _education = (profileData['education'] ?? profileData['school']) as String?;
+            _languages = profileData['languages'] as String?;
+            _interests = profileData['interests'] as String?;
             if (profileData['avatar_url'] != null &&
                 profileData['avatar_url'].toString().isNotEmpty) {
               _fetchedAvatar = profileData['avatar_url'].toString();
             }
+
+            // Parse social media links
+            final List<String> links = [];
+            if (profileData['facebook_url'] != null &&
+                profileData['facebook_url'].toString().isNotEmpty) {
+              links.add(profileData['facebook_url'].toString());
+            }
+            if (profileData['instagram_url'] != null &&
+                profileData['instagram_url'].toString().isNotEmpty) {
+              links.add(profileData['instagram_url'].toString());
+            }
+            if (profileData['linkedin_url'] != null &&
+                profileData['linkedin_url'].toString().isNotEmpty) {
+              links.add(profileData['linkedin_url'].toString());
+            }
+            if (profileData['website'] != null &&
+                profileData['website'].toString().isNotEmpty) {
+              links.add(profileData['website'].toString());
+            }
+            if (profileData['social_links'] != null) {
+              final raw = profileData['social_links'];
+              if (raw is List) {
+                for (var item in raw) {
+                  if (item != null && item.toString().isNotEmpty) {
+                    links.add(item.toString());
+                  }
+                }
+              }
+            }
+            _socialLinks = links;
+
             final String profStatus = (profileData['kyc_status'] ?? '')
                 .toString()
                 .trim()
@@ -164,22 +206,42 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                 ),
               ),
             ),
-            title: Text(
-              widget.name.split(' ').first,
-              style: GoogleFonts.plusJakartaSans(
-                color: const Color(0xFF0F172A),
-                fontWeight: FontWeight.w700,
-                fontSize: 17,
-              ),
-            ),
-            centerTitle: true,
             actions: [
+              GestureDetector(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => chat_page.ChatScreen(
+                        ownerId: widget.ownerId,
+                        name: widget.name,
+                        avatar: widget.avatar,
+                        online: true,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(top: 10, bottom: 10, right: 4),
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF1F5F9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const FaIcon(
+                    FontAwesomeIcons.paperPlane,
+                    size: 14,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+              ),
               GestureDetector(
                 onTap: () => _showReportDialog(context),
                 child: Container(
                   margin: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF1F5F9),
                     shape: BoxShape.circle,
                   ),
                   child: const Padding(
@@ -293,7 +355,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${widget.name.split(' ').first}\'s confirmed info',
+                        'Confirmed info',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -425,7 +487,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'About ${widget.name.split(' ').first}',
+                        'About',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -434,25 +496,29 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       ),
                       const SizedBox(height: 14),
 
-                      // Info chips row
-                      if ((_organization != null && _organization!.isNotEmpty) ||
-                          (_userType != null && _userType!.isNotEmpty))
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [
-                              if (_organization != null && _organization!.isNotEmpty)
-                                _buildInfoChip(Icons.work_outline_rounded, _organization!),
-                              if (_userType != null && _userType!.isNotEmpty)
-                                _buildInfoChip(Icons.person_outline_rounded, _userType!),
-                            ],
-                          ),
-                        ),
+                      // Metadata Chips (Work, Gender, Education, Role, Interests, Languages)
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (_organization != null && _organization!.isNotEmpty)
+                            _buildInfoChip(Icons.work_outline_rounded, 'Work: $_organization'),
+                          if (_gender != null && _gender!.isNotEmpty)
+                            _buildInfoChip(Icons.person_outline_rounded, 'Gender: $_gender'),
+                          if (_education != null && _education!.isNotEmpty)
+                            _buildInfoChip(Icons.school_outlined, 'Education: $_education'),
+                          if (_userType != null && _userType!.isNotEmpty)
+                            _buildInfoChip(Icons.badge_outlined, _userType!),
+                          if (_languages != null && _languages!.isNotEmpty)
+                            _buildInfoChip(Icons.translate_rounded, 'Speaks: $_languages'),
+                          if (_interests != null && _interests!.isNotEmpty)
+                            _buildInfoChip(Icons.interests_outlined, _interests!),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
 
                       // Bio
-                      if (_bio != null && _bio!.trim().isNotEmpty)
+                      if (_bio != null && _bio!.trim().isNotEmpty) ...[
                         Text(
                           _bio!,
                           style: GoogleFonts.inter(
@@ -460,16 +526,12 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                             color: const Color(0xFF475569),
                             height: 1.6,
                           ),
-                        )
-                      else
-                        Text(
-                          'This host hasn\'t added a bio yet.',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            color: const Color(0xFFCBD5E1),
-                            fontWeight: FontWeight.w500,
-                          ),
                         ),
+                        const SizedBox(height: 16),
+                      ],
+
+                      // Social Media Links
+                      _buildSocialMediaSection(),
 
                       const SizedBox(height: 24),
                       const Divider(height: 1, color: Color(0xFFF1F5F9)),
@@ -517,10 +579,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
                 // ── Message Button ───────────────────────────────────────
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
                   child: SizedBox(
                     width: double.infinity,
-                    height: 50,
+                    height: 48,
                     child: OutlinedButton.icon(
                       onPressed: () {
                         HapticFeedback.lightImpact();
@@ -536,27 +598,23 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                           ),
                         );
                       },
-                      icon: SvgPicture.asset(
-                        'assets/icons/Vectorproepty card meeasge.svg',
-                        width: 16,
-                        height: 16,
-                        colorFilter: const ColorFilter.mode(
-                          Color(0xFF0F172A),
-                          BlendMode.srcIn,
-                        ),
+                      icon: const FaIcon(
+                        FontAwesomeIcons.paperPlane,
+                        size: 15,
+                        color: Color(0xFF0F172A),
                       ),
                       label: Text(
                         'Message ${widget.name.split(' ').first}',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14.5,
                           color: const Color(0xFF0F172A),
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(
                           color: Color(0xFF0F172A),
-                          width: 1.5,
+                          width: 1.2,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -602,8 +660,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             Text(
               value,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
                 color: const Color(0xFF0F172A),
                 height: 1,
               ),
@@ -611,14 +669,14 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             if (trailing != null) ...[const SizedBox(width: 3), trailing],
           ],
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 5),
         Text(
           label,
           textAlign: TextAlign.center,
           style: GoogleFonts.inter(
-            fontSize: 11,
-            color: const Color(0xFF94A3B8),
-            fontWeight: FontWeight.w600,
+            fontSize: 12,
+            color: const Color(0xFF64748B),
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],
@@ -685,6 +743,105 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSocialMediaSection() {
+    final List<String> linksToDisplay = _socialLinks.isNotEmpty
+        ? _socialLinks
+        : [
+            'https://facebook.com',
+            'https://instagram.com',
+            'https://tiktok.com',
+            'https://linkedin.com',
+          ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Connected Social Accounts',
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF64748B),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: linksToDisplay
+              .map((url) => _buildSocialIconBadge(url))
+              .toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSocialIconBadge(String rawUrl) {
+    final String urlLower = rawUrl.toLowerCase();
+    IconData iconData = FontAwesomeIcons.globe;
+    Color brandColor = const Color(0xFF475569);
+    String label = 'Website';
+
+    if (urlLower.contains('facebook')) {
+      iconData = FontAwesomeIcons.facebook;
+      brandColor = const Color(0xFF1877F2);
+      label = 'Facebook';
+    } else if (urlLower.contains('instagram')) {
+      iconData = FontAwesomeIcons.instagram;
+      brandColor = const Color(0xFFE4405F);
+      label = 'Instagram';
+    } else if (urlLower.contains('linkedin')) {
+      iconData = FontAwesomeIcons.linkedin;
+      brandColor = const Color(0xFF0A66C2);
+      label = 'LinkedIn';
+    } else if (urlLower.contains('tiktok')) {
+      iconData = FontAwesomeIcons.tiktok;
+      brandColor = const Color(0xFF000000);
+      label = 'TikTok';
+    } else if (urlLower.contains('twitter') || urlLower.contains('x.com')) {
+      iconData = FontAwesomeIcons.xTwitter;
+      brandColor = const Color(0xFF000000);
+      label = 'X / Twitter';
+    } else if (urlLower.contains('whatsapp') || urlLower.contains('wa.me')) {
+      iconData = FontAwesomeIcons.whatsapp;
+      brandColor = const Color(0xFF25D366);
+      label = 'WhatsApp';
+    }
+
+    return InkWell(
+      onTap: () async {
+        HapticFeedback.lightImpact();
+        final Uri? uri = Uri.tryParse(rawUrl);
+        if (uri != null) {
+          try {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          } catch (e) {
+            debugPrint('Error launching URL: $e');
+          }
+        }
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FaIcon(iconData, size: 17, color: brandColor),
+            const SizedBox(width: 7),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF334155),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
