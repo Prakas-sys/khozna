@@ -16,6 +16,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/services/upload_manager.dart';
+import 'package:khozna/features/profile/screens/kyc_screen.dart';
 
 class AddPropertyScreen extends StatefulWidget {
   const AddPropertyScreen({super.key});
@@ -343,7 +344,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         break;
       case 7: // Photos (Step 8)
         if (_selectedImages.length < 5) {
-          errorMessage = 'कृपया कम्तिमा ५ वटा फोटोहरू राख्नुहोस्।';
+          errorMessage = 'Please upload at least 5 photos to continue (${_selectedImages.length}/5 uploaded).';
         } else {
           isValid = true;
         }
@@ -399,6 +400,82 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     setState(() => _isPublishing = true);
 
     try {
+      // 0. Check listing limit for unverified owners (Max 3 listings for unverified users)
+      final profileRes = await Supabase.instance.client
+          .from('profiles')
+          .select('kyc_status')
+          .eq('id', user.id)
+          .maybeSingle();
+
+      final String kycStatus = profileRes?['kyc_status'] ?? 'not_started';
+      final bool isVerified = kycStatus == 'verified' || kycStatus == 'approved';
+
+      if (!isVerified) {
+        final existingProperties = await Supabase.instance.client
+            .from('properties')
+            .select('id')
+            .eq('owner_id', user.id);
+
+        if (existingProperties is List && existingProperties.length >= 3) {
+          setState(() => _isPublishing = false);
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                title: Row(
+                  children: [
+                    const Icon(Icons.stars_rounded, color: Colors.amber, size: 24),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Unverified Listing Limit',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                content: Text(
+                  'Unverified accounts can list a maximum of 3 properties. Please verify your account (KYC) to unlock unlimited property listings!',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: const Color(0xFF475569),
+                    height: 1.45,
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: Text('Cancel', style: GoogleFonts.inter(color: const Color(0xFF64748B))),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => KycScreen()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.brandColor,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: Text(
+                      'Verify Now (KYC)',
+                      style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+          return;
+        }
+      }
+
       // 1. Wait for Payout Screenshot if it exists
       String? qrUrl;
       if (_payoutQrImage != null) {
@@ -2363,20 +2440,20 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
     return StepLayout(
       title: 'Review your listing',
-      subtitle: 'Here\'s how your property will look to guests.',
+      subtitle: 'Check your property details before publishing.',
       content: [
-        // ── 1. MINIMALIST AIRBNB CARD PREVIEW ──────────────────────────────
+        // ── 1. SLIM PROPERTY CARD PREVIEW ──────────────────────────────
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 12,
+                offset: const Offset(0, 3),
               ),
             ],
           ),
@@ -2387,37 +2464,37 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                     child: _selectedImages.isNotEmpty
                         ? Image.file(
                             _selectedImages.first,
-                            height: 200,
+                            height: 165,
                             width: double.infinity,
                             fit: BoxFit.cover,
                           )
                         : Container(
-                            height: 200,
+                            height: 165,
                             color: const Color(0xFFF1F5F9),
                             child: const Center(
-                              child: Icon(Icons.image_outlined, size: 48, color: Color(0xFF94A3B8)),
+                              child: Icon(Icons.image_outlined, size: 40, color: Color(0xFF94A3B8)),
                             ),
                           ),
                   ),
                   // Category Pill
                   Positioned(
-                    top: 12,
-                    left: 12,
+                    top: 10,
+                    left: 10,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.75),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
                         categoryName.toUpperCase(),
                         style: GoogleFonts.inter(
                           color: Colors.white,
-                          fontSize: 10,
+                          fontSize: 9.5,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.5,
                         ),
@@ -2426,24 +2503,24 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   ),
                   // Photo Count Badge
                   Positioned(
-                    bottom: 12,
-                    right: 12,
+                    bottom: 10,
+                    right: 10,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.75),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.photo_camera_outlined, color: Colors.white, size: 12),
+                          const Icon(Icons.photo_camera_outlined, color: Colors.white, size: 11),
                           const SizedBox(width: 4),
                           Text(
                             '${_selectedImages.length} Photos',
                             style: GoogleFonts.inter(
                               color: Colors.white,
-                              fontSize: 10.5,
+                              fontSize: 10,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -2454,106 +2531,124 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 ],
               ),
 
-              // Title, Location, Price Body
+              // Title & Location (Left) + Price (Right, Facing Title)
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      titleText,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF0F172A),
-                        height: 1.25,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.location_on_rounded, size: 14, color: AppTheme.brandColor),
-                        const SizedBox(width: 4),
+                        // Left: Title + Location
                         Expanded(
-                          child: Text(
-                            landmarkText.isNotEmpty ? '$areaText ($landmarkText)' : areaText,
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF64748B),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                titleText,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  color: const Color(0xFF0F172A),
+                                  height: 1.25,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  const Icon(Icons.location_on_rounded, size: 13, color: AppTheme.brandColor),
+                                  const SizedBox(width: 3),
+                                  Expanded(
+                                    child: Text(
+                                      landmarkText.isNotEmpty ? '$areaText ($landmarkText)' : areaText,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w500,
+                                        color: const Color(0xFF64748B),
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
 
-                    // Price Pill with Custom Rupee Vector
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          'assets/icons/vector of ruppes.svg',
-                          width: 16,
-                          height: 16,
-                          colorFilter: const ColorFilter.mode(
-                            AppTheme.brandColor,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                        const SizedBox(width: 3),
-                        Text(
-                          priceText,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 19,
-                            fontWeight: FontWeight.w900,
-                            color: AppTheme.brandColor,
-                          ),
-                        ),
-                        Text(
-                          ' / month',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF475569),
-                          ),
-                        ),
-                        if (nightPriceText.isNotEmpty && nightPriceText != '0') ...[
-                          const SizedBox(width: 8),
-                          Text(
-                            '• ',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: const Color(0xFF64748B),
+                        const SizedBox(width: 12),
+
+                        // Right: Price Facing Title
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/icons/vector of ruppes.svg',
+                                  width: 14,
+                                  height: 14,
+                                  colorFilter: const ColorFilter.mode(
+                                    AppTheme.brandColor,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                                const SizedBox(width: 3),
+                                Text(
+                                  priceText,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppTheme.brandColor,
+                                  ),
+                                ),
+                                Text(
+                                  ' / mo',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF475569),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          SvgPicture.asset(
-                            'assets/icons/vector of ruppes.svg',
-                            width: 12,
-                            height: 12,
-                            colorFilter: const ColorFilter.mode(
-                              Color(0xFF64748B),
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            '$nightPriceText / night',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF64748B),
-                            ),
-                          ),
-                        ],
+                            if (nightPriceText.isNotEmpty && nightPriceText != '0') ...[
+                              const SizedBox(height: 2),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/icons/vector of ruppes.svg',
+                                    width: 10,
+                                    height: 10,
+                                    colorFilter: const ColorFilter.mode(
+                                      Color(0xFF64748B),
+                                      BlendMode.srcIn,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    '$nightPriceText / night',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                      color: const Color(0xFF64748B),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: 6,
+                      runSpacing: 6,
                       children: [
                         _buildReviewSpecChip(Icons.calendar_today_rounded, 'Min stay: $_minStayNights ${_minStayNights == 1 ? "night" : "nights"}'),
                         _buildReviewSpecChip(
@@ -2570,23 +2665,23 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
 
-        // ── 2. CLEAN READY NOTE ─────────────────────────────────────────────
+        // ── 2. SHORT READY NOTE ─────────────────────────────────────────────
         Container(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
           decoration: BoxDecoration(
             color: const Color(0xFFF0FDF4),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(color: const Color(0xFFBBF7D0)),
           ),
           child: Row(
             children: [
-              const Icon(Icons.check_circle_rounded, color: Color(0xFF16A34A), size: 20),
-              const SizedBox(width: 10),
+              const Icon(Icons.check_circle_rounded, color: Color(0xFF16A34A), size: 18),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Everything is set! Tap Publish to list your property live.',
+                  'Ready to publish! Tap Publish below.',
                   style: GoogleFonts.inter(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,

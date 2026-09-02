@@ -1627,48 +1627,49 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     ),
                   ),
 
-                  // Clean Center House Pin (Airbnb-style, no text overlay, no glow effect)
+                  // Slim Bordered House Pin
                   Center(
                     child: Container(
-                      width: 44,
-                      height: 44,
+                      width: 46,
+                      height: 46,
                       decoration: BoxDecoration(
-                        color: AppTheme.brandColor,
+                        color: Colors.white,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2.5),
+                        border: Border.all(color: AppTheme.brandColor, width: 1.8),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 8,
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 10,
                             offset: const Offset(0, 3),
                           ),
                         ],
                       ),
                       child: const Icon(
-                        Icons.home_rounded,
-                        color: Colors.white,
+                        Icons.home_work_rounded,
+                        color: AppTheme.brandColor,
                         size: 22,
                       ),
                     ),
                   ),
 
-                  // Bottom Right Modern "OPEN" Navigation Pill
+                  // Bottom Right Slim "OPEN" Navigation Pill
                   Positioned(
                     bottom: 12,
                     right: 12,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                        horizontal: 14,
+                        vertical: 7,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.brandColor,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: AppTheme.brandColor, width: 1.2),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.brandColor.withOpacity(0.4),
-                            blurRadius: 10,
-                            offset: const Offset(0, 3),
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
@@ -1677,16 +1678,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         children: [
                           const Icon(
                             Icons.near_me_rounded,
-                            color: Colors.white,
-                            size: 15,
+                            color: AppTheme.brandColor,
+                            size: 14,
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 5),
                           Text(
                             'OPEN',
                             style: GoogleFonts.plusJakartaSans(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.brandColor,
                               letterSpacing: 0.5,
                             ),
                           ),
