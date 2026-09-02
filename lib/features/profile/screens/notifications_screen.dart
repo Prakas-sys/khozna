@@ -9,6 +9,7 @@ import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
 import 'package:khozna/features/property/screens/payment_choice_screen.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/property/repositories/booking_repository.dart';
+import 'package:khozna/features/profile/screens/help_center_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -90,6 +91,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         final rawMsg = copy['message']?.toString() ?? '';
         final rawType = copy['type']?.toString() ?? '';
 
+        final isDeclined = rawTitle.contains('Declined') ||
+            rawTitle.contains('Denied') ||
+            rawTitle.contains('अस्वीकृत') ||
+            rawMsg.contains('declined') ||
+            rawMsg.contains('denied') ||
+            rawMsg.contains('re-upload');
+
+        final isVerified = rawTitle.contains('Verified') ||
+            rawTitle.contains('Confirmed') ||
+            rawTitle.contains('स्वीकृत') ||
+            rawMsg.contains('verified') ||
+            rawMsg.contains('confirmed');
+
         final isPayment = rawType == 'payment_received' ||
             rawType == 'payment' ||
             rawTitle.contains('भुक्तानी') ||
@@ -106,7 +120,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 rawMsg.contains('book') ||
                 rawTitle.contains('Khozna'));
 
-        if (isPayment) {
+        if (isDeclined) {
+          copy['type'] = 'payment_declined';
+          copy['is_guest_notification'] = true;
+        } else if (isVerified) {
+          copy['type'] = 'payment_verified';
+          copy['is_guest_notification'] = true;
+        } else if (isPayment) {
           copy['type'] = 'payment_received';
         } else if (isVisit) {
           copy['type'] = 'booking_request';
@@ -137,18 +157,40 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           (n) => n['booking_id']?.toString() == visit.id || n['id'] == synthId,
         );
         if (!existing && !dismissedIds.contains(synthId)) {
-          final timeStr = visit.createdAt?.toIso8601String()
-              ?? DateTime.now().toIso8601String();
+          final timeStr = visit.createdAt.toIso8601String();
           final propTitle = visit.propertyTitle ?? 'Property';
-          if (visit.status == 'visit_accepted') {
+
+          if (visit.status == 'payment_declined' || visit.status == 'rejected' || (visit.rejectionReason != null && visit.rejectionReason!.isNotEmpty)) {
+            combined.add({
+              'id': synthId,
+              'booking_id': visit.id,
+              'property_id': visit.propertyId,
+              'title': 'Payment Receipt Declined',
+              'message': 'Your payment receipt for "$propTitle" was declined. Please re-upload your payment receipt.',
+              'type': 'payment_declined',
+              'is_guest_notification': true,
+              'created_at': timeStr,
+            });
+          } else if (visit.status == 'confirmed') {
+            combined.add({
+              'id': synthId,
+              'booking_id': visit.id,
+              'property_id': visit.propertyId,
+              'title': 'Payment Verified',
+              'message': 'Your payment receipt for "$propTitle" was verified by Khozna. Your booking is confirmed!',
+              'type': 'payment_verified',
+              'is_guest_notification': true,
+              'created_at': timeStr,
+            });
+          } else if (visit.status == 'visit_accepted') {
             combined.add({
               'id': synthId,
               'booking_id': visit.id,
               'property_id': visit.propertyId,
               'title': 'Visit Approved',
-              'message':
-                  'The owner accepted your visit request for "$propTitle".',
+              'message': 'The owner accepted your visit request for "$propTitle".',
               'type': 'booking_approved',
+              'is_guest_notification': true,
               'created_at': timeStr,
             });
           } else if (visit.status == 'awaiting_payment') {
@@ -162,17 +204,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ? 'Your visit for "$propTitle" was approved. Complete payment to confirm.'
                   : 'Your booking for "$propTitle" is approved! Complete payment to confirm.',
               'type': 'booking_approved',
-              'created_at': timeStr,
-            });
-          } else if (visit.status == 'confirmed') {
-            combined.add({
-              'id': synthId,
-              'booking_id': visit.id,
-              'property_id': visit.propertyId,
-              'title': 'Booking Confirmed',
-              'message':
-                  'Your booking for "$propTitle" is confirmed.',
-              'type': 'booking_alert',
+              'is_guest_notification': true,
               'created_at': timeStr,
             });
           } else if (visit.status == 'pending_approval') {
@@ -183,6 +215,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'title': 'Booking Request Sent',
               'message': 'Your booking request for "$propTitle" was sent to the host.',
               'type': 'booking_alert',
+              'is_guest_notification': true,
               'created_at': timeStr,
             });
           }
@@ -233,10 +266,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             'title': 'Property Visit Request',
             'message': 'Requested a visit for "$propTitle".',
             'type': 'booking_request',
+            'is_owner_notification': true,
             'sender': guestProfile,
             'created_at': timeStr,
           });
-        } else if (status == 'paid') {
+        } else if (status == 'paid' || status == 'payment_submitted') {
           combined.add({
             'id': synthId,
             'booking_id': bId,
@@ -244,6 +278,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             'title': 'Payment Received',
             'message': 'Payment received for "$propTitle".',
             'type': 'payment_received',
+            'is_owner_notification': true,
             'sender': guestProfile,
             'created_at': timeStr,
           });
@@ -376,6 +411,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.help_outline_rounded,
+              color: Color(0xFF0F172A),
+              size: 22,
+            ),
+            tooltip: 'Help Centre & Contact Support',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HelpCenterScreen(),
+                ),
+              );
+            },
+          ),
           if (_notifications.isNotEmpty)
             IconButton(
               icon: const Icon(
@@ -425,21 +476,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               final String id = note['id'].toString();
                               final String type = note['type']?.toString() ?? '';
 
-                        // -- SPECIAL: Booking Request card with Approve/Reject --
                         final titleStr = note['title']?.toString() ?? '';
                         final msgStr = note['message']?.toString() ?? '';
 
-                        final bool isOwnerBookingRequest =
-                            type == 'booking_request' ||
-                            id.startsWith('synth_owner_');
+                        final bool isOwnerNote = note['is_owner_notification'] == true || id.startsWith('synth_owner_');
+                        final bool isGuestNote = note['is_guest_notification'] == true || id.startsWith('synth_');
 
-                        final bool isGuestSentRequest =
-                            !isOwnerBookingRequest &&
-                            (titleStr.contains('Sent') ||
-                                msgStr.contains('sent to the owner') ||
-                                msgStr.contains('Sent'));
-
-                        if (isOwnerBookingRequest) {
+                        // 1. Owner Booking Request ("Respond to Booking Request")
+                        if (isOwnerNote && (type == 'booking_request' || id.startsWith('synth_owner_'))) {
                           return GestureDetector(
                             onLongPress: () => _confirmDelete(id, index),
                             child: Padding(
@@ -454,7 +498,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           );
                         }
 
-                        if (isGuestSentRequest) {
+                        // 2. Guest Sent Request ("Visit request sent — awaiting host response")
+                        if (isGuestNote && (type == 'booking_alert' || titleStr.contains('Sent') || msgStr.contains('sent'))) {
                           return GestureDetector(
                             onLongPress: () => _confirmDelete(id, index),
                             child: Padding(
@@ -468,8 +513,32 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           );
                         }
 
-                        // -- SPECIAL: Payment Received card --
-                        if (type == 'payment_received') {
+                        // 3. Guest Payment Receipt Declined ("Re-upload Payment Receipt")
+                        if (type == 'payment_declined' || titleStr.contains('Declined') || titleStr.contains('Denied')) {
+                          return GestureDetector(
+                            onLongPress: () => _confirmDelete(id, index),
+                            child: _buildGuestPaymentDeclinedCard(
+                              note,
+                              id,
+                              index,
+                            ),
+                          );
+                        }
+
+                        // 4. Guest Payment Receipt Verified (Clean green check)
+                        if (type == 'payment_verified') {
+                          return GestureDetector(
+                            onLongPress: () => _confirmDelete(id, index),
+                            child: _buildGuestPaymentVerifiedCard(
+                              note,
+                              id,
+                              index,
+                            ),
+                          );
+                        }
+
+                        // 5. Owner Payment Received ("View Payment Receipt" owner modal)
+                        if (isOwnerNote && type == 'payment_received') {
                           return GestureDetector(
                             onLongPress: () => _confirmDelete(id, index),
                             child: _buildPaymentReceivedCard(
@@ -481,7 +550,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           );
                         }
 
-                        // -- SPECIAL: Booking Approved (Guest) card --
+                        // 6. Booking Approved (Guest)
                         final isRejected =
                             titleStr.contains('अस्वीकृत') ||
                             msgStr.contains('अस्वीकृत') ||
@@ -699,9 +768,38 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildAvatar(dynamic sender, {double radius = 20}) {
     final String? avatarUrl = sender?['avatar_url']?.toString();
-    String name = sender?['full_name']?.toString() ?? 'Guest';
-    if (name == 'Khozna app' || name.trim().isEmpty) name = 'Guest';
-    final String initial = name.isNotEmpty ? name[0].toUpperCase() : 'G';
+    String name = sender?['full_name']?.toString() ?? 'Khozna Admin';
+
+    final bool isKhozna = sender == null ||
+        name == 'Khozna app' ||
+        name == 'Khozna Admin' ||
+        name == 'Khozna' ||
+        name.toLowerCase().contains('khozna') ||
+        name.trim().isEmpty;
+
+    if (isKhozna) {
+      return Container(
+        width: radius * 2,
+        height: radius * 2,
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
+          shape: BoxShape.circle,
+        ),
+        child: ClipOval(
+          child: Image.asset(
+            'assets/images/KHOZNA_app_icon_512x512.png',
+            width: radius * 2,
+            height: radius * 2,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Icon(
+              Icons.verified_user_rounded,
+              size: radius * 1.3,
+              color: AppTheme.brandColor,
+            ),
+          ),
+        ),
+      );
+    }
 
     if (avatarUrl != null && avatarUrl.trim().isNotEmpty) {
       return CircleAvatar(
@@ -710,6 +808,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         backgroundImage: CachedNetworkImageProvider(avatarUrl),
       );
     }
+
+    final String initial = name.isNotEmpty ? name[0].toUpperCase() : 'U';
 
     return CircleAvatar(
       radius: radius,
@@ -1523,6 +1623,278 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       default:
         return Colors.grey;
     }
+  }
+
+  /// Payment Receipt Declined/Rejected card — shown to the guest (Clean No-Border Container)
+  Widget _buildGuestPaymentDeclinedCard(
+    Map<String, dynamic> note,
+    String id,
+    int index,
+  ) {
+    final String bookingId = note['booking_id']?.toString() ?? '';
+    final String propertyId = note['property_id']?.toString() ?? '';
+    final String message = _cleanMessage(
+      note['message']?.toString() ??
+          'Payment receipt was rejected by admin. Please re-upload a valid payment receipt.',
+    );
+
+    final String bodyText = message
+        .replaceAll('Your payment receipt was rejected.', '')
+        .replaceAll('Payment receipt was rejected by admin.', '')
+        .trim();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildAvatar(null, radius: 14),
+              const SizedBox(width: 8),
+              Text(
+                'Admin Denied',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13.5,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                _formatTime(note['created_at']),
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: const Color(0xFF94A3B8),
+                ),
+              ),
+              const SizedBox(width: 6),
+              GestureDetector(
+                onTap: () => _confirmDelete(id, index),
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF1F5F9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.close_rounded, color: Color(0xFF64748B), size: 12),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          RichText(
+            text: TextSpan(
+              style: GoogleFonts.inter(
+                fontSize: 12.5,
+                color: const Color(0xFF475569),
+                height: 1.35,
+              ),
+              children: [
+                const TextSpan(
+                  text: 'Payment receipt rejected by admin. ',
+                  style: TextStyle(
+                    color: Color(0xFFDC2626),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                TextSpan(
+                  text: bodyText.isNotEmpty ? bodyText : 'Please re-upload a valid payment receipt.',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    BookingModel? booking;
+                    if (bookingId.isNotEmpty) {
+                      booking = await SupabaseService.getVisitById(bookingId);
+                    }
+                    if (booking == null && propertyId.isNotEmpty) {
+                      final visits = await SupabaseService.getMyVisits();
+                      final matches = visits.where((v) => v.propertyId == propertyId).toList();
+                      if (matches.isNotEmpty) booking = matches.first;
+                    }
+
+                    if (booking != null && mounted) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PaymentChoiceScreen(
+                            booking: booking!,
+                            propertyTitle: booking.propertyTitle ?? 'Property',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.upload_file_rounded, size: 15),
+                  label: Text(
+                    'Re-upload Receipt',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12.5,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF059669),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 9),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HelpCenterScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.help_outline_rounded, size: 15),
+                label: Text(
+                  'Help',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12.5,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF0F172A),
+                  side: const BorderSide(color: Color(0xFFCBD5E1)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Payment Verified card — shown to the guest (Clean green check)
+  Widget _buildGuestPaymentVerifiedCard(
+    Map<String, dynamic> note,
+    String id,
+    int index,
+  ) {
+    final String title = _cleanTitle(note['title']?.toString() ?? 'Payment Verified');
+    final String message = _cleanMessage(note['message']?.toString() ?? 'Your payment receipt was verified. Your booking is confirmed!');
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFA7F3D0), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Color(0xFFECFDF5),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.check_circle_rounded,
+                color: Color(0xFF059669),
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: const Color(0xFF0F172A),
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFECFDF5),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFA7F3D0)),
+                        ),
+                        child: Text(
+                          'Verified',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 10.5,
+                            color: const Color(0xFF047857),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    message,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: const Color(0xFF475569),
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    _formatTime(note['created_at']),
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: const Color(0xFF94A3B8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   /// Executive Minimalist: Payment received notification card

@@ -909,6 +909,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (k.contains('ac') || k.contains('air cond')) {
       return (Icons.ac_unit_rounded, 'AC', Colors.blueGrey);
     }
+    if (k.contains('unfurnish')) {
+      return (Icons.chair_outlined, 'Unfurnished', Colors.slate);
+    }
     if (k.contains('furnish')) {
       return (Icons.chair_rounded, 'Furnished', Colors.brown);
     }
@@ -1038,6 +1041,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     }
     if (k.contains('transport') || k.contains('bus')) {
       return Icons.directions_bus_outlined;
+    }
+    if (k.contains('unfurnish')) {
+      return Icons.chair_outlined;
     }
     if (k.contains('furnish')) {
       return Icons.chair_outlined;
@@ -2440,11 +2446,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             fontWeight: FontWeight.w800,
                             color: Colors.black,
                             letterSpacing: -0.6,
-                            decoration: isNegotiable
-                                ? TextDecoration.none
-                                : TextDecoration.underline,
-                            decorationColor: Colors.black,
-                            decorationThickness: 1.5,
+                            decoration: TextDecoration.none,
                           ),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
