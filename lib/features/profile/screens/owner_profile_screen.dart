@@ -476,94 +476,93 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                   ),
                 ),
 
-                // ── Host Highlights ──────────────────────────────────────
+                // ── About Section ────────────────────────────────────────
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'About ${widget.name.split(' ').first}',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
                           color: const Color(0xFF0F172A),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
 
-                      // Organization
-                      if (_organization != null && _organization!.isNotEmpty)
-                        _buildInfoRow(
-                          icon: Icons.work_outline_rounded,
-                          text: _organization!,
+                      // Info chips row
+                      if ((_organization != null && _organization!.isNotEmpty) ||
+                          (_userType != null && _userType!.isNotEmpty))
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              if (_organization != null && _organization!.isNotEmpty)
+                                _buildInfoChip(Icons.work_outline_rounded, _organization!),
+                              if (_userType != null && _userType!.isNotEmpty)
+                                _buildInfoChip(Icons.person_outline_rounded, _userType!),
+                            ],
+                          ),
                         ),
 
-                      // User type
-                      if (_userType != null && _userType!.isNotEmpty)
-                        _buildInfoRow(
-                          icon: Icons.person_outline_rounded,
-                          text: _userType!,
-                        ),
-
-                      // Bio / Self Intro
-                      if (_bio != null && _bio!.trim().isNotEmpty) ...[
-                        const SizedBox(height: 8),
+                      // Bio
+                      if (_bio != null && _bio!.trim().isNotEmpty)
                         Text(
                           _bio!,
                           style: GoogleFonts.inter(
                             fontSize: 14.5,
                             color: const Color(0xFF475569),
-                            height: 1.55,
+                            height: 1.6,
                           ),
-                        ),
-                      ] else ...[
-                        const SizedBox(height: 4),
+                        )
+                      else
                         Text(
-                          'No self-intro added yet.',
+                          'This host hasn\'t added a bio yet.',
                           style: GoogleFonts.inter(
                             fontSize: 14,
-                            color: const Color(0xFF94A3B8),
-                            fontStyle: FontStyle.italic,
+                            color: const Color(0xFFCBD5E1),
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                      ],
 
-                      const SizedBox(height: 28),
-                      const Divider(color: Color(0xFFF1F5F9), thickness: 1),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 24),
+                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
                     ],
                   ),
                 ),
 
-                // ── If NOT verified — warning banner ────────────────────
+                // ── Warning Banner (unverified) ──────────────────────────
                 if (!_isProfileVerified)
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
                     child: Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFFBEB),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: const Color(0xFFFCD34D),
-                          width: 1,
-                        ),
+                        color: const Color(0xFFFEFCE8),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(
-                            Icons.info_outline_rounded,
-                            color: Color(0xFFD97706),
-                            size: 20,
+                          const Padding(
+                            padding: EdgeInsets.only(top: 1),
+                            child: Icon(
+                              Icons.warning_amber_rounded,
+                              color: Color(0xFFCA8A04),
+                              size: 18,
+                            ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              'This owner\'s identity has not been verified yet. Proceed with caution.',
+                              'This owner\'s identity hasn\'t been verified yet.',
                               style: GoogleFonts.inter(
-                                fontSize: 12.5,
-                                color: const Color(0xFF92400E),
+                                fontSize: 13,
+                                color: const Color(0xFF854D0E),
                                 height: 1.4,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -576,11 +575,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
                 // ── Message Button ───────────────────────────────────────
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
                   child: SizedBox(
                     width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton.icon(
+                    height: 50,
+                    child: OutlinedButton.icon(
                       onPressed: () {
                         HapticFeedback.lightImpact();
                         Navigator.push(
@@ -600,33 +599,35 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                         width: 16,
                         height: 16,
                         colorFilter: const ColorFilter.mode(
-                          Colors.white,
+                          Color(0xFF0F172A),
                           BlendMode.srcIn,
                         ),
                       ),
                       label: Text(
-                        'Send a Message',
+                        'Message ${widget.name.split(' ').first}',
                         style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w700,
                           fontSize: 15,
+                          color: const Color(0xFF0F172A),
                         ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.brandColor,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(50),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(
+                          color: Color(0xFF0F172A),
+                          width: 1.5,
                         ),
-                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 28),
+                const SizedBox(height: 24),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24),
-                  child: Divider(color: Color(0xFFF1F5F9), thickness: 1),
+                  child: Divider(height: 1, color: Color(0xFFF1F5F9)),
                 ),
                 const SizedBox(height: 28),
 
@@ -644,12 +645,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     );
   }
 
-  // ── Helpers ─────────────────────────────────────────────────────────────
-
-  Widget _buildBigStat({
+  Widget _buildCleanStat({
     required String value,
     required String label,
-    Widget? icon,
+    Widget? trailing,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -661,13 +660,13 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             Text(
               value,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 24,
+                fontSize: 22,
                 fontWeight: FontWeight.w800,
                 color: const Color(0xFF0F172A),
                 height: 1,
               ),
             ),
-            if (icon != null) ...[const SizedBox(width: 3), icon],
+            if (trailing != null) ...[const SizedBox(width: 3), trailing],
           ],
         ),
         const SizedBox(height: 4),
@@ -676,7 +675,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           textAlign: TextAlign.center,
           style: GoogleFonts.inter(
             fontSize: 11,
-            color: const Color(0xFF64748B),
+            color: const Color(0xFF94A3B8),
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -684,72 +683,25 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     );
   }
 
-  Widget _buildStatDivider() {
+  Widget _buildInfoChip(IconData icon, String text) {
     return Container(
-      height: 36,
-      width: 1,
-      color: const Color(0xFFE2E8F0),
-    );
-  }
-
-  Widget _buildVerificationRow({
-    required String label,
-    required bool isVerified,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Icon(
-                isVerified ? Icons.check_circle_rounded : Icons.remove_circle_outline_rounded,
-                color: isVerified
-                    ? const Color(0xFF16A34A)
-                    : const Color(0xFF94A3B8),
-                size: 20,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: const Color(0xFF0F172A),
-                ),
-              ),
-            ],
-          ),
-          Text(
-            isVerified ? 'Verified' : 'Not verified',
-            style: GoogleFonts.inter(
-              fontSize: 13.5,
-              fontWeight: isVerified ? FontWeight.w600 : FontWeight.w500,
-              color: isVerified ? const Color(0xFF166534) : const Color(0xFF64748B),
-              decoration: TextDecoration.underline,
-            ),
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(100),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
       ),
-    );
-  }
-
-  Widget _buildInfoRow({required IconData icon, required String text}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 13),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18, color: const Color(0xFF64748B)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: const Color(0xFF334155),
-              ),
+          Icon(icon, size: 14, color: const Color(0xFF64748B)),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF334155),
             ),
           ),
         ],
@@ -762,7 +714,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(32),
-          child: CircularProgressIndicator(color: AppTheme.brandColor),
+          child: CircularProgressIndicator(
+            color: AppTheme.brandColor,
+            strokeWidth: 2.5,
+          ),
         ),
       );
     }
@@ -772,29 +727,46 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
       children: [
         Row(
           children: [
-            if (avgRating != null) ...[
-              const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
-              const SizedBox(width: 4),
+            Text(
+              'Reviews',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF0F172A),
+              ),
+            ),
+            if (_ownerReviews.isNotEmpty && avgRating != null) ...[
+              const SizedBox(width: 8),
+              const Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 18),
+              const SizedBox(width: 3),
               Text(
                 avgRating.toStringAsFixed(1),
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w800,
                   color: const Color(0xFF0F172A),
                 ),
               ),
-              const SizedBox(width: 6),
-            ],
-            Text(
-              _ownerReviews.isEmpty
-                  ? 'No reviews yet'
-                  : '${_ownerReviews.length} ${_ownerReviews.length == 1 ? 'Review' : 'Reviews'}',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF0F172A),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: Text(
+                  '·',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    color: const Color(0xFFCBD5E1),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
-            ),
+              Text(
+                '${_ownerReviews.length}',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF64748B),
+                ),
+              ),
+            ],
           ],
         ),
         const SizedBox(height: 16),
@@ -814,22 +786,15 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   }
 
   Widget _buildEmptyReviews() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 32),
-      alignment: Alignment.center,
-      child: Column(
-        children: [
-          Icon(Icons.rate_review_outlined, size: 40, color: Colors.grey[300]),
-          const SizedBox(height: 12),
-          Text(
-            'No guest reviews yet',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: Colors.grey[500],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Text(
+        'No reviews from guests yet.',
+        style: GoogleFonts.inter(
+          fontSize: 14,
+          color: const Color(0xFFCBD5E1),
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }
