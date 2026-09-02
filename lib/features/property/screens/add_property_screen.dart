@@ -1143,6 +1143,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           {'id': 'girls_only', 'icon': Icons.woman_rounded, 'label': 'Girls Only', 'desc': 'Space reserved for female tenants'},
           {'id': 'couples_allowed', 'icon': Icons.favorite_border_rounded, 'label': 'Couples Welcome', 'desc': 'Couples can rent this property'},
         ],
+      {
+        'title': 'PROPERTY CARE & CLEANLINESS',
+        'rules': [
+          {'id': 'no_property_damage', 'icon': Icons.shield_outlined, 'label': 'Do Not Damage Property', 'desc': 'Keep walls, furniture, and fittings in good condition'},
+          {'id': 'keep_clean', 'icon': Icons.cleaning_services_rounded, 'label': 'Keep Property Clean & Tidy', 'desc': 'Maintain cleanliness in rooms and common areas'},
+          {'id': 'lock_when_leaving', 'icon': Icons.lock_outline_rounded, 'label': 'Lock Doors When Away', 'desc': 'Ensure doors are locked and appliances off when leaving'},
+        ],
       },
       {
         'title': 'HOUSE POLICIES',

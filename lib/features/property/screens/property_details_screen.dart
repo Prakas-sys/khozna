@@ -341,10 +341,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   _buildHouseRulesSection(),
                   const SizedBox(height: 24),
                 ],
-                if (_reviews.isNotEmpty) ...[
-                  _buildReviewsSection(),
-                  const SizedBox(height: 24),
-                ],
+                _buildReviewsSection(),
+                const SizedBox(height: 24),
                 Center(
                   child: TextButton.icon(
                     onPressed: () => _showReportDialog(),
@@ -1183,10 +1181,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildAmenityGrid() {
     final List<(String?, IconData, String)> items = [];
+    final Set<String> seenLabels = {};
     for (var feature in widget.property.amenities) {
       final assetOrIcon = _getAmenityAssetOrIcon(feature);
       final label = _getAmenityLabel(feature);
-      if (label.isNotEmpty) {
+      if (label.isNotEmpty && !seenLabels.contains(label.toLowerCase())) {
+        seenLabels.add(label.toLowerCase());
         items.add((assetOrIcon.$1, assetOrIcon.$2, label));
       }
     }
@@ -1268,6 +1268,118 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         ],
       ],
     );
+  }
+
+  Widget _buildHouseRulesSection() {
+    final rawRules = widget.property.houseRules;
+    final List<(IconData, String)> items = [];
+    final Set<String> seen = {};
+
+    for (var r in rawRules) {
+      final data = _getFeatureData(r);
+      if (!seen.contains(data.$2.toLowerCase())) {
+        seen.add(data.$2.toLowerCase());
+        items.add(data);
+      }
+    }
+
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      children: List.generate(items.length, (index) {
+        final item = items[index];
+        final isLast = index == items.length - 1;
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF1F5F9),
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      item.$1,
+                      size: 20,
+                      color: const Color(0xFF334155),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Text(
+                      item.$2,
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF1E293B),
+                        height: 1.3,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (!isLast)
+              const Divider(
+                height: 1,
+                thickness: 0.5,
+                color: Color(0xFFE2E8F0),
+              ),
+          ],
+        );
+      }),
+    );
+  }
+
+  (IconData, String) _getFeatureData(String feature) {
+    final k = feature.toLowerCase().trim();
+    if (k == 'no_property_damage' || k.contains('damage')) {
+      return (Icons.shield_outlined, 'Do Not Damage Property');
+    }
+    if (k == 'keep_clean' || (k.contains('clean') && !k.contains('cleaning_service'))) {
+      return (Icons.cleaning_services_rounded, 'Keep Clean & Tidy');
+    }
+    if (k == 'lock_when_leaving' || k.contains('lock')) {
+      return (Icons.lock_outline_rounded, 'Lock Doors When Away');
+    }
+    if (k == 'no_smoking' || k.contains('smoke')) {
+      return (Icons.smoke_free_rounded, 'No Smoking');
+    }
+    if (k == 'no_parties' || k.contains('party') || k.contains('loud')) {
+      return (Icons.nightlife_rounded, 'No Parties / Loud Noise');
+    }
+    if (k == 'no_alcohol' || k.contains('alcohol')) {
+      return (Icons.no_drinks_rounded, 'No Alcohol');
+    }
+    if (k == 'pets_allowed' || k.contains('pet')) {
+      return (Icons.pets_rounded, 'Pets Allowed');
+    }
+    if (k == 'family_only' || k.contains('family')) {
+      return (Icons.family_restroom_rounded, 'Family Only');
+    }
+    if (k == 'bachelors_allowed' || k.contains('bachelor') || k.contains('student')) {
+      return (Icons.school_rounded, 'Students / Bachelors');
+    }
+    if (k == 'boys_only' || k.contains('boys')) {
+      return (Icons.man_rounded, 'Boys Only');
+    }
+    if (k == 'girls_only' || k.contains('girls')) {
+      return (Icons.woman_rounded, 'Girls Only');
+    }
+    if (k == 'couples_allowed' || k.contains('couple')) {
+      return (Icons.favorite_border_rounded, 'Couples Welcome');
+    }
+
+    String formatted = feature.replaceAll('_', ' ');
+    if (formatted.isNotEmpty) {
+      formatted = formatted[0].toUpperCase() + formatted.substring(1);
+    }
+    return (_getFeatureIcon(feature), formatted);
   }
 
   Widget _buildHouseRulesSection() {
@@ -1568,6 +1680,25 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     final bool isVerified =
         _ownerData?['is_verified'] ?? widget.property.isOwnerVerified ?? false;
 
+    // Location extraction
+    final String location = (_ownerData?['area_name']?.toString() ??
+            _ownerData?['address']?.toString() ??
+            widget.property.ownerLocation ??
+            widget.property.location ??
+            'Kathmandu, Nepal')
+        .replaceAll(', Nepal', '')
+        .trim();
+
+    // Joined date extraction
+    String joinedDate = 'Verified Host';
+    if (_ownerData?['created_at'] != null) {
+      try {
+        final dt = DateTime.parse(_ownerData!['created_at'].toString());
+        final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        joinedDate = 'Joined ${months[dt.month - 1]} ${dt.year}';
+      } catch (_) {}
+    }
+
     return InkWell(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -1579,18 +1710,24 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               name: name,
               avatar: avatarUrl ?? '',
               isVerified: isVerified,
-              location: _ownerData?['area_name'] ?? widget.property.location,
+              location: location,
               totalListings: 1,
             ),
           ),
         );
       },
       borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+        ),
         child: Row(
           children: [
             Stack(
+              clipBehavior: Clip.none,
               children: [
                 Container(
                   padding: const EdgeInsets.all(2),
@@ -1606,8 +1743,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ),
                 if (isVerified)
                   Positioned(
-                    bottom: 0,
-                    right: 0,
+                    bottom: -2,
+                    right: -2,
                     child: Container(
                       padding: const EdgeInsets.all(2),
                       decoration: const BoxDecoration(
@@ -1615,43 +1752,91 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
-                        Icons.check_circle_rounded,
+                        Icons.verified_rounded,
                         color: AppTheme.brandColor,
-                        size: 16,
+                        size: 18,
                       ),
                     ),
                   ),
               ],
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Stay with $name',
+                    'Hosted by $name',
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF0F172A),
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Profile',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
-                    ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.location_on_rounded,
+                        size: 13,
+                        color: Color(0xFF64748B),
+                      ),
+                      const SizedBox(width: 3),
+                      Flexible(
+                        child: Text(
+                          location,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF64748B),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        width: 3,
+                        height: 3,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFCBD5E1),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Icon(
+                        Icons.calendar_month_rounded,
+                        size: 13,
+                        color: Color(0xFF64748B),
+                      ),
+                      const SizedBox(width: 3),
+                      Text(
+                        joinedDate,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            const Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 16,
-              color: Colors.grey,
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 12,
+                color: Color(0xFF64748B),
+              ),
             ),
           ],
         ),
@@ -1691,14 +1876,72 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     return scores;
   }
 
+  Widget _buildReviewSkeleton() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const DetailSectionTitle(title: 'Reviews & Ratings'),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Column(
+            children: List.generate(
+              2,
+              (i) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE2E8F0),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 120,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE2E8F0),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            width: 80,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildReviewsSection() {
     if (_isLoadingReviews) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 20),
-          child: CircularProgressIndicator(color: AppTheme.brandColor),
-        ),
-      );
+      return _buildReviewSkeleton();
     }
 
     if (_reviews.isEmpty) {

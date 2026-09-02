@@ -1674,6 +1674,32 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     if (!mounted) return;
 
+    // Fetch owner payout account details
+    final currentUser = Supabase.instance.client.auth.currentUser;
+    Map<String, dynamic>? ownerProfile;
+    if (currentUser != null) {
+      try {
+        ownerProfile = await Supabase.instance.client
+            .from('profiles')
+            .select('esewa_number, khalti_number, account_holder_name')
+            .eq('id', currentUser.id)
+            .maybeSingle();
+      } catch (_) {}
+    }
+
+    final String esewa = ownerProfile?['esewa_number']?.toString().trim() ?? '';
+    final String khalti = ownerProfile?['khalti_number']?.toString().trim() ?? '';
+    final String bankAcc = ownerProfile?['account_holder_name']?.toString().trim() ?? '';
+
+    String payoutMethodText = 'Not set (Tap below to set)';
+    if (esewa.isNotEmpty) {
+      payoutMethodText = 'eSewa ($esewa)';
+    } else if (khalti.isNotEmpty) {
+      payoutMethodText = 'Khalti ($khalti)';
+    } else if (bankAcc.isNotEmpty) {
+      payoutMethodText = 'Bank ($bankAcc)';
+    }
+
     final String rawGuestName = sender?['full_name']?.toString() ?? '';
     final String guestName = (rawGuestName.isEmpty || rawGuestName.toLowerCase().contains('khozna'))
         ? 'Guest (Verified Payer)'
@@ -1901,10 +1927,46 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     const SizedBox(height: 6),
                     _modalReceiptRow('Destination Account', 'Khozna Escrow Account'),
                     const SizedBox(height: 6),
+                    _modalReceiptRow('Owner Payout Target', payoutMethodText),
+                    const SizedBox(height: 6),
                     _modalReceiptRow('Ref Code', refCode),
                     const SizedBox(height: 6),
                     _modalReceiptRow('Date & Time', dateStr),
                   ],
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // -- Quick Payout Setup Action for Owner --
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _showPayoutSetupModal(
+                    context,
+                    esewa,
+                    khalti,
+                    bankAcc,
+                  );
+                },
+                icon: const Icon(Icons.account_balance_wallet_outlined, size: 16, color: Color(0xFF1D4ED8)),
+                label: Text(
+                  esewa.isNotEmpty || khalti.isNotEmpty || bankAcc.isNotEmpty
+                      ? 'Update Payout Details ($payoutMethodText)'
+                      : 'Set Payout Details (eSewa / Khalti / Bank)',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12.5,
+                    color: const Color(0xFF1D4ED8),
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 44),
+                  side: const BorderSide(color: Color(0xFF93C5FD)),
+                  backgroundColor: const Color(0xFFEFF6FF),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
 
@@ -2421,5 +2483,259 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
 
     return cleaned[0].toUpperCase() + cleaned.substring(1);
+  }
+
+  void _showPayoutSetupModal(
+    BuildContext parentContext,
+    String currentEsewa,
+    String currentKhalti,
+    String currentAccount,
+  ) {
+    final esewaCtrl = TextEditingController(text: currentEsewa);
+    final khaltiCtrl = TextEditingController(text: currentKhalti);
+    final bankCtrl = TextEditingController(text: currentAccount);
+    bool isSaving = false;
+
+    showModalBottomSheet(
+      context: parentContext,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (modalCtx) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: MediaQuery.of(modalCtx).viewInsets.bottom + 24,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 38,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE2E8F0),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFEFF6FF),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.account_balance_wallet_rounded,
+                        color: Color(0xFF1D4ED8),
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Owner Payout Setup',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF0F172A),
+                            ),
+                          ),
+                          Text(
+                            'Receive guest payments directly',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: const Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                      onPressed: () => Navigator.pop(modalCtx),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Text(
+                    '💰 When guests pay for your property, funds are held securely in Khozna Escrow. Upon guest check-in, Khozna dispatches 100% of your earnings directly to your registered eSewa, Khalti, or Bank Account.',
+                    style: GoogleFonts.inter(
+                      fontSize: 11.5,
+                      color: const Color(0xFF475569),
+                      height: 1.45,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'eSewa Mobile Number',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: esewaCtrl,
+                  keyboardType: TextInputType.phone,
+                  style: GoogleFonts.inter(fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'e.g. 9801234567',
+                    prefixIcon: const Icon(Icons.phone_android_rounded, size: 18),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Khalti ID / Number',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: khaltiCtrl,
+                  keyboardType: TextInputType.phone,
+                  style: GoogleFonts.inter(fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'e.g. 9801234567',
+                    prefixIcon: const Icon(Icons.account_balance_wallet_outlined, size: 18),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Bank Account (Bank Name & Account #)',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: bankCtrl,
+                  style: GoogleFonts.inter(fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'e.g. NIC Asia Bank - 1234567890',
+                    prefixIcon: const Icon(Icons.account_balance_rounded, size: 18),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: isSaving
+                        ? null
+                        : () async {
+                            setModalState(() => isSaving = true);
+                            final user = Supabase.instance.client.auth.currentUser;
+                            if (user != null) {
+                              try {
+                                await Supabase.instance.client.from('profiles').update({
+                                  'esewa_number': esewaCtrl.text.trim(),
+                                  'khalti_number': khaltiCtrl.text.trim(),
+                                  'account_holder_name': bankCtrl.text.trim(),
+                                }).eq('id', user.id);
+
+                                if (parentContext.mounted) {
+                                  ScaffoldMessenger.of(parentContext).showSnackBar(
+                                    SnackBar(
+                                      content: Row(
+                                        children: [
+                                          const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            'Payout details saved successfully!',
+                                            style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                                          ),
+                                        ],
+                                      ),
+                                      backgroundColor: const Color(0xFF059669),
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                debugPrint('Error saving payout account: $e');
+                              }
+                            }
+                            if (modalCtx.mounted) Navigator.pop(modalCtx);
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0F172A),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                    ),
+                    child: isSaving
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          )
+                        : Text(
+                            'Save Payout Account',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
