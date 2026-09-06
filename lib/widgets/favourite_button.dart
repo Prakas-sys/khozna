@@ -210,7 +210,7 @@ class _FavouriteButtonState extends State<FavouriteButton> {
           },
         );
       },
-    );
+    ).then((_) => nameController.dispose());
   }
 
   @override

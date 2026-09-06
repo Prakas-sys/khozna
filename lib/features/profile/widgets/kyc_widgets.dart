@@ -228,6 +228,8 @@ class PhotoUploadBox extends StatelessWidget {
   }
 }
 
+/// [KycTextField] wraps custom text input styling.
+/// Note: The [controller] passed here is owned and disposed via dispose() by parent widgets (e.g., KycScreen).
 class KycTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;

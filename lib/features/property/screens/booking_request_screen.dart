@@ -28,6 +28,13 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
   bool _isSubmitting = false;
 
   @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,

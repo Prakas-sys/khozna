@@ -557,7 +557,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           );
         },
       ),
-    );
+    ).then((_) {
+      phoneController.dispose();
+      otpController.dispose();
+    });
   }
 
   @override
@@ -1100,7 +1103,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           },
         );
       },
-    );
+    ).then((_) {
+      oldPasswordController.dispose();
+      newPasswordController.dispose();
+    });
   }
 
   Widget _buildSimpleTile(IconData icon, String title, {VoidCallback? onTap}) {

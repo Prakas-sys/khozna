@@ -3108,6 +3108,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
         ),
       ),
-    );
+    ).then((_) {
+      esewaCtrl.dispose();
+      khaltiCtrl.dispose();
+      bankCtrl.dispose();
+    });
   }
 }

@@ -91,6 +91,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _loadUserData();
   }
 
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _esewaController.dispose();
+    _khaltiController.dispose();
+    _accountNameController.dispose();
+    _areaController.dispose();
+    _userTypeController.dispose();
+    _bioController.dispose();
+    _orgController.dispose();
+    for (final node in _focusNodes.values) {
+      node.dispose();
+    }
+    super.dispose();
+  }
+
+
   Future<void> _loadFromDiskCache() async {
     final diskCache = await OfflineStorage.loadProfileCache();
     if (diskCache != null && mounted) {

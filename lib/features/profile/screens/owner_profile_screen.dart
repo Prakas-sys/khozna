@@ -1167,6 +1167,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           ),
         ],
       ),
-    );
+    ).then((_) => reasonController.dispose());
   }
 }

@@ -25,6 +25,7 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
   Future<void> _fetchSavedProperties() async {
     setState(() => _isLoading = true);
     final data = await SupabaseService.getSavedProperties();
+    if (!mounted) return;
     setState(() {
       _savedProperties = data;
       _isLoading = false;

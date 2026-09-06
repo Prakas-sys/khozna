@@ -113,6 +113,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
         debugPrint('Error getting location in filters: $e');
       }
     }
+    if (!mounted) return [];
 
     var query = Supabase.instance.client
         .from('properties')

@@ -172,6 +172,7 @@ class AuthGuard {
       final status = profile?['kyc_status'] ?? 'not_started';
 
       if (status != 'verified') {
+        if (!context.mounted) return false;
         if (status == 'pending') {
           _showPendingKycDialog(context);
         } else {

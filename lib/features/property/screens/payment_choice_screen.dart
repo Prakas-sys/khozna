@@ -61,6 +61,13 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     _loadOwnerPaymentDetails();
   }
 
+  @override
+  void dispose() {
+    _transactionController.dispose();
+    super.dispose();
+  }
+
+
   void _initializeData() {
     if (widget.booking != null) {
       _currentBooking = widget.booking!;
