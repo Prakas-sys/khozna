@@ -106,8 +106,10 @@ class ChatRepository {
   static Future<String> getOrCreateChat(String otherUserId) async {
     final user = _client.auth.currentUser;
     if (user == null) throw 'User not authenticated';
+    if (otherUserId == user.id) throw 'Cannot chat with yourself';
 
     try {
+
       // Sort IDs to ensure consistent chat room identification
       final ids = [user.id, otherUserId]..sort();
       final u1 = ids[0];

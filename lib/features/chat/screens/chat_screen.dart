@@ -92,6 +92,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _initializeChat() async {
+    if (widget.ownerId.isNotEmpty && widget.ownerId == _currentUserId) {
+      return;
+    }
     try {
       final id = await ChatRepository.getOrCreateChat(widget.ownerId);
       if (mounted) {
@@ -109,9 +112,21 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMessage([String? text]) async {
+    if (widget.ownerId.isNotEmpty && widget.ownerId == _currentUserId) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('तपाइँ आफैलाई सन्देश पठाउन सक्नुहुन्न (You cannot chat with yourself)'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
     final msgText = text ?? _messageController.text.trim();
     if (msgText.isEmpty) return;
     if (text == null) _messageController.clear();
+
 
     final tempMsg = ChatMessage(
       id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
@@ -224,22 +239,26 @@ class _ChatScreenState extends State<ChatScreen> {
                         Container(
                           padding: const EdgeInsets.all(22),
                           decoration: BoxDecoration(
-                            color: AppTheme.brandColor.withOpacity(0.08),
+                            color: widget.ownerId.isNotEmpty && widget.ownerId == _currentUserId
+                                ? Colors.orange.withOpacity(0.08)
+                                : AppTheme.brandColor.withOpacity(0.08),
                             shape: BoxShape.circle,
                           ),
-                          child: SvgPicture.asset(
-                            'assets/icons/Message neww.svg',
-                            width: 32,
-                            height: 32,
-                            colorFilter: const ColorFilter.mode(
-                              AppTheme.brandColor,
-                              BlendMode.srcIn,
-                            ),
+                          child: Icon(
+                            widget.ownerId.isNotEmpty && widget.ownerId == _currentUserId
+                                ? Icons.person_off_rounded
+                                : Icons.chat_bubble_outline_rounded,
+                            size: 36,
+                            color: widget.ownerId.isNotEmpty && widget.ownerId == _currentUserId
+                                ? Colors.orange
+                                : AppTheme.brandColor,
                           ),
                         ),
                         const SizedBox(height: 18),
                         Text(
-                          'Start a Conversation',
+                          widget.ownerId.isNotEmpty && widget.ownerId == _currentUserId
+                              ? 'तपाइँ आफैलाई सन्देश पठाउन सक्नुहुन्न'
+                              : 'Start a Conversation',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
@@ -248,16 +267,19 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Send a message to start the conversation',
+                          widget.ownerId.isNotEmpty && widget.ownerId == _currentUserId
+                              ? 'Self-chat is disabled (You cannot chat with yourself)'
+                              : 'Send a message to start the conversation',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
-                            color: Colors.grey[500],
+                            color: Colors.grey[600],
                           ),
                         ),
                       ],
                     ),
                   )
+
                 : StreamBuilder<List<ChatMessage>>(
                     stream: ChatRepository.getMessagesStream(_activeChatId!),
                     builder: (context, snapshot) {
