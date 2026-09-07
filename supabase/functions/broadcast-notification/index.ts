@@ -1,73 +1,168 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import * as jose from "https://deno.land/x/jose@v4.14.4/index.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+async function getAccessToken(clientEmail: string, privateKey: string): Promise<string> {
+  const formattedPrivateKey = privateKey.replace(/\\n/g, '\n')
+  const rsaKey = await jose.importPKCS8(formattedPrivateKey, 'RS256')
+
+  const jwt = await new jose.SignJWT({
+    iss: clientEmail,
+    sub: clientEmail,
+    aud: 'https://oauth2.googleapis.com/token',
+    scope: 'https://www.googleapis.com/auth/firebase.messaging',
+  })
+    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
+    .setIssuedAt()
+    .setExpirationTime('1h')
+    .sign(rsaKey)
+
+  const response = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: jwt,
+    }),
+  })
+
+  const data = await response.json()
+  if (!response.ok) {
+    throw new Error(`Failed to get OAuth token: ${JSON.stringify(data)}`)
+  }
+
+  return data.access_token
+}
+
 serve(async (req) => {
-  // Handle CORS
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { title, body, target, data: payloadData } = await req.json()
+    const payload = await req.json()
+    const { token, fcm_token, user_id, title, body, target, data: payloadData } = payload
 
-    // 1. Initialize Supabase Admin Client
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // 2. Fetch target FCM tokens
-    let query = supabaseAdmin.from('profiles').select('fcm_token').not('fcm_token', 'is', null)
-    
-    if (target === 'landlord') {
-      query = query.eq('user_type', 'landlord')
-    } else if (target === 'tenant') {
-      query = query.eq('user_type', 'tenant')
+    let targetTokens: string[] = []
+
+    if (token || fcm_token) {
+      targetTokens.push(token || fcm_token)
+    } else if (user_id) {
+      const { data: userProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('fcm_token')
+        .eq('id', user_id)
+        .maybeSingle()
+      if (userProfile?.fcm_token) {
+        targetTokens.push(userProfile.fcm_token)
+      }
+    } else if (target) {
+      let query = supabaseAdmin.from('profiles').select('fcm_token').not('fcm_token', 'is', null)
+      if (target === 'landlord') {
+        query = query.eq('user_type', 'landlord')
+      } else if (target === 'tenant') {
+        query = query.eq('user_type', 'tenant')
+      }
+      const { data: profiles } = await query
+      if (profiles) {
+        targetTokens = profiles.map((p) => p.fcm_token).filter(Boolean)
+      }
     }
 
-    const { data: profiles, error: fetchError } = await query
-
-    if (fetchError) throw fetchError
-    if (!profiles || profiles.length === 0) {
-      return new Response(JSON.stringify({ message: 'No target users found' }), {
+    if (targetTokens.length === 0) {
+      return new Response(JSON.stringify({ message: 'No target tokens found' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       })
     }
 
-    const tokens = profiles.map(p => p.fcm_token)
+    const clientEmail = Deno.env.get('FIREBASE_CLIENT_EMAIL') || 'firebase-adminsdk-fbsvc@khozna-746e2.iam.gserviceaccount.com'
+    const privateKey = Deno.env.get('FIREBASE_PRIVATE_KEY')
 
-    // ─── FCM V1 INTEGRATION ──────────────────────────────────────────────────
-    // To send via FCM V1, you need to:
-    // 1. Get a Google OAuth2 Access Token using a Service Account JSON.
-    // 2. POST to https://fcm.googleapis.com/v1/projects/khozna-746e2/messages:send
-    //
-    // For bulk sending, you should loop through tokens or use a multicast endpoint
-    // if available (V1 requires individual calls or batching).
-    
-    console.log(`[CAMPAIGN] Broadcasting "${title}" to ${tokens.length} users. Target: ${target}`)
+    let sentCount = 0
+    let errors: any[] = []
 
-    // TODO: Implement the actual fetch call once Service Account is configured
-    // For now, we simulate success for the Admin Dashboard UI
-    
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: `Successfully initiated broadcast to ${tokens.length} recipients.`,
-      details: {
-        title,
-        recipients: tokens.length,
-        target
+    if (privateKey) {
+      const accessToken = await getAccessToken(clientEmail, privateKey)
+
+      for (const recipientToken of targetTokens) {
+        try {
+          const fcmResponse = await fetch(
+            'https://fcm.googleapis.com/v1/projects/khozna-746e2/messages:send',
+            {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                message: {
+                  token: recipientToken,
+                  notification: {
+                    title: title || 'Khozna Notification',
+                    body: body || 'You have a new update.',
+                  },
+                  android: {
+                    priority: 'HIGH',
+                    notification: {
+                      channel_id: 'high_importance_channel',
+                      sound: 'default',
+                      default_sound: true,
+                      notification_priority: 'PRIORITY_MAX',
+                    },
+                  },
+                  apns: {
+                    payload: {
+                      aps: {
+                        alert: {
+                          title: title || 'Khozna Notification',
+                          body: body || 'You have a new update.',
+                        },
+                        sound: 'default',
+                        badge: 1,
+                      },
+                    },
+                  },
+                  data: payloadData || {},
+                },
+              }),
+            }
+          )
+
+          if (fcmResponse.ok) {
+            sentCount++
+          } else {
+            const errJson = await fcmResponse.json()
+            errors.push(errJson)
+          }
+        } catch (e: any) {
+          errors.push(e.message)
+        }
       }
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    })
+    }
 
+    return new Response(
+      JSON.stringify({
+        success: true,
+        sentCount,
+        targetTokensCount: targetTokens.length,
+        errors,
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      }
+    )
   } catch (error: any) {
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -185,5 +185,42 @@ class PushNotificationService {
     int total = messageBadgeCount.value + notificationBadgeCount.value;
     _showLocalNotification(title, body, total);
   }
+
+  /// Sends a background push notification directly to a recipient user's device (for when app is closed)
+  static Future<void> sendPushToUserId({
+    required String recipientUserId,
+    required String title,
+    required String body,
+    Map<String, dynamic>? data,
+  }) async {
+    if (kIsWeb || recipientUserId.isEmpty) return;
+    try {
+      final res = await supabase.Supabase.instance.client
+          .from('profiles')
+          .select('fcm_token')
+          .eq('id', recipientUserId)
+          .maybeSingle();
+
+      final String? token = res?['fcm_token'];
+      if (token == null || token.isEmpty) {
+        debugPrint('--- [PUSH] Recipient $recipientUserId has no saved FCM token ---');
+        return;
+      }
+
+      debugPrint('--- [PUSH] Invoking FCM dispatch for token: $token ---');
+      await supabase.Supabase.instance.client.functions.invoke(
+        'broadcast-notification',
+        body: {
+          'token': token,
+          'title': title,
+          'body': body,
+          'data': data ?? {},
+        },
+      );
+    } catch (e) {
+      debugPrint('--- [PUSH] Dispatch Error: $e ---');
+    }
+  }
 }
+
 

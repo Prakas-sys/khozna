@@ -4,9 +4,11 @@ import 'package:khozna/core/models/chat_model.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/security/app_logger.dart';
 import 'package:khozna/core/security/security_utils.dart';
+import 'package:khozna/core/services/push_notification_service.dart';
 
 class ChatRepository {
   static final _client = Supabase.instance.client;
+
 
   static Future<List<ChatConversation>> getConversations() async {
     final user = _client.auth.currentUser;
@@ -170,6 +172,27 @@ class ChatRepository {
         'sender_id': user.id,
         'text': cleanText,
       });
+
+      // Fetch the other participant to send them a background push notification
+      final chatData = await _client
+          .from('chats')
+          .select('user1_id, user2_id')
+          .eq('id', chatId)
+          .maybeSingle();
+
+      if (chatData != null) {
+        final String recipientId = chatData['user1_id'] == user.id
+            ? chatData['user2_id']
+            : chatData['user1_id'];
+
+        final senderName = user.userMetadata?['full_name'] ?? 'Someone';
+        PushNotificationService.sendPushToUserId(
+          recipientUserId: recipientId,
+          title: 'सन्देश (Message from $senderName)',
+          body: cleanText,
+          data: {'type': 'chat', 'chat_id': chatId},
+        );
+      }
     } catch (e) {
       debugPrint('Error sending message: $e');
     }

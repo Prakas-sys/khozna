@@ -4,12 +4,14 @@ import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/models/booking_model.dart';
 import 'package:khozna/core/models/review_model.dart';
 import 'package:khozna/core/security/security_utils.dart';
+import 'package:khozna/core/services/push_notification_service.dart';
 
 class BookingRepository {
   static final _client = Supabase.instance.client;
 
   static final Map<String, String> propertyBookingStatusCache = {};
   static final Map<String, String> propertyBookingIdCache = {};
+
 
   /// Initial Load: Fetch all IDs the user has booked/pending.
   static Future<void> fetchBookedPropertyIds() async {
@@ -101,15 +103,25 @@ class BookingRepository {
 
       // Notify owner about the NEW BOOKING REQUEST
       final String guestName = user?.userMetadata?['full_name'] ?? 'A Guest';
+      final String bTitle = 'नयाँ बुकिङ अनुरोध (New Booking Request! 🏠)';
+      final String bMessage = '$guestName ले तपाइँको कोठा सीधा बुक गर्न अनुरोध गर्नुभएको छ।';
+
       await _client.from('notifications').insert({
         'user_id': newBooking.ownerId,
         'sender_id': user?.id,
-        'title': 'नयाँ बुकिङ अनुरोध (New Booking Request! 🏠)',
-        'message': '$guestName ले तपाइँको कोठा सीधा बुक गर्न अनुरोध गर्नुभएको छ।',
+        'title': bTitle,
+        'message': bMessage,
         'type': 'booking_request',
         'property_id': newBooking.propertyId,
         'booking_id': newBooking.id,
       });
+
+      PushNotificationService.sendPushToUserId(
+        recipientUserId: newBooking.ownerId,
+        title: bTitle,
+        body: bMessage,
+        data: {'type': 'booking_request', 'booking_id': newBooking.id},
+      );
 
       return newBooking;
     } catch (e) {
@@ -153,16 +165,25 @@ class BookingRepository {
 
       // Notify owner
       final String name = user.userMetadata?['full_name'] ?? 'A user';
+      final String vTitle = 'नयाँ अवलोकन अनुरोध (New Visit Request!)';
+      final String vMessage = '$name ले तपाइँको कोठा हेर्न अनुरोध गर्नुभएको छ। ${message ?? ""}';
+
       await _client.from('notifications').insert({
         'user_id': ownerId,
         'sender_id': user.id,
-        'title': 'नयाँ अवलोकन अनुरोध (New Visit Request!)',
-        'message':
-            '$name ले तपाइँको कोठा हेर्न अनुरोध गर्नुभएको छ। ${message ?? ""}',
+        'title': vTitle,
+        'message': vMessage,
         'type': 'visit_request',
         'property_id': propertyId,
         'booking_id': bookingId,
       });
+
+      PushNotificationService.sendPushToUserId(
+        recipientUserId: ownerId,
+        title: vTitle,
+        body: vMessage,
+        data: {'type': 'visit_request', 'booking_id': bookingId},
+      );
 
       return bookingId;
     } catch (e) {
@@ -170,6 +191,7 @@ class BookingRepository {
       rethrow;
     }
   }
+
 
   /// 2. Owner approves request -> moves to Visit Accepted
   static Future<void> approveRequest(String bookingId, {DateTime? newCheckIn}) async {
