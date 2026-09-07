@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/features/chat/repositories/chat_repository.dart';
+import 'package:khozna/core/services/push_notification_service.dart';
 
 class NotificationRepository {
   static final _client = Supabase.instance.client;
@@ -40,8 +41,13 @@ class NotificationRepository {
                 (data['title'] ?? '').toString().contains('KYC')) {
               lastKycNotification.value = data;
             }
+
+            final String title = data['title'] ?? 'Khozna Notification';
+            final String body = data['message'] ?? 'You have a new notification.';
+            PushNotificationService.showNotificationDirectly(title, body);
           },
         );
+
     _notificationChannel?.subscribe();
 
     _bookingChannel = _client
@@ -75,7 +81,11 @@ class NotificationRepository {
           ),
           callback: (payload) {
             ChatRepository.fetchUnreadMessageCount();
+            final data = payload.newRecord;
+            final String text = data['text'] ?? 'Sent you a message.';
+            PushNotificationService.showNotificationDirectly('नयाँ सन्देश (New Message)', text);
           },
+
         )
         .subscribe();
 

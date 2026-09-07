@@ -178,4 +178,12 @@ class PushNotificationService {
       details,
     );
   }
+
+  /// Directly trigger a system push notification alert banner on the phone
+  static Future<void> showNotificationDirectly(String title, String body) async {
+    if (kIsWeb) return;
+    int total = messageBadgeCount.value + notificationBadgeCount.value;
+    _showLocalNotification(title, body, total);
+  }
 }
+
