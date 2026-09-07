@@ -72,9 +72,11 @@ class PushNotificationService {
 
     // 4. Get FCM Token & Subscribe to Broadcast Topic
     try {
+      // Force-refresh: delete old token first to clear any stale/expired tokens
+      await _messaging.deleteToken();
       String? token = await _messaging.getToken();
       if (token != null) {
-        debugPrint('--- [PUSH] FCM Token: $token ---');
+        debugPrint('--- [PUSH] Fresh FCM Token: $token ---');
         await SupabaseService.saveDeviceToken(token);
       }
 
@@ -84,6 +86,7 @@ class PushNotificationService {
 
       // Listen to token refresh
       _messaging.onTokenRefresh.listen((newToken) {
+        debugPrint('--- [PUSH] Token refreshed: $newToken ---');
         SupabaseService.saveDeviceToken(newToken);
       });
     } catch (e) {
