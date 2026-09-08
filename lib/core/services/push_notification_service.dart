@@ -161,7 +161,7 @@ class PushNotificationService {
       styleInformation: BigTextStyleInformation(
         body,
         contentTitle: title,
-        summaryText: 'Khozna Alert',
+        summaryText: 'Khozna',
       ),
     );
 

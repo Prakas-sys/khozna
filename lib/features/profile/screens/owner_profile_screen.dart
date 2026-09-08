@@ -45,6 +45,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   late String _realLocation;
   List<ReviewModel> _ownerReviews = [];
   bool _isLoadingReviews = true;
+  int _realTotalListings = 0;
 
   String? _bio;
   String? _phoneNumber;
@@ -64,6 +65,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     super.initState();
     _realLocation = widget.location;
     _isProfileVerified = widget.isVerified;
+    _realTotalListings = widget.totalListings;
     _loadProfileData();
   }
 
@@ -79,6 +81,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             .eq('id', widget.ownerId)
             .maybeSingle(),
         BookingRepository.fetchReviewsForOwner(widget.ownerId),
+        Supabase.instance.client
+            .from('properties')
+            .select('id')
+            .eq('owner_id', widget.ownerId),
       ]);
 
       if (mounted) {
@@ -154,6 +160,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             _isProfileVerified = dbVerified || widget.isVerified;
           }
           _ownerReviews = results[2] as List<ReviewModel>;
+          final propList = results[3] as List?;
+          _realTotalListings = propList != null ? propList.length : widget.totalListings;
           _isLoadingReviews = false;
           _isLoadingVotes = false;
         });
@@ -333,11 +341,13 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                             ),
                           ),
                           Container(height: 32, width: 1, color: const Color(0xFFE2E8F0)),
-                          // Years
+                          // Years hosting vs Guest
                           Expanded(
                             child: _buildCleanStat(
-                              value: '$_yearsHosting',
-                              label: _yearsHosting == 1 ? 'Year hosting' : 'Years hosting',
+                              value: _realTotalListings > 0 ? '$_yearsHosting' : 'Guest',
+                              label: _realTotalListings > 0
+                                  ? (_yearsHosting == 1 ? 'Year hosting' : 'Years hosting')
+                                  : 'Role',
                             ),
                           ),
                         ],
@@ -427,51 +437,53 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                         value: _joinedDate,
                       ),
 
-                      // Clickable Listings Row
-                      const SizedBox(height: 8),
-                      InkWell(
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => OwnerListingsScreen(
-                                ownerId: widget.ownerId,
-                                ownerName: widget.name,
-                              ),
-                            ),
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.home_work_rounded,
-                                color: Color(0xFF64748B),
-                                size: 22,
-                              ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Text(
-                                  '${widget.totalListings > 0 ? widget.totalListings : 1} ${widget.totalListings == 1 ? 'listing' : 'listings'} on Khozna',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: const Color(0xFF0F172A),
-                                  ),
+                      // Clickable Listings Row (ONLY displayed if user has real listings)
+                      if (_realTotalListings > 0) ...[
+                        const SizedBox(height: 8),
+                        InkWell(
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => OwnerListingsScreen(
+                                  ownerId: widget.ownerId,
+                                  ownerName: widget.name,
                                 ),
                               ),
-                              const Icon(
-                                Icons.chevron_right_rounded,
-                                size: 20,
-                                color: Color(0xFF94A3B8),
-                              ),
-                            ],
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.home_work_rounded,
+                                  color: Color(0xFF64748B),
+                                  size: 22,
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Text(
+                                    '$_realTotalListings ${_realTotalListings == 1 ? 'listing' : 'listings'} on Khozna',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFF0F172A),
+                                    ),
+                                  ),
+                                ),
+                                const Icon(
+                                  Icons.chevron_right_rounded,
+                                  size: 20,
+                                  color: Color(0xFF94A3B8),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
+                      ],
 
                       const SizedBox(height: 20),
                       const Divider(color: Color(0xFFF1F5F9), thickness: 1),
@@ -563,7 +575,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              'This owner\'s identity hasn\'t been verified yet.',
+                              _realTotalListings > 0
+                                  ? 'This owner\'s identity hasn\'t been verified yet.'
+                                  : 'This user\'s identity hasn\'t been verified yet.',
                               style: GoogleFonts.inter(
                                 fontSize: 13,
                                 color: const Color(0xFF854D0E),

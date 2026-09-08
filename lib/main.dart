@@ -41,10 +41,13 @@ void main() async {
   // Allow runtime fetching only during boot preload — will be locked after fonts are cached.
   GoogleFonts.config.allowRuntimeFetching = true;
 
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
 
@@ -318,7 +321,17 @@ class RootScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isInitializing) {
-      return Container(color: Colors.white);
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: Image.asset(
+            'assets/images/logo 2.png',
+            width: 140,
+            height: 140,
+            fit: BoxFit.contain,
+          ),
+        ),
+      );
     }
     if (session != null) {
       // If we are logged in, remove native splash immediately when this first real view finishes painting

@@ -81,7 +81,9 @@ class ChatRepository {
         final chat = ChatConversation(
           id: e['id'],
           otherUserId: otherId,
-          otherUserName: profile?['full_name'] ?? 'Khozna User',
+          otherUserName: (profile?['full_name'] != null && profile!['full_name'].toString().trim().isNotEmpty)
+              ? profile['full_name']
+              : 'User',
           otherUserAvatar: profile?['avatar_url'] ?? '',
           lastMessage: e['last_message_text'],
           lastMessageTime: chatTime,
@@ -94,9 +96,7 @@ class ChatRepository {
         }
       }
 
-      final sortedList = uniqueChats.values
-          .where((chat) => chat.otherUserName != 'Khozna User')
-          .toList();
+      final sortedList = uniqueChats.values.toList();
       sortedList.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
       return sortedList;
     } catch (e) {

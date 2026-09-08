@@ -74,18 +74,45 @@ class NotificationRepository {
           event: PostgresChangeEvent.insert,
           schema: 'public',
           table: 'messages',
-          filter: PostgresChangeFilter(
-            type: PostgresChangeFilterType.neq,
-            column: 'sender_id',
-            value: user.id,
-          ),
-          callback: (payload) {
-            ChatRepository.fetchUnreadMessageCount();
+          callback: (payload) async {
             final data = payload.newRecord;
-            final String text = data['text'] ?? 'Sent you a message.';
-            PushNotificationService.showNotificationDirectly('नयाँ सन्देश (New Message)', text);
-          },
+            final String? senderId = data['sender_id']?.toString();
+            final String currentUserId = user.id;
 
+            // 1. MUST IGNORE SELF-SENT MESSAGES (sender is current user)
+            if (senderId == null || senderId == currentUserId) {
+              return;
+            }
+
+            // 2. Fetch unread count for badge
+            ChatRepository.fetchUnreadMessageCount();
+
+            // 3. Do not show pop-up notification if user is actively viewing this chat screen!
+            final String? chatId = data['chat_id']?.toString();
+            if (currentActiveChatId.value != null && currentActiveChatId.value == chatId) {
+              return;
+            }
+
+            // 4. Fetch sender name for clean notification text
+            String senderName = 'Someone';
+            try {
+              final senderProfile = await _client
+                  .from('profiles')
+                  .select('full_name')
+                  .eq('id', senderId)
+                  .maybeSingle();
+              if (senderProfile != null && senderProfile['full_name'] != null) {
+                senderName = senderProfile['full_name'].toString();
+              }
+            } catch (_) {}
+
+            final String text = data['text']?.toString() ??
+                (data['image_url'] != null ? '📷 Sent an image' : 'Sent you a message.');
+            PushNotificationService.showNotificationDirectly(
+              'Message from $senderName',
+              text,
+            );
+          },
         )
         .subscribe();
 

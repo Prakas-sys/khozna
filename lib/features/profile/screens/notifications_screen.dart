@@ -10,6 +10,7 @@ import 'package:khozna/features/property/screens/payment_choice_screen.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/features/profile/screens/help_center_screen.dart';
+import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -918,27 +919,45 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _buildAvatar(sender, radius: 22),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              guestName,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 14,
-                                color: const Color(0xFF0F172A),
-                              ),
+                  GestureDetector(
+                    onTap: () {
+                      final guestId = (sender?['id'] ?? note['sender_id'] ?? note['sender']?['id'] ?? '').toString();
+                      if (guestId.isNotEmpty) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => OwnerProfileScreen(
+                              ownerId: guestId,
+                              name: guestName,
+                              avatar: sender?['avatar_url']?.toString() ?? '',
+                              location: sender?['area_name']?.toString() ?? 'Kathmandu, Nepal',
+                              totalListings: 0,
                             ),
-                            if (sender?['kyc_status'] == 'verified') ...[
-                              const SizedBox(width: 4),
-                              const Icon(Icons.verified_rounded, color: Color(0xFF1D4ED8), size: 14),
-                            ],
-                            const Spacer(),
+                          ),
+                        );
+                      }
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildAvatar(sender, radius: 22),
+                        const SizedBox(width: 12),
+                        Text(
+                          guestName,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                            color: const Color(0xFF0F172A),
+                          ),
+                        ),
+                        if (sender?['kyc_status'] == 'verified') ...[
+                          const SizedBox(width: 4),
+                          const Icon(Icons.verified_rounded, color: Color(0xFF1D4ED8), size: 14),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(

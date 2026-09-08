@@ -12,6 +12,7 @@ import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/models/chat_model.dart';
 import 'package:khozna/features/chat/repositories/chat_repository.dart';
 import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
+import 'package:khozna/core/utils/app_notifiers.dart';
 import '../widgets/chat_widgets.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -58,12 +59,22 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     _activeChatId = widget.chatId;
+    currentActiveChatId.value = _activeChatId;
     _scrollController = ScrollController();
     _messageController = TextEditingController();
     _displayName = widget.name;
     _displayAvatar = widget.avatar;
     _displayLocation = 'Kathmandu, Nepal';
     _isOwner = widget.isOwner;
+
+    if (widget.ownerId.isNotEmpty && widget.ownerId == _currentUserId) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      });
+      return;
+    }
 
     if (widget.ownerId.isNotEmpty) {
       _loadOwnerProfile();
@@ -99,6 +110,7 @@ class _ChatScreenState extends State<ChatScreen> {
       final id = await ChatRepository.getOrCreateChat(widget.ownerId);
       if (mounted) {
         setState(() => _activeChatId = id);
+        currentActiveChatId.value = id;
         ChatRepository.markChatAsRead(id);
       }
     } catch (_) {}
@@ -106,6 +118,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    currentActiveChatId.value = null;
     _scrollController.dispose();
     _messageController.dispose();
     super.dispose();

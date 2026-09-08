@@ -10,6 +10,7 @@ import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/property/screens/property_details_screen.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:khozna/core/utils/map_launcher.dart';
+import 'package:khozna/widgets/khozna_image.dart';
 
 class DiscoveryMapScreen extends StatefulWidget {
   final LatLng? initialCenter;

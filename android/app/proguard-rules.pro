@@ -59,3 +59,12 @@
 -keep class * implements android.os.Parcelable {
   public static final android.os.Parcelable$Creator *;
 }
+
+# Image loading & caching libraries (CachedNetworkImage / Glide / OkHttp)
+-keep class com.bumptech.glide.** { *; }
+-dontwarn com.bumptech.glide.**
+-keep class okhttp3.** { *; }
+-dontwarn okhttp3.**
+-keep class okio.** { *; }
+-dontwarn okio.**
+

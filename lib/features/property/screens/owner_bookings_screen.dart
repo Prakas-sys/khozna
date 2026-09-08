@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:khozna/core/utils/formatters.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:khozna/widgets/khozna_image.dart';
+import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
 
 class OwnerBookingsScreen extends StatefulWidget {
   const OwnerBookingsScreen({super.key});
@@ -574,17 +575,40 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
             padding: const EdgeInsets.fromLTRB(14, 12, 8, 8),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 18,
-                  backgroundImage: guest?['avatar_url'] != null
-                      ? NetworkImage(guest!['avatar_url'])
-                      : null,
-                  backgroundColor: const Color(0xFFF1F5F9),
-                  child: guest?['avatar_url'] == null
-                      ? const Icon(Icons.person_rounded, size: 20, color: Color(0xFF64748B))
-                      : null,
+                GestureDetector(
+                  onTap: () {
+                    final guestId = booking['guest_id']?.toString() ?? '';
+                    if (guestId.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OwnerProfileScreen(
+                            ownerId: guestId,
+                            name: guest?['full_name'] ?? 'Visitor',
+                            avatar: guest?['avatar_url'] ?? '',
+                            location: guest?['area_name'] ?? 'Kathmandu, Nepal',
+                            totalListings: 0,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 18,
+                        backgroundImage: guest?['avatar_url'] != null
+                            ? NetworkImage(guest!['avatar_url'])
+                            : null,
+                        backgroundColor: const Color(0xFFF1F5F9),
+                        child: guest?['avatar_url'] == null
+                            ? const Icon(Icons.person_rounded, size: 20, color: Color(0xFF64748B))
+                            : null,
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -592,15 +616,34 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                       Row(
                         children: [
                           Flexible(
-                            child: Text(
-                              guest?['full_name'] ?? 'Visitor',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 14,
-                                color: const Color(0xFF0F172A),
+                            child: GestureDetector(
+                              onTap: () {
+                                final guestId = booking['guest_id']?.toString() ?? '';
+                                if (guestId.isNotEmpty) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => OwnerProfileScreen(
+                                        ownerId: guestId,
+                                        name: guest?['full_name'] ?? 'Visitor',
+                                        avatar: guest?['avatar_url'] ?? '',
+                                        location: guest?['area_name'] ?? 'Kathmandu, Nepal',
+                                        totalListings: 0,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Text(
+                                guest?['full_name'] ?? 'Visitor',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  color: const Color(0xFF0F172A),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           if (guest?['kyc_status'] == 'verified') ...[

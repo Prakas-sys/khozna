@@ -58,3 +58,6 @@ final ValueNotifier<bool> reelsTabActive = ValueNotifier<bool>(false);
 /// Global notifier for controlling the active tab in MainScreen (0: Home, 1: Tours, 2: Messages, 3: Profile).
 final ValueNotifier<int> selectedTabNotifier = ValueNotifier<int>(0);
 
+/// Global notifier for currently open Chat ID to prevent pop-up notifications while actively chatting.
+final ValueNotifier<String?> currentActiveChatId = ValueNotifier<String?>(null);
+

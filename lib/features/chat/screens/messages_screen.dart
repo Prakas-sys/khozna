@@ -593,6 +593,10 @@ class _MessagesScreenState extends State<MessagesScreen>
                     child: ElevatedButton(
                       onPressed: () async {
                         Navigator.pop(ctx);
+                        setState(() {
+                          _chats.removeWhere((c) => c.id == chat.id);
+                        });
+                        chatListCache.value = List.from(_chats);
                         await ChatRepository.deleteChat(chat.id);
                         _loadChats();
                       },
