@@ -8,6 +8,7 @@ import 'package:khozna/core/security/security_utils.dart';
 import 'package:khozna/core/security/app_logger.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/utils/offline_storage.dart';
+import 'package:khozna/screens/main_screen.dart';
 
 class VerifyPhoneScreen extends StatefulWidget {
   final String phoneNumber;
@@ -115,6 +116,8 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
   }
 
   Future<void> _verifyOtp() async {
+    if (_isLoading) return;
+
     String otp = _controllers.map((e) => e.text).join();
     if (otp.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -153,11 +156,12 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
         );
 
         if (mounted) {
-          // Pop all routes back to root — KhoznaApp's onAuthStateChange
-          // listener will automatically rebuild home: to show MainScreen
-          // now that the session is set. Manually pushing MainScreen here
-          // would create a duplicate screen behind the auth listener's one.
-          Navigator.of(context).popUntil((route) => route.isFirst);
+          setState(() => _isLoading = false);
+          // Navigate directly to MainScreen & clear backstack — guarantees user enters app!
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const MainScreen()),
+            (route) => false,
+          );
         }
       }
     } catch (e) {
@@ -182,8 +186,13 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final bool isSmallScreen = screenHeight < 700;
+
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -214,31 +223,36 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
 
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              physics: const ClampingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 20),
-                  // Illustration
-                  SizedBox(
-                    height: 180,
-                    child: Image.asset(
-                      'assets/images/man illustrate png.png',
-                      fit: BoxFit.contain,
+                  if (!isKeyboardVisible) ...[
+                    SizedBox(height: isSmallScreen ? 10 : 20),
+                    // Illustration
+                    SizedBox(
+                      height: isSmallScreen ? 120 : 160,
+                      child: Image.asset(
+                        'assets/images/man illustrate png.png',
+                        fit: BoxFit.contain,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
+                    SizedBox(height: isSmallScreen ? 16 : 24),
+                  ] else ...[
+                    const SizedBox(height: 12),
+                  ],
                   Text(
                     'Verify Phone',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.inter(
-                      fontSize: 32,
+                      fontSize: isSmallScreen ? 26 : 32,
                       fontWeight: FontWeight.w900,
                       color: AppTheme.primaryTextColor,
                       letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: RichText(
@@ -246,8 +260,8 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                       text: TextSpan(
                         style: GoogleFonts.inter(
                           color: AppTheme.secondaryTextColor,
-                          fontSize: 16,
-                          height: 1.5,
+                          fontSize: isSmallScreen ? 14 : 16,
+                          height: 1.4,
                         ),
                         children: [
                           const TextSpan(text: 'We sent a 6-digit code to\n'),
@@ -262,7 +276,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 48),
+                  SizedBox(height: isSmallScreen ? 24 : 36),
 
                   // OTP Input Row
                   Row(
@@ -271,19 +285,19 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                       6,
                       (index) => Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                          child: _buildOtpBox(index),
+                          padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                          child: _buildOtpBox(index, isSmallScreen),
                         ),
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 48),
+                  SizedBox(height: isSmallScreen ? 24 : 36),
 
                   // Verify Button
                   SizedBox(
                     width: double.infinity,
-                    height: 56,
+                    height: 54,
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _verifyOtp,
                       style: ElevatedButton.styleFrom(
@@ -315,7 +329,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 40),
+                  SizedBox(height: isSmallScreen ? 20 : 32),
 
                   // Resend Section
                   Column(
@@ -344,7 +358,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -354,12 +368,12 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
     );
   }
 
-  Widget _buildOtpBox(int index) {
+  Widget _buildOtpBox(int index, bool isSmallScreen) {
     return Container(
-      height: 60,
+      height: isSmallScreen ? 50 : 56,
       decoration: BoxDecoration(
         color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: _focusNodes[index].hasFocus
               ? AppTheme.brandColor
@@ -370,8 +384,8 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
             ? [
                 BoxShadow(
                   color: AppTheme.brandColor.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
                 ),
               ]
             : [],
@@ -384,13 +398,11 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
           keyboardType: TextInputType.number,
           autofillHints: const [AutofillHints.oneTimeCode],
           inputFormatters: [
-            LengthLimitingTextInputFormatter(
-              6,
-            ), // Increased from 1 to 6 to catch autofills
+            LengthLimitingTextInputFormatter(6),
             FilteringTextInputFormatter.digitsOnly,
           ],
           style: GoogleFonts.inter(
-            fontSize: 24,
+            fontSize: isSmallScreen ? 20 : 24,
             fontWeight: FontWeight.bold,
             color: AppTheme.primaryTextColor,
           ),
@@ -426,10 +438,11 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
             } else if (value.isEmpty && index > 0) {
               _focusNodes[index - 1].requestFocus();
             }
-            setState(() {}); // To update border color/shadow
+            setState(() {});
           },
         ),
       ),
     );
   }
 }
+

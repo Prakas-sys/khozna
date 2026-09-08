@@ -6,6 +6,7 @@ import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/utils/offline_storage.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/security/security_utils.dart';
+import 'package:khozna/screens/main_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -89,9 +90,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               content: Text('Registration successful! Welcome to KHOZNA.'),
             ),
           );
-          // Pop all routes back to root — KhoznaApp's onAuthStateChange
-          // listener will automatically rebuild home: to show MainScreen.
-          Navigator.of(context).popUntil((route) => route.isFirst);
+          // Navigate directly to MainScreen & clear backstack — guarantees user enters app!
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const MainScreen()),
+            (route) => false,
+          );
         }
       }
     } catch (e) {
