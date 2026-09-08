@@ -46,31 +46,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _handleRegister() async {
-    if (_nameController.text.isEmpty ||
-        _emailController.text.isEmpty ||
-        _passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please fill all fields', style: GoogleFonts.inter()),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+    if (!_agreeToTerms) {
+      _showUserError('Please agree to Terms of Service to continue');
+      return;
+    }
+    if (_nameController.text.trim().isEmpty) {
+      _showUserError('Please enter your full name');
+      return;
+    }
+    if (_emailController.text.trim().isEmpty || !_emailController.text.contains('@')) {
+      _showUserError('Please enter a valid email address');
+      return;
+    }
+    if (_passwordController.text.length < 6) {
+      _showUserError('Password must be at least 6 characters long');
       return;
     }
     if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Passwords do not match', style: GoogleFonts.inter()),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      _showUserError('Passwords do not match');
       return;
     }
+
     setState(() => _isLoading = true);
     try {
-      final cleanName = SecurityUtils.sanitizeInput(_nameController.text);
+      final cleanName = SecurityUtils.sanitizeInput(_nameController.text.trim());
 
       final response = await Supabase.instance.client.auth.signUp(
         email: _emailController.text.trim(),
@@ -79,36 +78,227 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (response.user != null) {
-        // Non-blocking sync - database trigger also handles this, but we fire/forget to ensure metadata sync
+        // Sync metadata with Supabase profile table
         SupabaseService.syncUserWithSupabase(response.user!);
-        
-        // Persist login time for session freshness tracking
         await OfflineStorage.saveLastActiveTime();
+
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Registration successful! Welcome to KHOZNA.'),
-            ),
-          );
-          // Navigate directly to MainScreen & clear backstack — guarantees user enters app!
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const MainScreen()),
-            (route) => false,
-          );
+          if (response.session != null) {
+            // Session exists — auto logged in! Navigate straight to home
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const MainScreen()),
+              (route) => false,
+            );
+          } else {
+            // Email confirmation required by Supabase project settings
+            _showEmailConfirmationSheet(email: _emailController.text.trim());
+          }
         }
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
-      }
+      _showErrorPopup(e);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showUserError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+        ),
+        backgroundColor: const Color(0xFFEF4444),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  void _showEmailConfirmationSheet({required String email}) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 36),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.mark_email_read_rounded,
+                color: AppTheme.brandColor,
+                size: 40,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Account Created!',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF1E293B),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'We sent a verification link to:\n$email\n\nPlease check your email inbox and verify your account to start using Khozna.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: const Color(0xFF64748B),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close sheet
+                  Navigator.pop(context); // Return to login screen
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.brandColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Text(
+                  'Go to Login',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showErrorPopup(dynamic error) {
+    if (!mounted) return;
+
+    final String raw = error.toString();
+    String message = 'Registration failed. Please try again.';
+
+    if (raw.contains('Password should be at least 6 characters')) {
+      message = 'Password must be at least 6 characters long.';
+    } else if (raw.contains('already registered') || raw.contains('already exists')) {
+      message = 'An account with this email already exists. Please login instead.';
+    } else if (raw.contains('invalid') && raw.contains('email')) {
+      message = 'Please enter a valid email address.';
+    } else if (raw.contains('Network') || raw.contains('SocketException') || raw.contains('timeout')) {
+      message = 'No internet connection. Please check your network and try again.';
+    } else if (error is AuthException) {
+      message = error.message;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 36),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFEDED),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.error_outline_rounded,
+                color: Color(0xFFEF4444),
+                size: 36,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Registration Failed',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF1E293B),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: const Color(0xFF64748B),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFEF4444),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Text(
+                  'OK',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
