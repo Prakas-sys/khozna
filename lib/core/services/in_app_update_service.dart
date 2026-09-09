@@ -8,7 +8,7 @@ class InAppUpdateService {
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
 
     try {
-      final updateInfo = await InAppUpdate.checkForUpdateAvailability();
+      final updateInfo = await InAppUpdate.checkForUpdate();
       if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
         if (updateInfo.flexibleUpdateAllowed) {
           // Perform Flexible In-App Update (background download with non-intrusive prompt)
