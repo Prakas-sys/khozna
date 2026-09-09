@@ -58,8 +58,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   String get _currentUserId =>
       Supabase.instance.client.auth.currentUser?.id ?? '';
   bool get _isMyProperty =>
-      (widget.property.ownerId == _currentUserId) &&
-      !widget.property.id.contains('demo');
+      _currentUserId != null &&
+      _currentUserId!.isNotEmpty &&
+      widget.property.ownerId == _currentUserId;
   bool get _hasLocation =>
       widget.property.latitude != null && widget.property.longitude != null;
   static const Color _airbnbGrey = Color(0xFF717171);
@@ -76,7 +77,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     // ⚡️ Synchronous memory cache check for zero-flicker booking status
     final cachedStatus = BookingRepository.propertyBookingStatusCache[widget.property.id];
     final cachedId = BookingRepository.propertyBookingIdCache[widget.property.id];
-    if (cachedStatus != null && cachedId != null) {
+    if (cachedStatus != null && cachedId != null && cachedStatus != 'cancelled' && cachedStatus != 'canceled') {
       _pendingBookingStatus = cachedStatus;
       _pendingBookingId = cachedId;
       _userHasPendingBooking = [
@@ -182,36 +183,48 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           if (result.isNotEmpty) {
             final status = result[0]['status']?.toString() ?? '';
             final bId = result[0]['id']?.toString();
-            _pendingBookingId = bId;
-            _pendingBookingStatus = status;
 
-            // Cache in memory for fast zero-delay render
-            if (bId != null) {
-              BookingRepository.propertyBookingStatusCache[widget.property.id] = status;
-              BookingRepository.propertyBookingIdCache[widget.property.id] = bId;
+            if (status == 'cancelled' || status == 'canceled') {
+              _userHasPendingBooking = false;
+              _pendingBookingId = null;
+              _pendingBookingStatus = '';
+              _pendingBookingCheckIn = null;
+              _hasAcceptedVisit = false;
+              _visitTimer?.cancel();
+              BookingRepository.propertyBookingStatusCache.remove(widget.property.id);
+              BookingRepository.propertyBookingIdCache.remove(widget.property.id);
+            } else {
+              _pendingBookingId = bId;
+              _pendingBookingStatus = status;
+
+              // Cache in memory for fast zero-delay render
+              if (bId != null) {
+                BookingRepository.propertyBookingStatusCache[widget.property.id] = status;
+                BookingRepository.propertyBookingIdCache[widget.property.id] = bId;
+              }
+
+              if (result[0]['check_in'] != null) {
+                _pendingBookingCheckIn = DateTime.tryParse(result[0]['check_in']);
+                _startVisitTimer();
+              }
+
+              // Define which statuses count as "pending" or "active" for the bottom bar
+              _userHasPendingBooking = [
+                'pending_approval',
+                'visit_accepted',
+                'awaiting_payment',
+                'paid',
+                'confirmed',
+              ].contains(status);
+
+              // Define which statuses reveal the map
+              _hasAcceptedVisit = [
+                'visit_accepted',
+                'awaiting_payment',
+                'paid',
+                'confirmed',
+              ].contains(status);
             }
-
-            if (result[0]['check_in'] != null) {
-              _pendingBookingCheckIn = DateTime.tryParse(result[0]['check_in']);
-              _startVisitTimer();
-            }
-
-            // Define which statuses count as "pending" or "active" for the bottom bar
-            _userHasPendingBooking = [
-              'pending_approval',
-              'visit_accepted',
-              'awaiting_payment',
-              'paid',
-              'confirmed',
-            ].contains(status);
-
-            // Define which statuses reveal the map
-            _hasAcceptedVisit = [
-              'visit_accepted',
-              'awaiting_payment',
-              'paid',
-              'confirmed',
-            ].contains(status);
           } else {
             _userHasPendingBooking = false;
             _pendingBookingId = null;
@@ -2557,7 +2570,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     }
 
     // If current guest has an active booking request or payment
-    if (_userHasPendingBooking || _pendingBookingStatus.isNotEmpty) {
+    final bool hasActiveBooking = _userHasPendingBooking ||
+        ([
+          'pending_approval',
+          'visit_accepted',
+          'awaiting_payment',
+          'paid',
+          'payment_under_review',
+          'confirmed',
+          'rejected',
+          'payment_rejected',
+        ].contains(_pendingBookingStatus));
+
+    if (hasActiveBooking) {
       String label = 'View Status';
       Color btnColor = AppTheme.brandColor;
       IconData icon = Icons.info_outline_rounded;

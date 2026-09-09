@@ -54,6 +54,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late String _displayAvatar;
   late String _displayLocation;
   late bool _isOwner;
+  String _targetUserId = '';
 
   @override
   void initState() {
@@ -66,8 +67,9 @@ class _ChatScreenState extends State<ChatScreen> {
     _displayAvatar = widget.avatar;
     _displayLocation = 'Kathmandu, Nepal';
     _isOwner = widget.isOwner;
+    _targetUserId = widget.ownerId;
 
-    if (widget.ownerId.isNotEmpty && widget.ownerId == _currentUserId) {
+    if (_targetUserId.isNotEmpty && _targetUserId == _currentUserId) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           Navigator.pop(context);
@@ -76,7 +78,7 @@ class _ChatScreenState extends State<ChatScreen> {
       return;
     }
 
-    if (widget.ownerId.isNotEmpty) {
+    if (_targetUserId.isNotEmpty) {
       _loadOwnerProfile();
       if (_activeChatId == null) {
         _initializeChat().then((_) {
@@ -87,11 +89,36 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } else if (_activeChatId != null) {
       ChatRepository.markChatAsRead(_activeChatId!);
+      _resolveTargetUserFromChatId();
+    }
+  }
+
+  Future<void> _resolveTargetUserFromChatId() async {
+    if (_activeChatId == null) return;
+    try {
+      final chatData = await supabase.Supabase.instance.client
+          .from('chats')
+          .select('user1_id, user2_id')
+          .eq('id', _activeChatId!)
+          .maybeSingle();
+
+      if (chatData != null) {
+        final u1 = chatData['user1_id']?.toString() ?? '';
+        final u2 = chatData['user2_id']?.toString() ?? '';
+        final resolvedId = (u1 == _currentUserId) ? u2 : u1;
+        if (resolvedId.isNotEmpty) {
+          _targetUserId = resolvedId;
+          await _loadOwnerProfile();
+        }
+      }
+    } catch (e) {
+      debugPrint('Error resolving target user from chatId: $e');
     }
   }
 
   Future<void> _loadOwnerProfile() async {
-    final profile = await SupabaseService.getUserProfile(widget.ownerId);
+    if (_targetUserId.isEmpty) return;
+    final profile = await SupabaseService.getUserProfile(_targetUserId);
     if (profile != null && mounted) {
       setState(() {
         _displayName = profile.fullName;
@@ -192,12 +219,13 @@ class _ChatScreenState extends State<ChatScreen> {
         titleSpacing: 0,
         title: InkWell(
           onTap: () {
-            if (widget.ownerId.isNotEmpty) {
+            final targetId = _targetUserId.isNotEmpty ? _targetUserId : widget.ownerId;
+            if (targetId.isNotEmpty) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => OwnerProfileScreen(
-                    ownerId: widget.ownerId,
+                    ownerId: targetId,
                     name: _displayName,
                     avatar: _displayAvatar,
                     location: _displayLocation,

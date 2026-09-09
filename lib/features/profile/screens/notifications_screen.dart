@@ -289,6 +289,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       // Filter out any dismissed notification IDs
       combined.removeWhere((n) => dismissedIds.contains(n['id']?.toString()));
 
+      // Deduplicate notifications by booking_id & type to prevent double entries
+      final Map<String, Map<String, dynamic>> uniqueMap = {};
+      for (final n in combined) {
+        final bId = n['booking_id']?.toString() ?? '';
+        final type = n['type']?.toString() ?? '';
+        final key = bId.isNotEmpty ? '${bId}_$type' : (n['id']?.toString() ?? UniqueKey().toString());
+        if (!uniqueMap.containsKey(key)) {
+          uniqueMap[key] = n;
+        }
+      }
+      combined = uniqueMap.values.toList();
+
       // Sort by timestamp descending
       combined.sort((a, b) {
         final aTime =

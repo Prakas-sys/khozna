@@ -384,6 +384,7 @@ class _MessagesScreenState extends State<MessagesScreen>
                 name: chat.otherUserName,
                 avatar: chat.otherUserAvatar,
                 online: true,
+                ownerId: chat.otherUserId,
               ),
             ),
           );

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/models/user_model.dart';
 import 'package:khozna/core/models/booking_model.dart';
 import 'package:khozna/core/models/property_model.dart';
@@ -61,7 +62,10 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
     _pulseCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1400),
-    )..repeat(reverse: true);
+    );
+    if (_booking.status != 'cancelled' && _booking.status != 'canceled') {
+      _pulseCtrl.repeat(reverse: true);
+    }
     _pulseAnim = Tween<double>(begin: 0.92, end: 1.0).animate(
       CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
     );
@@ -107,9 +111,31 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
 
   // ── Data ──────────────────────────────────────────────────────────────────
 
+  bool _isOwnerView = false;
+
   Future<void> _loadOwnerProfile() async {
-    final p = await SupabaseService.getUserProfile(_booking.ownerId);
-    if (mounted) setState(() => _ownerProfile = p);
+    final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    _isOwnerView = (currentUserId != null &&
+        currentUserId == _booking.ownerId &&
+        currentUserId != _booking.guestId);
+
+    String targetId;
+    if (_isOwnerView) {
+      targetId = _booking.guestId;
+    } else {
+      if (widget.property != null &&
+          widget.property!.ownerId.isNotEmpty &&
+          widget.property!.ownerId != _booking.guestId) {
+        targetId = widget.property!.ownerId;
+      } else {
+        targetId = _booking.ownerId;
+      }
+    }
+
+    if (targetId.isNotEmpty) {
+      final p = await SupabaseService.getUserProfile(targetId);
+      if (mounted) setState(() => _ownerProfile = p);
+    }
   }
 
   Future<void> _refreshBooking() async {
@@ -289,6 +315,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isCancelled = _booking.status == 'cancelled' || _booking.status == 'canceled';
     final bool isPostPayment = _booking.status == 'paid' ||
         _booking.status == 'confirmed' ||
         _booking.status == 'visit_completed';
@@ -298,26 +325,179 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(color: _brand, strokeWidth: 2))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildHeroStatus(),
-                  const SizedBox(height: 14),
-                  if (!isPostPayment) _buildJourneyTracker(),
-                  if (!isPostPayment) const SizedBox(height: 14),
-                  _buildUnifiedReservationCard(),
-                  const SizedBox(height: 18),
-                  if (_showVisitedQuestion)
-                    _buildVisitedQuestion()
-                  else if (_showLikedQuestion)
-                    _buildLikedQuestion()
-                  else
-                    _buildActionArea(),
-                ],
+          : isCancelled
+              ? _buildSimpleCancelledView()
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildHeroStatus(),
+                      const SizedBox(height: 14),
+                      if (!isPostPayment) _buildJourneyTracker(),
+                      if (!isPostPayment) const SizedBox(height: 14),
+                      _buildUnifiedReservationCard(),
+                      const SizedBox(height: 18),
+                      if (_showVisitedQuestion)
+                        _buildVisitedQuestion()
+                      else if (_showLikedQuestion)
+                        _buildLikedQuestion()
+                      else
+                        _buildActionArea(),
+                    ],
+                  ),
+                ),
+    );
+  }
+
+  Widget _buildSimpleCancelledView() {
+    final dateStr = DateFormat('EEE, d MMM yyyy • h:mm a').format(_booking.checkIn);
+    final bookingIdShort = _booking.id.length >= 8
+        ? _booking.id.substring(0, 8).toUpperCase()
+        : _booking.id.toUpperCase();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: const BoxDecoration(
+              color: Color(0xFFFEF2F2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.cancel_outlined,
+              color: Color(0xFFEF4444),
+              size: 32,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Request Cancelled',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: _ink,
+              letterSpacing: -0.3,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'This visit request was cancelled.',
+            style: GoogleFonts.inter(fontSize: 13.5, color: _inkSub),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+
+          // Property summary card
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: _card,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: _border),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.home_work_rounded, color: _brand, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _booking.propertyTitle ?? widget.property?.title ?? 'Property Listing',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: _ink,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Schedule: $dateStr',
+                            style: GoogleFonts.inter(fontSize: 12, color: _inkSub),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Container(height: 1, color: _border),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Reference',
+                      style: GoogleFonts.inter(fontSize: 12, color: _inkSub),
+                    ),
+                    Text(
+                      '#$bookingIdShort',
+                      style: GoogleFonts.inter(
+                          fontSize: 12, fontWeight: FontWeight.w700, color: _ink),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // Simple Primary Action Button
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 18),
+              label: Text(
+                'Book Again',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _brand,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Back to Property',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: _inkSub,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -686,32 +866,46 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
                         children: [
                           Flexible(
                             child: Text(
-                              'Owner: ${_ownerProfile?.fullName ?? 'Owner'}',
+                              _isOwnerView
+                                  ? 'Guest: ${_ownerProfile?.fullName ?? 'Guest'}'
+                                  : 'Owner: ${_ownerProfile?.fullName ?? widget.property?.ownerName ?? 'Owner'}',
                               style: GoogleFonts.inter(fontSize: 12, color: _inkSub),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 4),
-                          const Icon(Icons.verified_rounded,
-                              color: Color(0xFF0EA5E9), size: 13),
+                          if (_ownerProfile?.isVerified == true || (!_isOwnerView && (widget.property?.isOwnerVerified ?? false))) ...[
+                            const SizedBox(width: 4),
+                            const Icon(Icons.verified_rounded,
+                                color: Color(0xFF0EA5E9), size: 13),
+                          ],
                         ],
                       ),
                     ],
                   ),
                 ),
-                if (_ownerProfile != null) ...[
+                if (_ownerProfile != null || (!_isOwnerView && widget.property != null)) ...[
                   const SizedBox(width: 8),
                   InkWell(
                     onTap: () {
                       HapticFeedback.lightImpact();
+                      final targetChatId = _isOwnerView
+                          ? _booking.guestId
+                          : (_booking.ownerId.isNotEmpty && _booking.ownerId != _booking.guestId
+                              ? _booking.ownerId
+                              : (widget.property?.ownerId ?? _booking.ownerId));
+                      final chatName = _ownerProfile?.fullName ??
+                          (!_isOwnerView ? (widget.property?.ownerName ?? 'Owner') : 'Guest');
+                      final chatAvatar = _ownerProfile?.avatarUrl ??
+                          (!_isOwnerView ? (widget.property?.ownerAvatar ?? '') : '');
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => chat_page.ChatScreen(
-                            ownerId: _booking.ownerId,
-                            name: _ownerProfile?.fullName ?? 'Owner',
-                            avatar: _ownerProfile?.avatarUrl ?? '',
+                            ownerId: targetChatId,
+                            name: chatName,
+                            avatar: chatAvatar,
                             online: true,
                           ),
                         ),
@@ -890,6 +1084,26 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
         return _buildAwaitingPaymentActions();
       case 'rejected':
         return _buildRejectedActions();
+      case 'cancelled':
+      case 'canceled':
+        return Column(
+          children: [
+            if (widget.property != null)
+              _primaryBtn(
+                label: 'Book Again',
+                icon: Icons.refresh_rounded,
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                color: _brand,
+              ),
+            if (widget.property != null) const SizedBox(height: 12),
+            _outlineBtn(
+              label: 'Browse Properties',
+              onTap: () => Navigator.pop(context),
+            ),
+          ],
+        );
       case 'paid':
         return _outlineBtn(
           label: 'Browse More Properties',
