@@ -2,7 +2,7 @@ package com.khozna.khozna
 
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.activity.enableEdgeToEdge
+import androidx.core.view.WindowCompat
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -12,7 +12,7 @@ class MainActivity : FlutterActivity() {
     private val CHANNEL = "khozna/security"
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
     }
 
@@ -31,7 +31,7 @@ class MainActivity : FlutterActivity() {
                                 WindowManager.LayoutParams.FLAG_SECURE
                             )
                         } else {
-                            // Restore normal behaviour
+                            // Allow screenshots
                             window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
                         }
                         result.success(null)
