@@ -14,6 +14,7 @@ import 'package:khozna/features/property/screens/post_property_intro_screen.dart
 import 'package:khozna/features/profile/screens/kyc_screen.dart';
 import 'package:khozna/features/profile/screens/profile_screen.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
+import 'package:khozna/core/services/in_app_update_service.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -52,6 +53,10 @@ class _MainScreenState extends State<MainScreen> {
     // Listen for regular real-time notifications to show Airbnb-style toasts
     lastRealtimeNotification.addListener(_handleRealtimeNotification);
     selectedTabNotifier.addListener(_onExternalTabChange);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      InAppUpdateService.checkForUpdate();
+    });
   }
 
   void _onExternalTabChange() {
