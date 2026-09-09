@@ -942,49 +942,53 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       children: [
                         _buildAvatar(sender, radius: 22),
                         const SizedBox(width: 12),
-                        Text(
-                          guestName,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                            color: const Color(0xFF0F172A),
-                          ),
-                        ),
-                        if (sender?['kyc_status'] == 'verified') ...[
-                          const SizedBox(width: 4),
-                          const Icon(Icons.verified_rounded, color: Color(0xFF1D4ED8), size: 14),
-                        ],
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF1F5F9),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: const Color(0xFFE2E8F0)),
-                              ),
-                              child: Text(
-                                'Visit Request',
-                                style: GoogleFonts.inter(
-                                  fontSize: 10,
-                                  color: const Color(0xFF475569),
-                                  fontWeight: FontWeight.w600,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  guestName,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                    color: const Color(0xFF0F172A),
+                                  ),
                                 ),
+                                if (sender?['kyc_status'] == 'verified') ...[
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.verified_rounded, color: Color(0xFF1D4ED8), size: 14),
+                                ],
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              _formatTime(note['created_at']),
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                color: const Color(0xFF94A3B8),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          _formatTime(note['created_at']),
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            color: const Color(0xFF94A3B8),
-                          ),
-                        ),
                       ],
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Text(
+                      'Booking Request',
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        color: const Color(0xFF475569),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
