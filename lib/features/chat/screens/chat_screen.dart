@@ -86,6 +86,9 @@ class _ChatScreenState extends State<ChatScreen> {
             _sendMessage(widget.initialMessage);
           }
         });
+      } else {
+        // Chat already known — mark it read immediately
+        ChatRepository.markChatAsRead(_activeChatId!);
       }
     } else if (_activeChatId != null) {
       ChatRepository.markChatAsRead(_activeChatId!);
@@ -138,7 +141,7 @@ class _ChatScreenState extends State<ChatScreen> {
       if (mounted) {
         setState(() => _activeChatId = id);
         currentActiveChatId.value = id;
-        ChatRepository.markChatAsRead(id);
+        await ChatRepository.markChatAsRead(id);
       }
     } catch (_) {}
   }

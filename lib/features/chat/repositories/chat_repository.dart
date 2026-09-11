@@ -242,6 +242,18 @@ class ChatRepository {
           .update({'is_read': true})
           .eq('chat_id', chatId)
           .neq('sender_id', user.id);
+
+      if (chatListCache.value != null) {
+        final updatedList = chatListCache.value!.map((c) {
+          if (c.id == chatId && c.unreadCount > 0) {
+            return c.copyWith(unreadCount: 0);
+          }
+          return c;
+        }).toList();
+        chatListCache.value = updatedList;
+      }
+
+      await fetchUnreadMessageCount();
     } catch (e) {
       debugPrint('Error marking chat as read: $e');
     }

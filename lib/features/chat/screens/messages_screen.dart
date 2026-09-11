@@ -376,6 +376,18 @@ class _MessagesScreenState extends State<MessagesScreen>
       margin: const EdgeInsets.only(bottom: 2),
       child: InkWell(
         onTap: () async {
+          // Optimistically clear the unread count immediately
+          if (chat.unreadCount > 0) {
+            setState(() {
+              final idx = _chats.indexWhere((c) => c.id == chat.id);
+              if (idx != -1) {
+                _chats[idx] = _chats[idx].copyWith(unreadCount: 0);
+              }
+            });
+            // Also update the global cache so badge in nav bar clears
+            chatListCache.value = List.from(_chats);
+          }
+
           await Navigator.push(
             context,
             MaterialPageRoute(

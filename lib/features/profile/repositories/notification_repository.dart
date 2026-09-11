@@ -84,14 +84,18 @@ class NotificationRepository {
               return;
             }
 
-            // 2. Fetch unread count for badge
-            ChatRepository.fetchUnreadMessageCount();
-
-            // 3. Do not show pop-up notification if user is actively viewing this chat screen!
             final String? chatId = data['chat_id']?.toString();
-            if (currentActiveChatId.value != null && currentActiveChatId.value == chatId) {
+
+            // 2. If user is actively viewing this chat screen, mark message read immediately!
+            if (chatId != null &&
+                currentActiveChatId.value != null &&
+                currentActiveChatId.value == chatId) {
+              await ChatRepository.markChatAsRead(chatId);
               return;
             }
+
+            // 3. Fetch unread count for badge (when user is outside the active chat)
+            await ChatRepository.fetchUnreadMessageCount();
 
             // 4. Fetch sender name for clean notification text
             String senderName = 'Someone';

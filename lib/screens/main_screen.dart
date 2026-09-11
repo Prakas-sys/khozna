@@ -15,6 +15,7 @@ import 'package:khozna/features/profile/screens/kyc_screen.dart';
 import 'package:khozna/features/profile/screens/profile_screen.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
 import 'package:khozna/core/services/in_app_update_service.dart';
+import 'package:khozna/features/chat/repositories/chat_repository.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -367,7 +368,7 @@ class _MainScreenState extends State<MainScreen> {
     }
     // Pause/resume tour videos based on tab visibility
     reelsTabActive.value = (index == 1);
-    if (index == 2) messageBadgeCount.value = 0;
+    if (index == 2) ChatRepository.fetchUnreadMessageCount();
   }
 
   @override
