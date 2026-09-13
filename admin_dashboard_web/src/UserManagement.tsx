@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase, supabaseAdmin } from './lib/supabase';
-import { Search, Loader2, Trash2, Phone, Calendar, Shield, Filter, User, ShieldOff, ShieldCheck } from 'lucide-react';
+import { Search, Loader2, Trash2, Phone, Calendar, Shield, User, ShieldOff, ShieldCheck, Bot } from 'lucide-react';
 
 export const UserManagement = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [hideTestBots, setHideTestBots] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [actionType, setActionType] = useState<'delete' | 'suspend' | null>(null);
 
@@ -140,15 +141,29 @@ export const UserManagement = () => {
     return diff < 7 * 24 * 60 * 60 * 1000;
   };
 
-  const suspendedUsers = users.filter(u => u.is_suspended);
-  const verifiedUsers  = users.filter(u => !u.is_suspended && u.kyc_status === 'verified');
-  const otherUsers     = users.filter(u => !u.is_suspended && u.kyc_status !== 'verified');
-  const newUsersCount  = users.filter(u => isNewUser(u.created_at)).length;
+  // Helper to detect Google Play pre-launch / test lab bots
+  const isTestBot = (u: any) => {
+    const email = (u.email || '').toLowerCase();
+    const name = (u.full_name || '').toLowerCase();
+    if (email.includes('cloudtestlabaccounts.com')) return true;
+    if (name.includes('nuage laboratoire')) return true;
+    if (/[a-z]+\.[0-9]{5}@gmail\.com/.test(email)) return true;
+    return false;
+  };
+
+  const displayedUsers = hideTestBots ? users.filter(u => !isTestBot(u)) : users;
+  const testBotsCount  = users.filter(u => isTestBot(u)).length;
+
+  const suspendedUsers = displayedUsers.filter(u => u.is_suspended);
+  const verifiedUsers  = displayedUsers.filter(u => !u.is_suspended && u.kyc_status === 'verified');
+  const otherUsers     = displayedUsers.filter(u => !u.is_suspended && u.kyc_status !== 'verified');
+  const newUsersCount  = displayedUsers.filter(u => isNewUser(u.created_at)).length;
 
   const renderUserCard = (user: any) => {
     const isSuspended = !!user.is_suspended;
     const isProcessing = processingId === user.id;
     const isNew = isNewUser(user.created_at);
+    const isBot = isTestBot(user);
 
     return (
       <motion.div
@@ -157,13 +172,15 @@ export const UserManagement = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.98 }}
         key={user.id}
-        className={`card-minimal p-5 bg-white flex flex-col group ${isSuspended ? 'opacity-60 border-rose-100' : ''}`}
+        className={`card-minimal p-5 bg-white flex flex-col group ${isSuspended ? 'opacity-60 border-rose-100' : ''} ${isBot ? 'border-amber-200 bg-amber-50/20' : ''}`}
       >
         <div className="flex items-start justify-between mb-5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-[#FAFAFA] border border-[#E5E5E5] flex items-center justify-center overflow-hidden">
               {user.avatar_url ? (
                 <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+              ) : isBot ? (
+                <Bot size={18} strokeWidth={1.5} className="text-amber-600" />
               ) : (
                 <User size={18} strokeWidth={1.5} className="text-[#A3A3A3]" />
               )}
@@ -171,7 +188,12 @@ export const UserManagement = () => {
             <div>
               <div className="flex items-center gap-1.5">
                 <h3 className="text-[13px] font-semibold text-[#171717]">{user.full_name || 'Anonymous User'}</h3>
-                {isNew && (
+                {isBot && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 bg-amber-100 text-amber-700 border border-amber-200 rounded text-[9px] font-bold uppercase tracking-wide">
+                    Google Bot
+                  </span>
+                )}
+                {isNew && !isBot && (
                   <span className="inline-flex items-center px-1.5 py-0.5 bg-blue-50 text-blue-600 border border-blue-100 rounded text-[9px] font-bold uppercase tracking-wide">
                     New
                   </span>
@@ -259,6 +281,19 @@ export const UserManagement = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setHideTestBots(!hideTestBots)}
+            className={`h-9 px-3 rounded-lg border text-[12px] font-medium transition-all flex items-center gap-2 ${
+              hideTestBots
+                ? 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100'
+                : 'bg-white border-[#E5E5E5] text-[#737373] hover:bg-[#FAFAFA]'
+            }`}
+            title={hideTestBots ? "Click to show Google Test Bots" : "Click to hide Google Test Bots"}
+          >
+            <Bot size={14} className={hideTestBots ? 'text-amber-600' : 'text-[#A3A3A3]'} />
+            <span>{hideTestBots ? `Hide Test Bots (${testBotsCount})` : `Show Test Bots (${testBotsCount})`}</span>
+          </button>
+
           <div className="relative">
             <Search size={14} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A3A3A3]" />
             <input
@@ -266,12 +301,9 @@ export const UserManagement = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search directory..."
-              className="w-64 h-9 bg-white border border-[#E5E5E5] rounded-lg py-2 pl-9 pr-3 focus:outline-none focus:border-[#A3A3A3] text-[13px] transition-colors"
+              className="w-56 h-9 bg-white border border-[#E5E5E5] rounded-lg py-2 pl-9 pr-3 focus:outline-none focus:border-[#A3A3A3] text-[13px] transition-colors"
             />
           </div>
-          <button className="h-9 px-3 bg-white border border-[#E5E5E5] rounded-lg hover:bg-[#FAFAFA] flex items-center gap-2 text-[12px] font-medium text-[#525252] transition-colors shadow-xs">
-            <Filter size={14} strokeWidth={1.5} /> Filter
-          </button>
         </div>
       </div>
 
