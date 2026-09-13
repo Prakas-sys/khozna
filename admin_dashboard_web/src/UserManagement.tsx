@@ -132,13 +132,21 @@ export const UserManagement = () => {
     }
   };
 
+  // Users who joined in the last 7 days are considered "new"
+  const isNewUser = (createdAt: string) => {
+    const diff = Date.now() - new Date(createdAt).getTime();
+    return diff < 7 * 24 * 60 * 60 * 1000;
+  };
+
   const suspendedUsers = users.filter(u => u.is_suspended);
   const verifiedUsers  = users.filter(u => !u.is_suspended && u.kyc_status === 'verified');
   const otherUsers     = users.filter(u => !u.is_suspended && u.kyc_status !== 'verified');
+  const newUsersCount  = users.filter(u => isNewUser(u.created_at)).length;
 
   const renderUserCard = (user: any) => {
     const isSuspended = !!user.is_suspended;
     const isProcessing = processingId === user.id;
+    const isNew = isNewUser(user.created_at);
 
     return (
       <motion.div
@@ -159,7 +167,14 @@ export const UserManagement = () => {
               )}
             </div>
             <div>
-              <h3 className="text-[13px] font-semibold text-[#171717]">{user.full_name || 'Anonymous User'}</h3>
+              <div className="flex items-center gap-1.5">
+                <h3 className="text-[13px] font-semibold text-[#171717]">{user.full_name || 'Anonymous User'}</h3>
+                {isNew && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 bg-blue-50 text-blue-600 border border-blue-100 rounded text-[9px] font-bold uppercase tracking-wide">
+                    New
+                  </span>
+                )}
+              </div>
               <p className="text-[11px] text-[#737373] truncate w-32" title={user.email}>{user.email || 'No email'}</p>
             </div>
           </div>
@@ -232,7 +247,14 @@ export const UserManagement = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
         <div>
           <h2 className="text-[22px] font-semibold text-[#171717] tracking-tight mb-1">User Directory</h2>
-          <p className="text-[#737373] text-[13px]">Manage and audit platform participants.</p>
+          <p className="text-[#737373] text-[13px]">
+            Manage and audit platform participants.
+            {newUsersCount > 0 && (
+              <span className="ml-2 inline-flex items-center px-2 py-0.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-full text-[10px] font-bold">
+                🆕 {newUsersCount} new this week
+              </span>
+            )}
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
