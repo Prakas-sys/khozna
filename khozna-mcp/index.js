@@ -464,11 +464,15 @@ server.tool(
 
     if (!id) throw new Error("Provide user_id or full_name");
 
-    try { await db.from("payments").delete().eq("payer_id", id); } catch (e) {}
-    try { await db.from("payouts").delete().eq("owner_id", id); } catch (e) {}
+    try { await db.from("messages").delete().or(`sender_id.eq.${id},recipient_id.eq.${id}`); } catch (e) {}
+    try { await db.from("chats").delete().or(`user1_id.eq.${id},user2_id.eq.${id},host_id.eq.${id},guest_id.eq.${id}`); } catch (e) {}
+    try { await db.from("reviews").delete().or(`user_id.eq.${id},reviewer_id.eq.${id}`); } catch (e) {}
+    try { await db.from("guest_recommendations").delete().eq("user_id", id); } catch (e) {}
+    try { await db.from("payments").delete().or(`payer_id.eq.${id},user_id.eq.${id}`); } catch (e) {}
+    try { await db.from("payouts").delete().or(`owner_id.eq.${id},user_id.eq.${id}`); } catch (e) {}
     try { await db.from("user_reports").delete().or(`reporter_id.eq.${id},reported_user_id.eq.${id}`); } catch (e) {}
     try { await db.from("kyc_verifications").delete().eq("user_id", id); } catch (e) {}
-    try { await db.from("notifications").delete().eq("user_id", id); } catch (e) {}
+    try { await db.from("notifications").delete().or(`user_id.eq.${id},sender_id.eq.${id}`); } catch (e) {}
     try { await db.from("saved_properties").delete().eq("user_id", id); } catch (e) {}
     try { await db.from("bookings").delete().or(`guest_id.eq.${id},owner_id.eq.${id}`); } catch (e) {}
     try { await db.from("properties").delete().eq("owner_id", id); } catch (e) {}
