@@ -19,60 +19,152 @@ const server = new McpServer({
 
 // ════════════════════════════════════════════════════════════════════════════
 // TOOL: audit_dashboard
-// Claude can call this to get a full overview and audit the dashboard
+// Comprehensive platform health audit addressing growth trends, KYC reconciliation,
+// data hygiene, financial readiness, and supply/demand imbalance.
 // ════════════════════════════════════════════════════════════════════════════
 server.tool(
   "audit_dashboard",
-  "Get a complete audit of the Khozna admin dashboard — total users, new users this week, pending KYC, reports, suspended users, bookings, payments. Use this to review and rate the platform health.",
+  "Get a complete audit of the Khozna admin dashboard — total users, new users this week vs previous week (WoW trend), reconciled KYC, safety reports, test vs organic user breakdown, financial volume, and supply/demand ratio.",
   {},
   async () => {
-    const now = new Date();
-    const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const now = Date.now();
+    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+    const weekAgoStr = new Date(now - SEVEN_DAYS_MS).toISOString();
+    const twoWeeksAgoStr = new Date(now - 2 * SEVEN_DAYS_MS).toISOString();
 
     const [
-      totalUsers, newUsers, suspendedUsers,
-      pendingKyc, verifiedKyc,
-      openReports,
-      pendingPayments,
-      totalBookings, activeBookings,
-      totalProperties,
+      allProfilesRes,
+      kycTableRes,
+      userReportsRes,
+      paymentsRes,
+      bookingsRes,
+      propertiesRes,
     ] = await Promise.all([
-      db.from("profiles").select("*", { count: "exact", head: true }),
-      db.from("profiles").select("*", { count: "exact", head: true }).gte("created_at", weekAgo),
-      db.from("profiles").select("*", { count: "exact", head: true }).eq("is_suspended", true),
-      db.from("kyc_verifications").select("*", { count: "exact", head: true }).eq("status", "pending"),
-      db.from("kyc_verifications").select("*", { count: "exact", head: true }).eq("status", "approved"),
-      db.from("user_reports").select("*", { count: "exact", head: true }),
-      db.from("payments").select("*", { count: "exact", head: true }).eq("status", "pending"),
-      db.from("bookings").select("*", { count: "exact", head: true }),
-      db.from("bookings").select("*", { count: "exact", head: true }).eq("status", "active"),
-      db.from("properties").select("*", { count: "exact", head: true }),
+      db.from("profiles").select("id, full_name, email, kyc_status, is_suspended, created_at"),
+      db.from("kyc_verifications").select("id, status, user_id"),
+      db.from("user_reports").select("id", { count: "exact", head: true }),
+      db.from("payments").select("amount, status"),
+      db.from("bookings").select("id, total_price, status"),
+      db.from("properties").select("id", { count: "exact", head: true }),
     ]);
 
+    const profiles = allProfilesRes.data || [];
+    const totalUsers = profiles.length;
+
+    // 1. Time-Series Trend (This Week vs Previous Week)
+    const newThisWeek = profiles.filter(u => new Date(u.created_at).getTime() >= (now - SEVEN_DAYS_MS)).length;
+    const newPreviousWeek = profiles.filter(u => {
+      const t = new Date(u.created_at).getTime();
+      return t >= (now - 2 * SEVEN_DAYS_MS) && t < (now - SEVEN_DAYS_MS);
+    }).length;
+    const userGrowthWoWPercent = newPreviousWeek > 0 
+      ? Math.round(((newThisWeek - newPreviousWeek) / newPreviousWeek) * 100)
+      : newThisWeek * 100;
+
+    // 2. Reconciled KYC Numbers (from profiles + kyc_verifications table)
+    const verifiedKycProfiles = profiles.filter(u => u.kyc_status === 'verified').length;
+    const pendingKycProfiles = profiles.filter(u => u.kyc_status === 'pending').length;
+    const pendingKycTable = (kycTableRes.data || []).filter(k => k.status === 'pending').length;
+
+    // 3. Data Hygiene Analysis (Test accounts vs Organic users)
+    const testAccounts = profiles.filter(u => 
+      (u.email && u.email.includes('cloudtestlabaccounts.com')) || 
+      (u.full_name && u.full_name.toLowerCase().includes('test'))
+    ).length;
+    const unnamedUsers = profiles.filter(u => !u.full_name || u.full_name === 'Khozna User' || u.full_name === 'Anonymous User').length;
+    const organicUsers = totalUsers - testAccounts;
+
+    // 4. Financial Metrics
+    const payments = paymentsRes.data || [];
+    const bookings = bookingsRes.data || [];
+    const verifiedPaymentsVolume = payments.filter(p => p.status === 'verified').reduce((a, b) => a + (b.amount || 0), 0);
+    const confirmedBookingsVolume = bookings.filter(b => b.status === 'confirmed' || b.status === 'active').reduce((a, b) => a + (b.total_price || 0), 0);
+    const pendingPaymentsCount = payments.filter(p => p.status === 'pending').length;
+
+    // 5. Supply vs Demand Imbalance Metric
+    const totalProperties = propertiesRes.count || 0;
+    const supplyDemandRatio = organicUsers > 0 ? (totalProperties / organicUsers).toFixed(2) : '0';
+
+    const auditReport = {
+      growth_trends: {
+        total_registered_users: totalUsers,
+        organic_users: organicUsers,
+        test_lab_accounts: testAccounts,
+        unnamed_users_count: unnamedUsers,
+        new_users_this_week: newThisWeek,
+        new_users_previous_week: newPreviousWeek,
+        growth_wow_percent: `${userGrowthWoWPercent >= 0 ? '+' : ''}${userGrowthWoWPercent}%`,
+      },
+      kyc_reconciliation: {
+        verified_users_count: verifiedKycProfiles,
+        pending_kyc_reviews: Math.max(pendingKycProfiles, pendingKycTable),
+        unverified_users_count: totalUsers - verifiedKycProfiles,
+      },
+      safety_and_moderation: {
+        open_user_reports: userReportsRes.count || 0,
+        suspended_users_count: profiles.filter(u => u.is_suspended).length,
+      },
+      financial_overview: {
+        verified_payments_volume_npr: verifiedPaymentsVolume,
+        confirmed_bookings_volume_npr: confirmedBookingsVolume,
+        total_gross_volume_npr: verifiedPaymentsVolume + confirmedBookingsVolume,
+        pending_payment_verifications: pendingPaymentsCount,
+        total_bookings: bookings.length,
+      },
+      marketplace_supply_health: {
+        total_active_properties: totalProperties,
+        supply_demand_ratio: `${supplyDemandRatio} listings per user`,
+        status_alert: totalProperties < 5 ? "⚠️ COLD START ALERT: Critical shortage of property listings relative to user base." : "HEALTHY",
+      },
+      audited_at: new Date().toISOString(),
+    };
+
+    return {
+      content: [{ type: "text", text: JSON.stringify(auditReport, null, 2) }],
+    };
+  }
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOOL: get_financial_summary
+// ════════════════════════════════════════════════════════════════════════════
+server.tool(
+  "get_financial_summary",
+  "Get financial breakdown of Khozna platform — total revenue volume, escrow balances, pending payments, completed payouts.",
+  {},
+  async () => {
+    let paymentsData = [];
+    let bookingsData = [];
+    let payoutsData = [];
+
+    const paymentsRes = await db.from("payments").select("amount, status, payment_method");
+    if (paymentsRes.data) paymentsData = paymentsRes.data;
+
+    const bookingsRes = await db.from("bookings").select("total_price, status");
+    if (bookingsRes.data) bookingsData = bookingsRes.data;
+
+    const payoutsRes = await db.from("payouts").select("amount, status");
+    if (payoutsRes.data) payoutsData = payoutsRes.data;
+
+    const verifiedPayments = paymentsData.filter(p => p.status === 'verified');
+    const pendingPayments  = paymentsData.filter(p => p.status === 'pending');
+    
+    const confirmedBookings = bookingsData.filter(b => b.status === 'confirmed' || b.status === 'active');
+    const confirmedBookingVolume = confirmedBookings.reduce((acc, b) => acc + (b.total_price || 0), 0);
+    const verifiedPaymentVolume = verifiedPayments.reduce((acc, p) => acc + (p.amount || 0), 0);
+    const pendingPaymentVolume = pendingPayments.reduce((acc, p) => acc + (p.amount || 0), 0);
+
     const summary = {
-      users: {
-        total: totalUsers.count ?? 0,
-        newThisWeek: newUsers.count ?? 0,
-        suspended: suspendedUsers.count ?? 0,
-      },
-      kyc: {
-        pending: pendingKyc.count ?? 0,
-        verified: verifiedKyc.count ?? 0,
-      },
-      safety: {
-        openReports: openReports.count ?? 0,
-      },
-      payments: {
-        pending: pendingPayments.count ?? 0,
-      },
-      bookings: {
-        total: totalBookings.count ?? 0,
-        active: activeBookings.count ?? 0,
-      },
-      properties: {
-        total: totalProperties.count ?? 0,
-      },
-      generatedAt: now.toISOString(),
+      verifiedPaymentVolumeNPR: verifiedPaymentVolume,
+      confirmedBookingVolumeNPR: confirmedBookingVolume,
+      totalGrossVolumeNPR: verifiedPaymentVolume + confirmedBookingVolume,
+      pendingPaymentVolumeNPR: pendingPaymentVolume,
+      totalPaymentsCount: paymentsData.length,
+      verifiedPaymentsCount: verifiedPayments.length,
+      pendingPaymentsCount: pendingPayments.length,
+      totalBookingsCount: bookingsData.length,
+      confirmedBookingsCount: confirmedBookings.length,
+      payoutsCount: payoutsData.length,
     };
 
     return {
@@ -124,9 +216,9 @@ server.tool(
     let id = user_id;
 
     if (!id && full_name) {
-      const { data } = await db.from("profiles").select("id, full_name").ilike("full_name", `%${full_name}%`).limit(1).single();
-      if (!data) throw new Error(`User "${full_name}" not found`);
-      id = data.id;
+      const { data } = await db.from("profiles").select("id, full_name").ilike("full_name", `%${full_name}%`).limit(1);
+      if (!data || data.length === 0) throw new Error(`User "${full_name}" not found`);
+      id = data[0].id;
     }
 
     if (!id) throw new Error("Provide user_id or full_name");
@@ -264,42 +356,6 @@ server.tool(
 
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
-    };
-  }
-);
-
-// ════════════════════════════════════════════════════════════════════════════
-// FINANCIAL TOOLS
-// ════════════════════════════════════════════════════════════════════════════
-
-server.tool(
-  "get_financial_summary",
-  "Get financial breakdown of Khozna platform — total revenue volume, escrow balances, pending payments, completed payouts.",
-  {},
-  async () => {
-    const [payments, payouts, bookings] = await Promise.all([
-      db.from("payments").select("amount, status, payment_method"),
-      db.from("payouts").select("amount, status").catch(() => ({ data: [] })),
-      db.from("bookings").select("total_price, status"),
-    ]);
-
-    const verifiedPayments = (payments.data || []).filter(p => p.status === 'verified');
-    const pendingPayments  = (payments.data || []).filter(p => p.status === 'pending');
-    
-    const totalVolume = verifiedPayments.reduce((acc, p) => acc + (p.amount || 0), 0);
-    const pendingVolume = pendingPayments.reduce((acc, p) => acc + (p.amount || 0), 0);
-
-    const summary = {
-      totalVerifiedVolumeNPR: totalVolume,
-      pendingPaymentVolumeNPR: pendingVolume,
-      totalPaymentsCount: payments.data?.length ?? 0,
-      verifiedCount: verifiedPayments.length,
-      pendingCount: pendingPayments.length,
-      totalBookingsCount: bookings.data?.length ?? 0,
-    };
-
-    return {
-      content: [{ type: "text", text: JSON.stringify(summary, null, 2) }],
     };
   }
 );
