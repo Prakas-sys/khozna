@@ -36,29 +36,28 @@ export const UserManagement = () => {
   const handleDelete = async (id: string) => {
     if (!confirm("⚠️ Permanently delete this user? This cannot be undone.")) return;
 
+    // Must have admin client to bypass RLS
+    const db = supabaseAdmin || supabase;
+
     setProcessingId(id);
     setActionType('delete');
     try {
       // 1. Delete related data first (order matters for FK constraints)
-      await supabase.from('user_reports').delete().or(`reporter_id.eq.${id},reported_user_id.eq.${id}`);
-      await supabase.from('kyc_verifications').delete().eq('user_id', id);
-      await supabase.from('notifications').delete().eq('user_id', id);
-      await supabase.from('saved_properties').delete().eq('user_id', id);
-      await supabase.from('bookings').delete().eq('guest_id', id);
-      await supabase.from('properties').delete().eq('owner_id', id);
+      await db.from('user_reports').delete().or(`reporter_id.eq.${id},reported_user_id.eq.${id}`);
+      await db.from('kyc_verifications').delete().eq('user_id', id);
+      await db.from('notifications').delete().eq('user_id', id);
+      await db.from('saved_properties').delete().eq('user_id', id);
+      await db.from('bookings').delete().eq('guest_id', id);
+      await db.from('properties').delete().eq('owner_id', id);
 
       // 2. Delete from profiles
-      const { error: profileError } = await supabase.from('profiles').delete().eq('id', id);
+      const { error: profileError } = await db.from('profiles').delete().eq('id', id);
       if (profileError) throw profileError;
 
-      // 3. Delete auth user (requires service role key)
+      // 3. Delete auth user — admin client required
       if (supabaseAdmin) {
         const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(id);
-        if (authError) {
-          console.warn("Auth deletion failed (profile deleted):", authError.message);
-        }
-      } else {
-        console.warn("No service key — auth user NOT deleted. Add VITE_SUPABASE_SERVICE_KEY to .env.local");
+        if (authError) console.warn("Auth deletion failed:", authError.message);
       }
 
       setUsers(prev => prev.filter(u => u.id !== id));
@@ -73,13 +72,14 @@ export const UserManagement = () => {
 
   // ─── Suspend / Unsuspend user ─────────────────────────────────────────────────
   const handleSuspend = async (id: string, currentlySuspended: boolean) => {
+    const db = supabaseAdmin || supabase;
     const action = currentlySuspended ? 'unsuspend' : 'suspend';
     if (!confirm(`${action === 'suspend' ? '🚫 Suspend' : '✅ Unsuspend'} this user?`)) return;
 
     setProcessingId(id);
     setActionType('suspend');
     try {
-      const { error } = await supabase
+      const { error } = await db
         .from('profiles')
         .update({ is_suspended: !currentlySuspended })
         .eq('id', id);

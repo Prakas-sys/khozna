@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { supabase } from './lib/supabase';
+import { supabase, supabaseAdmin } from './lib/supabase';
 import { ShieldAlert, Loader2, RefreshCcw, User, Clock, ShieldCheck, Mail, ShieldOff, CheckCircle2 } from 'lucide-react';
 
 export const Reports = () => {
@@ -35,10 +35,11 @@ export const Reports = () => {
   // ─── Resolve (dismiss) the report ────────────────────────────────────────────
   const handleResolve = async (id: string) => {
     if (!confirm("Mark this report as resolved and dismiss it?")) return;
+    const db = supabaseAdmin || supabase;
     setProcessingId(id);
     setProcessingType('resolve');
     try {
-      const { error } = await supabase.from('user_reports').delete().eq('id', id);
+      const { error } = await db.from('user_reports').delete().eq('id', id);
       if (error) throw error;
       setReports(prev => prev.filter(r => r.id !== id));
     } catch (e: any) {
@@ -66,16 +67,17 @@ export const Reports = () => {
 
     setProcessingId(report.id);
     setProcessingType('suspend');
+    const db = supabaseAdmin || supabase;
     try {
       // 1. Suspend the user
-      const { error: suspendError } = await supabase
+      const { error: suspendError } = await db
         .from('profiles')
         .update({ is_suspended: true })
         .eq('id', reportedId);
       if (suspendError) throw suspendError;
 
       // 2. Delete the report (resolved)
-      const { error: deleteError } = await supabase
+      const { error: deleteError } = await db
         .from('user_reports')
         .delete()
         .eq('id', report.id);
