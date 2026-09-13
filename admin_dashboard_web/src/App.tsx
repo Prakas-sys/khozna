@@ -234,14 +234,26 @@ const DashboardHome = () => {
 
 // ─── Root App ─────────────────────────────────────────────────────────────────
 const App = () => {
-  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(() => {
+    return localStorage.getItem('khozna_admin_unlocked') === 'true';
+  });
 
-  if (!isUnlocked) return <Login onPinSuccess={() => setIsUnlocked(true)} />;
+  const handleUnlock = () => {
+    localStorage.setItem('khozna_admin_unlocked', 'true');
+    setIsUnlocked(true);
+  };
+
+  const handleLock = () => {
+    localStorage.removeItem('khozna_admin_unlocked');
+    setIsUnlocked(false);
+  };
+
+  if (!isUnlocked) return <Login onPinSuccess={handleUnlock} />;
 
   return (
     <Router>
       <div className="flex h-screen bg-[#FAFAFA] overflow-hidden text-[#171717]">
-        <Sidebar onLock={() => setIsUnlocked(false)} />
+        <Sidebar onLock={handleLock} />
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
           <Header />
           <Routes>

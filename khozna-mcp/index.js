@@ -17,10 +17,22 @@ const server = new McpServer({
   version: "1.0.0",
 });
 
+// Helper function to download an image URL and convert to Base64 for MCP image response
+async function fetchImageAsBase64(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const arrayBuffer = await res.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString("base64");
+    const contentType = res.headers.get("content-type") || "image/png";
+    return { data: base64, mimeType: contentType.startsWith("image/") ? contentType : "image/png" };
+  } catch (e) {
+    return null;
+  }
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 // TOOL: audit_dashboard
-// Comprehensive platform health audit addressing growth trends, KYC reconciliation,
-// data hygiene, financial readiness, and supply/demand imbalance.
 // ════════════════════════════════════════════════════════════════════════════
 server.tool(
   "audit_dashboard",
@@ -29,8 +41,6 @@ server.tool(
   async () => {
     const now = Date.now();
     const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-    const weekAgoStr = new Date(now - SEVEN_DAYS_MS).toISOString();
-    const twoWeeksAgoStr = new Date(now - 2 * SEVEN_DAYS_MS).toISOString();
 
     const [
       allProfilesRes,
@@ -51,7 +61,6 @@ server.tool(
     const profiles = allProfilesRes.data || [];
     const totalUsers = profiles.length;
 
-    // 1. Time-Series Trend (This Week vs Previous Week)
     const newThisWeek = profiles.filter(u => new Date(u.created_at).getTime() >= (now - SEVEN_DAYS_MS)).length;
     const newPreviousWeek = profiles.filter(u => {
       const t = new Date(u.created_at).getTime();
@@ -61,36 +70,33 @@ server.tool(
       ? Math.round(((newThisWeek - newPreviousWeek) / newPreviousWeek) * 100)
       : newThisWeek * 100;
 
-    // 2. Reconciled KYC Numbers (from profiles + kyc_verifications table)
     const verifiedKycProfiles = profiles.filter(u => u.kyc_status === 'verified').length;
     const pendingKycProfiles = profiles.filter(u => u.kyc_status === 'pending').length;
     const pendingKycTable = (kycTableRes.data || []).filter(k => k.status === 'pending').length;
 
-    // 3. Data Hygiene Analysis (Test accounts vs Organic users)
     const testAccounts = profiles.filter(u => 
       (u.email && u.email.includes('cloudtestlabaccounts.com')) || 
-      (u.full_name && u.full_name.toLowerCase().includes('test'))
+      (u.full_name && u.full_name.toLowerCase().includes('test')) ||
+      (/[a-z]+\.[0-9]{5}@gmail\.com/.test(u.email || ''))
     ).length;
     const unnamedUsers = profiles.filter(u => !u.full_name || u.full_name === 'Khozna User' || u.full_name === 'Anonymous User').length;
     const organicUsers = totalUsers - testAccounts;
 
-    // 4. Financial Metrics
     const payments = paymentsRes.data || [];
     const bookings = bookingsRes.data || [];
     const verifiedPaymentsVolume = payments.filter(p => p.status === 'verified').reduce((a, b) => a + (b.amount || 0), 0);
     const confirmedBookingsVolume = bookings.filter(b => b.status === 'confirmed' || b.status === 'active').reduce((a, b) => a + (b.total_price || 0), 0);
     const pendingPaymentsCount = payments.filter(p => p.status === 'pending').length;
 
-    // 5. Supply vs Demand Imbalance Metric
     const totalProperties = propertiesRes.count || 0;
     const supplyDemandRatio = organicUsers > 0 ? (totalProperties / organicUsers).toFixed(2) : '0';
 
     const auditReport = {
       growth_trends: {
         total_registered_users: totalUsers,
-        organic_users: organicUsers,
-        test_lab_accounts: testAccounts,
-        unnamed_users_count: unnamedUsers,
+        organic_human_users: organicUsers,
+        google_play_test_bots: testAccounts,
+        unnamed_phone_users: unnamedUsers,
         new_users_this_week: newThisWeek,
         new_users_previous_week: newPreviousWeek,
         growth_wow_percent: `${userGrowthWoWPercent >= 0 ? '+' : ''}${userGrowthWoWPercent}%`,
@@ -121,6 +127,185 @@ server.tool(
 
     return {
       content: [{ type: "text", text: JSON.stringify(auditReport, null, 2) }],
+    };
+  }
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOOL: capture_dashboard_ui
+// Captures live visual screenshot of the Admin Dashboard and sends image to Claude
+// ════════════════════════════════════════════════════════════════════════════
+server.tool(
+  "capture_dashboard_ui",
+  "Takes a live UI screenshot of the Khozna Admin Dashboard and returns the image directly to Claude for visual UI/UX critique and layout evaluation.",
+  {
+    path: z.string().optional().default("/").describe("Page path (e.g. '/' for overview, '/users' for user directory, '/kyc' for verifications)"),
+  },
+  async ({ path }) => {
+    let puppeteer;
+    try {
+      puppeteer = (await import("puppeteer-core")).default;
+    } catch (e) {
+      throw new Error("puppeteer-core is required for visual capture");
+    }
+
+    const browser = await puppeteer.launch({
+      executablePath: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+
+    try {
+      const page = await browser.newPage();
+      await page.setViewport({ width: 1440, height: 900 });
+      const targetUrl = `http://localhost:5173${path || '/'}`;
+      await page.goto(targetUrl, { waitUntil: "domcontentloaded" });
+      await page.evaluate(() => localStorage.setItem("khozna_admin_unlocked", "true"));
+      await page.reload({ waitUntil: "networkidle0" });
+
+      const imgBuffer = await page.screenshot({ type: "png" });
+      const base64 = imgBuffer.toString("base64");
+
+      return {
+        content: [
+          { type: "text", text: `📸 Live visual screenshot of Khozna Admin Dashboard at ${targetUrl}:` },
+          { type: "image", data: base64, mimeType: "image/png" },
+        ],
+      };
+    } finally {
+      await browser.close();
+    }
+  }
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOOL: list_pending_kyc
+// ════════════════════════════════════════════════════════════════════════════
+server.tool(
+  "list_pending_kyc",
+  "List pending user KYC submissions awaiting admin approval, including user details and document IDs.",
+  {},
+  async () => {
+    const { data, error } = await db
+      .from("kyc_verifications")
+      .select("id, user_id, full_name, email, phone_number, citizenship_number, status, created_at, front_image_url, back_image_url, selfie_image_url")
+      .order("created_at", { ascending: false });
+
+    if (error) throw new Error(error.message);
+
+    return {
+      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+    };
+  }
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOOL: inspect_kyc_submission
+// Returns front ID, back ID, and selfie photo directly as BASE64 IMAGES to Claude
+// so Claude can visually verify facial match, ID text, and authenticity.
+// ════════════════════════════════════════════════════════════════════════════
+server.tool(
+  "inspect_kyc_submission",
+  "Visually inspect a user's KYC submission documents. Returns Front ID, Back ID, and Selfie photo directly as visual IMAGES to Claude so Claude can verify facial match, document authenticity, and legibility.",
+  {
+    kyc_id:  z.string().optional().describe("KYC record UUID"),
+    user_id: z.string().optional().describe("User UUID"),
+  },
+  async ({ kyc_id, user_id }) => {
+    let query = db.from("kyc_verifications").select("*");
+    if (kyc_id) query = query.eq("id", kyc_id);
+    else if (user_id) query = query.eq("user_id", user_id);
+    else throw new Error("Provide kyc_id or user_id");
+
+    const { data, error } = await query.limit(1);
+    if (error || !data || data.length === 0) throw new Error("KYC submission record not found");
+
+    const kyc = data[0];
+    const content = [
+      {
+        type: "text",
+        text: `🔍 KYC Submission Details for ${kyc.full_name}:\n` +
+              `- Record ID: ${kyc.id}\n` +
+              `- User ID: ${kyc.user_id}\n` +
+              `- Full Name: ${kyc.full_name}\n` +
+              `- Citizenship Number: ${kyc.citizenship_number || 'N/A'}\n` +
+              `- Email: ${kyc.email || 'N/A'}\n` +
+              `- Phone: ${kyc.phone_number || 'N/A'}\n` +
+              `- GPS Location: ${kyc.latitude ? `${kyc.latitude}, ${kyc.longitude}` : 'Not verified'}\n` +
+              `- Status: ${kyc.status}\n\n` +
+              `Below are the submitted Front ID, Back ID, and Live Selfie images:`
+      }
+    ];
+
+    if (kyc.front_image_url) {
+      const img = await fetchImageAsBase64(kyc.front_image_url);
+      if (img) {
+        content.push({ type: "text", text: "🪪 [FRONT CITIZENSHIP ID PHOTO]:" });
+        content.push({ type: "image", data: img.data, mimeType: img.mimeType });
+      }
+    }
+
+    if (kyc.back_image_url) {
+      const img = await fetchImageAsBase64(kyc.back_image_url);
+      if (img) {
+        content.push({ type: "text", text: "🪪 [BACK CITIZENSHIP ID PHOTO]:" });
+        content.push({ type: "image", data: img.data, mimeType: img.mimeType });
+      }
+    }
+
+    if (kyc.selfie_image_url) {
+      const img = await fetchImageAsBase64(kyc.selfie_image_url);
+      if (img) {
+        content.push({ type: "text", text: "🤳 [LIVE SELFIE PHOTO]:" });
+        content.push({ type: "image", data: img.data, mimeType: img.mimeType });
+      }
+    }
+
+    return { content };
+  }
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOOL: approve_kyc
+// ════════════════════════════════════════════════════════════════════════════
+server.tool(
+  "approve_kyc",
+  "Approve a user's KYC verification after visually validating their documents.",
+  {
+    kyc_id: z.string().describe("KYC record UUID"),
+  },
+  async ({ kyc_id }) => {
+    const { data: kyc, error: fetchErr } = await db.from("kyc_verifications").select("id, user_id, full_name").eq("id", kyc_id).single();
+    if (fetchErr || !kyc) throw new Error("KYC record not found");
+
+    await db.from("kyc_verifications").update({ status: "verified" }).eq("id", kyc_id);
+    await db.from("profiles").update({ kyc_status: "verified" }).eq("id", kyc.user_id);
+
+    return {
+      content: [{ type: "text", text: `✅ KYC submission for ${kyc.full_name} (${kyc.user_id}) has been APPROVED.` }],
+    };
+  }
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOOL: reject_kyc
+// ════════════════════════════════════════════════════════════════════════════
+server.tool(
+  "reject_kyc",
+  "Reject a user's KYC verification with a specific reason.",
+  {
+    kyc_id: z.string().describe("KYC record UUID"),
+    reason: z.string().describe("Reason for rejection (e.g., 'Selfie face does not match ID document', 'ID blurry')"),
+  },
+  async ({ kyc_id, reason }) => {
+    const { data: kyc, error: fetchErr } = await db.from("kyc_verifications").select("id, user_id, full_name").eq("id", kyc_id).single();
+    if (fetchErr || !kyc) throw new Error("KYC record not found");
+
+    await db.from("kyc_verifications").update({ status: "rejected", rejection_reason: reason }).eq("id", kyc_id);
+    await db.from("profiles").update({ kyc_status: "rejected" }).eq("id", kyc.user_id);
+
+    return {
+      content: [{ type: "text", text: `❌ KYC submission for ${kyc.full_name} (${kyc.user_id}) REJECTED. Reason: ${reason}` }],
     };
   }
 );
@@ -253,7 +438,6 @@ server.tool(
 
     if (!id) throw new Error("Provide user_id or full_name");
 
-    // Delete in strict dependency order (FK constraints)
     try { await db.from("payments").delete().eq("payer_id", id); } catch (e) {}
     try { await db.from("payouts").delete().eq("owner_id", id); } catch (e) {}
     try { await db.from("user_reports").delete().or(`reporter_id.eq.${id},reported_user_id.eq.${id}`); } catch (e) {}
@@ -266,7 +450,6 @@ server.tool(
     const { error: profileErr } = await db.from("profiles").delete().eq("id", id);
     if (profileErr) console.error("Profile delete error:", profileErr.message);
 
-    // Delete auth user from Supabase Auth schema
     const { error: authErr } = await db.auth.admin.deleteUser(id);
     if (authErr) console.error("Auth delete error:", authErr.message);
 
