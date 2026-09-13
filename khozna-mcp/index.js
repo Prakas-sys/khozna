@@ -1,0 +1,269 @@
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { createClient } from "@supabase/supabase-js";
+import { z } from "zod";
+
+// ─── Supabase Setup (service role — full admin access) ──────────────────────
+const SUPABASE_URL = "https://qjpeablwokiuhfaopdbi.supabase.co";
+const SERVICE_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqcGVhYmx3b2tpdWhmYW9wZGJpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTU2OTEyOCwiZXhwIjoyMDg3MTQ1MTI4fQ.ZyV6x5yvPaKxITcpOeBVHsbefVirDem5qrRiruYQnN8";
+
+const db = createClient(SUPABASE_URL, SERVICE_KEY, {
+  auth: { autoRefreshToken: false, persistSession: false },
+});
+
+// ─── MCP Server ─────────────────────────────────────────────────────────────
+const server = new McpServer({
+  name: "khozna-admin",
+  version: "1.0.0",
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOOL: audit_dashboard
+// Claude can call this to get a full overview and audit the dashboard
+// ════════════════════════════════════════════════════════════════════════════
+server.tool(
+  "audit_dashboard",
+  "Get a complete audit of the Khozna admin dashboard — total users, new users this week, pending KYC, reports, suspended users, bookings, payments. Use this to review and rate the platform health.",
+  {},
+  async () => {
+    const now = new Date();
+    const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    const [
+      totalUsers, newUsers, suspendedUsers,
+      pendingKyc, verifiedKyc,
+      openReports,
+      pendingPayments,
+      totalBookings, activeBookings,
+      totalProperties,
+    ] = await Promise.all([
+      db.from("profiles").select("*", { count: "exact", head: true }),
+      db.from("profiles").select("*", { count: "exact", head: true }).gte("created_at", weekAgo),
+      db.from("profiles").select("*", { count: "exact", head: true }).eq("is_suspended", true),
+      db.from("kyc_verifications").select("*", { count: "exact", head: true }).eq("status", "pending"),
+      db.from("kyc_verifications").select("*", { count: "exact", head: true }).eq("status", "approved"),
+      db.from("user_reports").select("*", { count: "exact", head: true }),
+      db.from("payments").select("*", { count: "exact", head: true }).eq("status", "pending"),
+      db.from("bookings").select("*", { count: "exact", head: true }),
+      db.from("bookings").select("*", { count: "exact", head: true }).eq("status", "active"),
+      db.from("properties").select("*", { count: "exact", head: true }),
+    ]);
+
+    const summary = {
+      users: {
+        total: totalUsers.count ?? 0,
+        newThisWeek: newUsers.count ?? 0,
+        suspended: suspendedUsers.count ?? 0,
+      },
+      kyc: {
+        pending: pendingKyc.count ?? 0,
+        verified: verifiedKyc.count ?? 0,
+      },
+      safety: {
+        openReports: openReports.count ?? 0,
+      },
+      payments: {
+        pending: pendingPayments.count ?? 0,
+      },
+      bookings: {
+        total: totalBookings.count ?? 0,
+        active: activeBookings.count ?? 0,
+      },
+      properties: {
+        total: totalProperties.count ?? 0,
+      },
+      generatedAt: now.toISOString(),
+    };
+
+    return {
+      content: [{ type: "text", text: JSON.stringify(summary, null, 2) }],
+    };
+  }
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOOL: list_users
+// ════════════════════════════════════════════════════════════════════════════
+server.tool(
+  "list_users",
+  "List users on the Khozna platform. Can filter by name, suspended status, or KYC status.",
+  {
+    search:    z.string().optional().describe("Search by name or phone"),
+    suspended: z.boolean().optional().describe("Filter suspended users only"),
+    kyc_status: z.enum(["verified", "pending", "rejected", "none"]).optional(),
+    limit:     z.number().optional().default(20),
+  },
+  async ({ search, suspended, kyc_status, limit }) => {
+    let query = db.from("profiles").select("id, full_name, email, phone_number, kyc_status, is_suspended, is_owner, created_at").order("created_at", { ascending: false }).limit(limit ?? 20);
+
+    if (search)    query = query.or(`full_name.ilike.%${search}%,phone_number.ilike.%${search}%`);
+    if (suspended !== undefined) query = query.eq("is_suspended", suspended);
+    if (kyc_status) query = query.eq("kyc_status", kyc_status);
+
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+
+    return {
+      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+    };
+  }
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOOL: suspend_user
+// ════════════════════════════════════════════════════════════════════════════
+server.tool(
+  "suspend_user",
+  "Suspend or unsuspend a user by their ID or full name.",
+  {
+    user_id:   z.string().optional().describe("User UUID"),
+    full_name: z.string().optional().describe("User full name to look up"),
+    suspend:   z.boolean().default(true).describe("true = suspend, false = unsuspend"),
+  },
+  async ({ user_id, full_name, suspend }) => {
+    let id = user_id;
+
+    if (!id && full_name) {
+      const { data } = await db.from("profiles").select("id, full_name").ilike("full_name", `%${full_name}%`).limit(1).single();
+      if (!data) throw new Error(`User "${full_name}" not found`);
+      id = data.id;
+    }
+
+    if (!id) throw new Error("Provide user_id or full_name");
+
+    const { error } = await db.from("profiles").update({ is_suspended: suspend }).eq("id", id);
+    if (error) throw new Error(error.message);
+
+    return {
+      content: [{ type: "text", text: `✅ User ${id} has been ${suspend ? "suspended" : "unsuspended"} successfully.` }],
+    };
+  }
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOOL: delete_user
+// ════════════════════════════════════════════════════════════════════════════
+server.tool(
+  "delete_user",
+  "Permanently delete a user account and all their data from Khozna.",
+  {
+    user_id:   z.string().optional().describe("User UUID"),
+    full_name: z.string().optional().describe("User full name to look up"),
+  },
+  async ({ user_id, full_name }) => {
+    let id = user_id;
+
+    if (!id && full_name) {
+      const { data } = await db.from("profiles").select("id, full_name").ilike("full_name", `%${full_name}%`).limit(1).single();
+      if (!data) throw new Error(`User "${full_name}" not found`);
+      id = data.id;
+    }
+
+    if (!id) throw new Error("Provide user_id or full_name");
+
+    // Delete in order (FK constraints)
+    await db.from("user_reports").delete().or(`reporter_id.eq.${id},reported_user_id.eq.${id}`);
+    await db.from("kyc_verifications").delete().eq("user_id", id);
+    await db.from("notifications").delete().eq("user_id", id);
+    await db.from("saved_properties").delete().eq("user_id", id);
+    await db.from("bookings").delete().eq("guest_id", id);
+    await db.from("properties").delete().eq("owner_id", id);
+    await db.from("profiles").delete().eq("id", id);
+
+    // Delete auth user
+    await db.auth.admin.deleteUser(id);
+
+    return {
+      content: [{ type: "text", text: `🗑️ User ${id} and all associated data permanently deleted.` }],
+    };
+  }
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOOL: list_reports
+// ════════════════════════════════════════════════════════════════════════════
+server.tool(
+  "list_reports",
+  "List all open safety reports on the platform.",
+  {},
+  async () => {
+    const { data, error } = await db
+      .from("user_reports")
+      .select(`*, reported:profiles!reported_user_id(full_name, email), reporter:profiles!reporter_id(full_name)`)
+      .order("created_at", { ascending: false });
+
+    if (error) throw new Error(error.message);
+
+    return {
+      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+    };
+  }
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOOL: resolve_report
+// ════════════════════════════════════════════════════════════════════════════
+server.tool(
+  "resolve_report",
+  "Resolve (dismiss) a safety report, optionally suspending the reported user.",
+  {
+    report_id:      z.string().describe("Report UUID"),
+    suspend_user:   z.boolean().default(false).describe("Also suspend the reported user?"),
+  },
+  async ({ report_id, suspend_user }) => {
+    const { data: report, error: fetchErr } = await db
+      .from("user_reports")
+      .select("*, reported_user_id")
+      .eq("id", report_id)
+      .single();
+
+    if (fetchErr || !report) throw new Error("Report not found");
+
+    if (suspend_user && report.reported_user_id) {
+      await db.from("profiles").update({ is_suspended: true }).eq("id", report.reported_user_id);
+    }
+
+    const { error } = await db.from("user_reports").delete().eq("id", report_id);
+    if (error) throw new Error(error.message);
+
+    return {
+      content: [{
+        type: "text",
+        text: `✅ Report resolved.${suspend_user ? " Reported user has been suspended." : ""}`,
+      }],
+    };
+  }
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOOL: list_properties
+// ════════════════════════════════════════════════════════════════════════════
+server.tool(
+  "list_properties",
+  "List all property listings on Khozna.",
+  {
+    search: z.string().optional().describe("Search by title or area"),
+    limit:  z.number().optional().default(20),
+  },
+  async ({ search, limit }) => {
+    let query = db
+      .from("properties")
+      .select("id, title, area_name, price, category, status, created_at, profiles:owner_id(full_name)")
+      .order("created_at", { ascending: false })
+      .limit(limit ?? 20);
+
+    if (search) query = query.or(`title.ilike.%${search}%,area_name.ilike.%${search}%`);
+
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+
+    return {
+      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+    };
+  }
+);
+
+// ─── Start ───────────────────────────────────────────────────────────────────
+const transport = new StdioServerTransport();
+await server.connect(transport);
+console.error("🏠 Khozna Admin MCP Server running...");

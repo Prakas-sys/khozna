@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "khozna-admin": {
+      "command": "node",
+      "args": ["D:\\STARTUP\\Khozna\\KHOZNA.COM\\khozna-mcp\\index.js"]
+    }
+  }
+}

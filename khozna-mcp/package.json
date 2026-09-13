@@ -1,0 +1,16 @@
+{
+  "name": "khozna-admin-mcp",
+  "version": "1.0.0",
+  "description": "Khozna Admin MCP Server — lets Claude control the admin dashboard",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "zod": "^4.6.4"
+  }
+}
