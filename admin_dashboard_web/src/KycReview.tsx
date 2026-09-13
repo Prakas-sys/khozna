@@ -331,6 +331,22 @@ export const KycReview = () => {
     try {
       await supabase.from('kyc_verifications').update({ status, rejection_reason: reason ?? null }).eq('id', kycId);
       await supabase.from('profiles').update({ kyc_status: status }).eq('id', userId);
+
+      // Send automated notification to user app
+      const title = status === 'verified' ? 'KYC Approved 🎉' : 'KYC Document Issue ⚠️';
+      const message = status === 'verified'
+        ? 'Congratulations! Your identity document has been verified.'
+        : `Your identity verification needs correction: ${reason || 'Document unreadable or name discrepancy'}. Please re-upload a clear ID document.`;
+
+      await supabase.from('notifications').insert({
+        user_id: userId,
+        title,
+        message,
+        type: 'kyc_update',
+        is_read: false,
+      });
+    } catch (e) {
+      console.error("Error updating KYC:", e);
     } finally {
       setProcessingId(null);
     }

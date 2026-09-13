@@ -268,9 +268,11 @@ server.tool(
 // ════════════════════════════════════════════════════════════════════════════
 // TOOL: approve_kyc
 // ════════════════════════════════════════════════════════════════════════════
+// TOOL: approve_kyc
+// ════════════════════════════════════════════════════════════════════════════
 server.tool(
   "approve_kyc",
-  "Approve a user's KYC verification after visually validating their documents.",
+  "Approve a user's KYC verification after validating that their ID card name and surname match their profile name and the document is clear.",
   {
     kyc_id: z.string().describe("KYC record UUID"),
   },
@@ -281,8 +283,20 @@ server.tool(
     await db.from("kyc_verifications").update({ status: "verified" }).eq("id", kyc_id);
     await db.from("profiles").update({ kyc_status: "verified" }).eq("id", kyc.user_id);
 
+    try {
+      await db.from("notifications").insert({
+        user_id: kyc.user_id,
+        title: "KYC Approved 🎉",
+        message: "Congratulations! Your identity document has been verified. You now have full verified access on Khozna.",
+        type: "kyc_update",
+        is_read: false,
+      });
+    } catch (e) {
+      console.error("Notification insert error:", e.message);
+    }
+
     return {
-      content: [{ type: "text", text: `✅ KYC submission for ${kyc.full_name} (${kyc.user_id}) has been APPROVED.` }],
+      content: [{ type: "text", text: `✅ KYC submission for ${kyc.full_name} (${kyc.user_id}) APPROVED and notification dispatched to user app.` }],
     };
   }
 );
@@ -292,10 +306,10 @@ server.tool(
 // ════════════════════════════════════════════════════════════════════════════
 server.tool(
   "reject_kyc",
-  "Reject a user's KYC verification with a specific reason.",
+  "Reject a user's KYC verification if ID card name/surname does not match profile or ID photo is blurry/unreadable. Automatically dispatches a push & in-app notification to the user describing the issue so they can re-upload.",
   {
     kyc_id: z.string().describe("KYC record UUID"),
-    reason: z.string().describe("Reason for rejection (e.g., 'Selfie face does not match ID document', 'ID blurry')"),
+    reason: z.string().describe("Specific reason for rejection (e.g., 'Name on ID card does not match profile name', 'ID card image is blurry or unreadable')"),
   },
   async ({ kyc_id, reason }) => {
     const { data: kyc, error: fetchErr } = await db.from("kyc_verifications").select("id, user_id, full_name").eq("id", kyc_id).single();
@@ -304,8 +318,20 @@ server.tool(
     await db.from("kyc_verifications").update({ status: "rejected", rejection_reason: reason }).eq("id", kyc_id);
     await db.from("profiles").update({ kyc_status: "rejected" }).eq("id", kyc.user_id);
 
+    try {
+      await db.from("notifications").insert({
+        user_id: kyc.user_id,
+        title: "KYC Document Issue ⚠️",
+        message: `Your identity document review requires correction: ${reason}. Please re-upload a clear ID document with matching name.`,
+        type: "kyc_update",
+        is_read: false,
+      });
+    } catch (e) {
+      console.error("Notification insert error:", e.message);
+    }
+
     return {
-      content: [{ type: "text", text: `❌ KYC submission for ${kyc.full_name} (${kyc.user_id}) REJECTED. Reason: ${reason}` }],
+      content: [{ type: "text", text: `❌ KYC submission for ${kyc.full_name} (${kyc.user_id}) REJECTED. Notification sent to user: "${reason}"` }],
     };
   }
 );
