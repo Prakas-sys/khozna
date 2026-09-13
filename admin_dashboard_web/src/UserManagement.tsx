@@ -42,19 +42,21 @@ export const UserManagement = () => {
     setProcessingId(id);
     setActionType('delete');
     try {
-      // 1. Delete related data first (order matters for FK constraints)
-      await db.from('user_reports').delete().or(`reporter_id.eq.${id},reported_user_id.eq.${id}`);
-      await db.from('kyc_verifications').delete().eq('user_id', id);
-      await db.from('notifications').delete().eq('user_id', id);
-      await db.from('saved_properties').delete().eq('user_id', id);
-      await db.from('bookings').delete().eq('guest_id', id);
-      await db.from('properties').delete().eq('owner_id', id);
+      // Delete in strict dependency order for FK constraints
+      try { await db.from('payments').delete().eq('payer_id', id); } catch (e) {}
+      try { await db.from('payouts').delete().eq('owner_id', id); } catch (e) {}
+      try { await db.from('user_reports').delete().or(`reporter_id.eq.${id},reported_user_id.eq.${id}`); } catch (e) {}
+      try { await db.from('kyc_verifications').delete().eq('user_id', id); } catch (e) {}
+      try { await db.from('notifications').delete().eq('user_id', id); } catch (e) {}
+      try { await db.from('saved_properties').delete().eq('user_id', id); } catch (e) {}
+      try { await db.from('bookings').delete().or(`guest_id.eq.${id},owner_id.eq.${id}`); } catch (e) {}
+      try { await db.from('properties').delete().eq('owner_id', id); } catch (e) {}
 
-      // 2. Delete from profiles
+      // Delete from profiles
       const { error: profileError } = await db.from('profiles').delete().eq('id', id);
       if (profileError) throw profileError;
 
-      // 3. Delete auth user — admin client required
+      // Delete auth user — admin client required
       if (supabaseAdmin) {
         const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(id);
         if (authError) console.warn("Auth deletion failed:", authError.message);

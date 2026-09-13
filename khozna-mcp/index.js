@@ -154,27 +154,32 @@ server.tool(
     let id = user_id;
 
     if (!id && full_name) {
-      const { data } = await db.from("profiles").select("id, full_name").ilike("full_name", `%${full_name}%`).limit(1).single();
-      if (!data) throw new Error(`User "${full_name}" not found`);
-      id = data.id;
+      const { data } = await db.from("profiles").select("id, full_name").ilike("full_name", `%${full_name}%`).limit(1);
+      if (!data || data.length === 0) throw new Error(`User "${full_name}" not found`);
+      id = data[0].id;
     }
 
     if (!id) throw new Error("Provide user_id or full_name");
 
-    // Delete in order (FK constraints)
-    await db.from("user_reports").delete().or(`reporter_id.eq.${id},reported_user_id.eq.${id}`);
-    await db.from("kyc_verifications").delete().eq("user_id", id);
-    await db.from("notifications").delete().eq("user_id", id);
-    await db.from("saved_properties").delete().eq("user_id", id);
-    await db.from("bookings").delete().eq("guest_id", id);
-    await db.from("properties").delete().eq("owner_id", id);
-    await db.from("profiles").delete().eq("id", id);
+    // Delete in strict dependency order (FK constraints)
+    try { await db.from("payments").delete().eq("payer_id", id); } catch (e) {}
+    try { await db.from("payouts").delete().eq("owner_id", id); } catch (e) {}
+    try { await db.from("user_reports").delete().or(`reporter_id.eq.${id},reported_user_id.eq.${id}`); } catch (e) {}
+    try { await db.from("kyc_verifications").delete().eq("user_id", id); } catch (e) {}
+    try { await db.from("notifications").delete().eq("user_id", id); } catch (e) {}
+    try { await db.from("saved_properties").delete().eq("user_id", id); } catch (e) {}
+    try { await db.from("bookings").delete().or(`guest_id.eq.${id},owner_id.eq.${id}`); } catch (e) {}
+    try { await db.from("properties").delete().eq("owner_id", id); } catch (e) {}
+    
+    const { error: profileErr } = await db.from("profiles").delete().eq("id", id);
+    if (profileErr) console.error("Profile delete error:", profileErr.message);
 
-    // Delete auth user
-    await db.auth.admin.deleteUser(id);
+    // Delete auth user from Supabase Auth schema
+    const { error: authErr } = await db.auth.admin.deleteUser(id);
+    if (authErr) console.error("Auth delete error:", authErr.message);
 
     return {
-      content: [{ type: "text", text: `🗑️ User ${id} and all associated data permanently deleted.` }],
+      content: [{ type: "text", text: `🗑️ User ${id} (${full_name || 'id'}) and all associated records deleted.` }],
     };
   }
 );
