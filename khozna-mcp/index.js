@@ -263,6 +263,114 @@ server.tool(
   }
 );
 
+// ════════════════════════════════════════════════════════════════════════════
+// FINANCIAL TOOLS
+// ════════════════════════════════════════════════════════════════════════════
+
+server.tool(
+  "get_financial_summary",
+  "Get financial breakdown of Khozna platform — total revenue volume, escrow balances, pending payments, completed payouts.",
+  {},
+  async () => {
+    const [payments, payouts, bookings] = await Promise.all([
+      db.from("payments").select("amount, status, payment_method"),
+      db.from("payouts").select("amount, status").catch(() => ({ data: [] })),
+      db.from("bookings").select("total_price, status"),
+    ]);
+
+    const verifiedPayments = (payments.data || []).filter(p => p.status === 'verified');
+    const pendingPayments  = (payments.data || []).filter(p => p.status === 'pending');
+    
+    const totalVolume = verifiedPayments.reduce((acc, p) => acc + (p.amount || 0), 0);
+    const pendingVolume = pendingPayments.reduce((acc, p) => acc + (p.amount || 0), 0);
+
+    const summary = {
+      totalVerifiedVolumeNPR: totalVolume,
+      pendingPaymentVolumeNPR: pendingVolume,
+      totalPaymentsCount: payments.data?.length ?? 0,
+      verifiedCount: verifiedPayments.length,
+      pendingCount: pendingPayments.length,
+      totalBookingsCount: bookings.data?.length ?? 0,
+    };
+
+    return {
+      content: [{ type: "text", text: JSON.stringify(summary, null, 2) }],
+    };
+  }
+);
+
+server.tool(
+  "list_payments",
+  "List payment transactions submitted by tenants/guests.",
+  {
+    status: z.enum(["pending", "verified", "rejected", "all"]).optional().default("all"),
+    limit:  z.number().optional().default(20),
+  },
+  async ({ status, limit }) => {
+    let query = db
+      .from("payments")
+      .select("*, bookings(total_price, status, properties(title), guest:profiles!bookings_guest_id_fkey(full_name))")
+      .order("created_at", { ascending: false })
+      .limit(limit ?? 20);
+
+    if (status && status !== "all") {
+      query = query.eq("status", status);
+    }
+
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+
+    return {
+      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+    };
+  }
+);
+
+server.tool(
+  "verify_payment",
+  "Verify and confirm a guest payment transaction.",
+  {
+    payment_id: z.string().describe("Payment UUID or booking ID"),
+  },
+  async ({ payment_id }) => {
+    if (!payment_id.startsWith('b_')) {
+      await db.from("payments").update({ status: "verified" }).eq("id", payment_id);
+    }
+    const cleanBookingId = payment_id.replace('b_', '');
+    const { error } = await db.from("bookings").update({ status: "confirmed" }).eq("id", cleanBookingId);
+    if (error) throw new Error(error.message);
+
+    return {
+      content: [{ type: "text", text: `✅ Payment ${payment_id} verified and booking confirmed successfully.` }],
+    };
+  }
+);
+
+server.tool(
+  "reject_payment",
+  "Reject a guest payment transaction with a reason.",
+  {
+    payment_id: z.string().describe("Payment UUID or booking ID"),
+    reason:     z.string().describe("Rejection reason for the tenant"),
+  },
+  async ({ payment_id, reason }) => {
+    if (!payment_id.startsWith('b_')) {
+      await db.from("payments").update({ status: "rejected" }).eq("id", payment_id);
+    }
+    const cleanBookingId = payment_id.replace('b_', '');
+    const { error } = await db.from("bookings").update({
+      status: "rejected",
+      rejection_reason: reason,
+    }).eq("id", cleanBookingId);
+
+    if (error) throw new Error(error.message);
+
+    return {
+      content: [{ type: "text", text: `❌ Payment ${payment_id} rejected. Reason: ${reason}` }],
+    };
+  }
+);
+
 // ─── Start ───────────────────────────────────────────────────────────────────
 const transport = new StdioServerTransport();
 await server.connect(transport);
