@@ -44,8 +44,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<ChatMessage> _optimisticMessages = [];
 
   String? _activeChatId;
-  final String _currentUserId =
-      supabase.Supabase.instance.client.auth.currentUser?.id ?? '';
+  String get _currentUserId => SupabaseService.currentUserId;
 
   late String _displayName;
   late String _displayAvatar;
@@ -201,6 +200,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
       if (_activeChatId != null) {
         await ChatRepository.sendMessage(_activeChatId!, msgText);
+        if (mounted) {
+          setState(() => _optimisticMessages.removeWhere((m) => m.id == tempMsg.id));
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -348,13 +350,13 @@ class _ChatScreenState extends State<ChatScreen> {
                     builder: (context, snapshot) {
                       final streamMessages = snapshot.data ?? [];
 
-                      // Deduplicate optimistic messages cleanly:
-                      // Remove any optimistic message if a stream message from the same sender exists with matching text
+                      // Deduplicate optimistic messages cleanly by matching ID or exact sender + text payload:
                       final pending = _optimisticMessages.where((opt) {
                         return !streamMessages.any((sm) =>
-                            sm.senderId == opt.senderId &&
-                            (((sm.text ?? '').trim().isNotEmpty && (sm.text ?? '').trim() == (opt.text ?? '').trim()) ||
-                             sm.createdAt.difference(opt.createdAt).abs() < const Duration(seconds: 8)));
+                            sm.id == opt.id ||
+                            (sm.senderId == opt.senderId &&
+                             (sm.text ?? '').trim().isNotEmpty &&
+                             (sm.text ?? '').trim() == (opt.text ?? '').trim()));
                       }).toList();
 
                       final messages = [...pending, ...streamMessages];

@@ -143,6 +143,19 @@ class BookingRepository {
     if (user == null) throw Exception('User not logged in');
 
     try {
+      // Option A: Prevent duplicate pending/accepted visit requests for the same property
+      final existing = await _client
+          .from('bookings')
+          .select('id, status')
+          .eq('property_id', propertyId)
+          .eq('guest_id', user.id)
+          .in_('status', ['pending_approval', 'visit_accepted', 'confirmed'])
+          .maybeSingle();
+
+      if (existing != null) {
+        throw Exception('तपाइँले यस कोठाको लागि अघि नै अवलोकन अनुरोध पठाइसक्नुभएको छ। (You already have an active request for this property.)');
+      }
+
       final cleanMessage = message != null
           ? SecurityUtils.sanitizeInput(message, maxLength: 500)
           : '';

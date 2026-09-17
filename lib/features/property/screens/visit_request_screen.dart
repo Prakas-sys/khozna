@@ -757,6 +757,8 @@ class _VisitRequestScreenState extends State<VisitRequestScreen>
           userFriendlyError = 'Network error. Please check your internet connection and try again.';
         } else if (errStr.contains('not authenticated') || errStr.contains('jwt')) {
           userFriendlyError = 'Please log in to schedule a room visit.';
+        } else if (errStr.contains('already have an active request') || errStr.contains('पठाइसक्नुभएको छ')) {
+          userFriendlyError = e.toString().replaceAll('Exception: ', '');
         }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

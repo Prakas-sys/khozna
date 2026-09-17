@@ -205,6 +205,12 @@ class PushNotificationService {
   }) async {
     if (kIsWeb || recipientUserId.isEmpty) return;
     try {
+      final currentUserId = supabase.Supabase.instance.client.auth.currentUser?.id;
+      if (recipientUserId == currentUserId) {
+        showNotificationDirectly(title, body);
+        return;
+      }
+
       final res = await supabase.Supabase.instance.client
           .from('profiles')
           .select('fcm_token')

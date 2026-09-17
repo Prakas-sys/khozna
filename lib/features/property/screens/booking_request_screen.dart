@@ -323,6 +323,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             errStr.contains('failed host lookup') ||
             errStr.contains('clientexception')) {
           userFriendlyError = 'Network error. Please check your internet connection and try again.';
+        } else if (errStr.contains('already have an active request') || errStr.contains('पठाइसक्नुभएको छ')) {
+          userFriendlyError = e.toString().replaceAll('Exception: ', '');
         }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
