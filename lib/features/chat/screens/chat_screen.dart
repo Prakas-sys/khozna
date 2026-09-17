@@ -353,7 +353,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       final pending = _optimisticMessages.where((opt) {
                         return !streamMessages.any((sm) =>
                             sm.senderId == opt.senderId &&
-                            (sm.text.trim() == opt.text.trim() ||
+                            (((sm.text ?? '').trim().isNotEmpty && (sm.text ?? '').trim() == (opt.text ?? '').trim()) ||
                              sm.createdAt.difference(opt.createdAt).abs() < const Duration(seconds: 8)));
                       }).toList();
 
