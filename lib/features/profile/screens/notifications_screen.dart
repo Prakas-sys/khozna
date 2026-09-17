@@ -949,16 +949,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final bool isUnread = note['is_read'] != true;
 
     Color badgeColor = AppTheme.brandColor;
-    IconData badgeIcon = Icons.info_outline_rounded;
     if (title.contains('Accepted') || title.contains('Approved') || title.contains('Confirmed')) {
       badgeColor = const Color(0xFF10B981);
-      badgeIcon = Icons.check_circle_rounded;
     } else if (title.contains('Declined') || title.contains('Rejected')) {
       badgeColor = const Color(0xFF64748B);
-      badgeIcon = Icons.cancel_rounded;
     } else if (title.contains('Suggested')) {
       badgeColor = const Color(0xFF3B82F6);
-      badgeIcon = Icons.schedule_rounded;
     }
 
     return GestureDetector(
@@ -999,24 +995,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     child: propImg != null && propImg.isNotEmpty
                         ? Image.network(
                             propImg,
                             width: 56,
                             height: 56,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
-                              width: 56, height: 56,
-                              color: const Color(0xFFF1F5F9),
-                              child: Icon(badgeIcon, color: badgeColor, size: 24),
-                            ),
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildCalendarKeyBadgeIcon(size: 56, badgeColor: badgeColor),
                           )
-                        : Container(
-                            width: 56, height: 56,
-                            color: const Color(0xFFF1F5F9),
-                            child: Icon(badgeIcon, color: badgeColor, size: 24),
-                          ),
+                        : _buildCalendarKeyBadgeIcon(size: 56, badgeColor: badgeColor),
                   ),
                   if (isUnread)
                     Positioned(
@@ -1123,6 +1112,50 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
+  /// Helper: Connected Calendar & Key icon badge for visit notifications (Airbnb Minimalist Style)
+  Widget _buildCalendarKeyBadgeIcon({double size = 56, Color? badgeColor}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFF334155), width: 1),
+      ),
+      child: Stack(
+        children: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 5, bottom: 5),
+              child: Icon(
+                Icons.calendar_month_rounded,
+                color: Colors.white.withValues(alpha: 0.9),
+                size: size * 0.44,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 4,
+            right: 4,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: badgeColor ?? AppTheme.brandColor,
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFF0F172A), width: 1.5),
+              ),
+              child: Icon(
+                Icons.key_rounded,
+                color: Colors.white,
+                size: size * 0.25,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Owner: Visit request notification item card (Screen 1)
   Widget _buildBookingRequestCard(
     Map<String, dynamic> note,
@@ -1183,28 +1216,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Property Thumbnail with unread indicator dot
+              // Property Thumbnail / Connected Calendar & Key Badge
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     child: propImg != null && propImg.isNotEmpty
                         ? Image.network(
                             propImg,
                             width: 56,
                             height: 56,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
-                              width: 56, height: 56,
-                              color: const Color(0xFFF1F5F9),
-                              child: const Icon(Icons.home_work_rounded, color: Color(0xFF94A3B8), size: 24),
-                            ),
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildCalendarKeyBadgeIcon(size: 56, badgeColor: const Color(0xFFEA580C)),
                           )
-                        : Container(
-                            width: 56, height: 56,
-                            color: const Color(0xFFF1F5F9),
-                            child: const Icon(Icons.home_work_rounded, color: Color(0xFF94A3B8), size: 24),
-                          ),
+                        : _buildCalendarKeyBadgeIcon(size: 56, badgeColor: const Color(0xFFEA580C)),
                   ),
                   if (isUnread)
                     Positioned(
@@ -1231,15 +1257,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          'New Visit Request',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF0F172A),
+                        Expanded(
+                          child: Text(
+                            'New Visit Request',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF0F172A),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 6),
                         Text(
                           _formatTime(note['created_at']),
                           style: GoogleFonts.inter(
@@ -1268,19 +1298,26 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         color: const Color(0xFF64748B),
                         fontWeight: FontWeight.w500,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Text(
-                          'Requested by $guestName',
-                          style: GoogleFonts.inter(
-                            fontSize: 11.5,
-                            color: const Color(0xFF94A3B8),
+                        Expanded(
+                          child: Text(
+                            'Requested by $guestName',
+                            style: GoogleFonts.inter(
+                              fontSize: 11.5,
+                              color: const Color(0xFF94A3B8),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 8),
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               'View Details',
@@ -1290,6 +1327,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 color: AppTheme.brandColor,
                               ),
                             ),
+                            const SizedBox(width: 2),
                             const Icon(Icons.arrow_forward_ios_rounded, size: 10, color: AppTheme.brandColor),
                           ],
                         ),

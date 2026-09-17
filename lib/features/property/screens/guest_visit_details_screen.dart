@@ -782,23 +782,93 @@ class _GuestVisitDetailsScreenState extends State<GuestVisitDetailsScreen> {
         child: Row(
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: _propertyImage != null
+              borderRadius: BorderRadius.circular(14),
+              child: _propertyImage != null && _propertyImage!.isNotEmpty
                   ? Image.network(
                       _propertyImage!,
                       width: 76,
                       height: 76,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
-                        width: 76, height: 76,
-                        color: const Color(0xFFF1F5F9),
-                        child: const Icon(Icons.home_work_rounded, color: Color(0xFF94A3B8), size: 30),
+                        width: 76,
+                        height: 76,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0F172A),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFF334155), width: 1),
+                        ),
+                        child: Stack(
+                          children: [
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 6, bottom: 6),
+                                child: Icon(
+                                  Icons.calendar_month_rounded,
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                  size: 34,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 5,
+                              right: 5,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.brandColor,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: const Color(0xFF0F172A), width: 1.5),
+                                ),
+                                child: const Icon(
+                                  Icons.key_rounded,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     )
                   : Container(
-                      width: 76, height: 76,
-                      color: const Color(0xFFF1F5F9),
-                      child: const Icon(Icons.home_work_rounded, color: Color(0xFF94A3B8), size: 30),
+                      width: 76,
+                      height: 76,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0F172A),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFF334155), width: 1),
+                      ),
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 6, bottom: 6),
+                              child: Icon(
+                                Icons.calendar_month_rounded,
+                                color: Colors.white.withValues(alpha: 0.9),
+                                size: 34,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 5,
+                            right: 5,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: AppTheme.brandColor,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: const Color(0xFF0F172A), width: 1.5),
+                              ),
+                              child: const Icon(
+                                Icons.key_rounded,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
             ),
             const SizedBox(width: 14),

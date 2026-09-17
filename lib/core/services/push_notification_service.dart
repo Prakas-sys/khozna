@@ -1,16 +1,15 @@
 import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 class PushNotificationService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
-  static final FirebaseInAppMessaging _inAppMessaging = FirebaseInAppMessaging.instance;
   static final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
   static final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
 
@@ -21,7 +20,15 @@ class PushNotificationService {
     }
     debugPrint('--- [FIAM] In-App Messaging is active ---');
 
-    // 1. Request Permissions
+    // 1. Request OS Notification Permissions (Android 13+ & iOS)
+    try {
+      if (await Permission.notification.isDenied) {
+        await Permission.notification.request();
+      }
+    } catch (e) {
+      debugPrint('--- [PUSH] Permission handler notification request error: $e ---');
+    }
+
     NotificationSettings settings = await _messaging.requestPermission(
       alert: true,
       badge: true,
@@ -138,7 +145,6 @@ class PushNotificationService {
     }
 
     RemoteNotification? notification = message.notification;
-    AndroidNotification? android = message.notification?.android;
 
     final bool isChatMessage = message.data['table'] == 'messages' || message.data['type'] == 'chat';
 

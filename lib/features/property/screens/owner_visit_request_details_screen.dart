@@ -869,8 +869,42 @@ class _OwnerVisitRequestDetailsScreenState extends State<OwnerVisitRequestDetail
                 : Container(
                     width: 72,
                     height: 72,
-                    color: const Color(0xFFF1F5F9),
-                    child: const Icon(Icons.home_work_rounded, color: Color(0xFF94A3B8), size: 32),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F172A),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFF334155), width: 1),
+                    ),
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 6, bottom: 6),
+                            child: Icon(
+                              Icons.calendar_month_rounded,
+                              color: Colors.white.withValues(alpha: 0.9),
+                              size: 32,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 5,
+                          right: 5,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEA580C),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: const Color(0xFF0F172A), width: 1.5),
+                            ),
+                            child: const Icon(
+                              Icons.key_rounded,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
           ),
           const SizedBox(width: 14),
