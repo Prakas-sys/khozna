@@ -1221,7 +1221,6 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
             MaterialPageRoute(
               builder: (_) => PaymentChoiceScreen(
                 booking: _booking,
-                propertyTitle: _booking.propertyTitle ?? '',
               ),
             ),
           ).then((_) => _refreshBooking()),
@@ -1373,8 +1372,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
                 context,
                 MaterialPageRoute(
                     builder: (_) => PaymentChoiceScreen(
-                        booking: _booking,
-                        propertyTitle: _booking.propertyTitle ?? '')),
+                        booking: _booking)),
               ),
               color: const Color(0xFF16A34A),
             ),

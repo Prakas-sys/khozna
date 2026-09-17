@@ -967,7 +967,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               MaterialPageRoute(
                 builder: (context) => PaymentChoiceScreen(
                   booking: booking,
-                  propertyTitle: booking.propertyTitle ?? 'Your Property',
                 ),
               ),
             );

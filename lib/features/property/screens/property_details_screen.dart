@@ -2752,7 +2752,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (_) =>
-                        BookingRequestScreen(property: widget.property),
+                        BookingRequestScreen(
+                          propertyId: widget.property.id,
+                          propertyTitle: widget.property.title,
+                          ownerId: widget.property.ownerId,
+                          ownerName: _ownerName,
+                          pricePerNight: widget.property.priceNight > 0
+                              ? widget.property.priceNight
+                              : (double.tryParse(widget.property.price) ?? 0),
+                          propertyImageUrl: widget.property.imageUrl,
+                          propertyLocation: widget.property.location,
+                        ),
                   ),
                 ).then((v) => v == true ? _updateBookingStatus() : null);
               },
@@ -2874,7 +2884,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (_) =>
-                        PaymentChoiceScreen(property: widget.property),
+                        BookingRequestScreen(
+                          propertyId: widget.property.id,
+                          propertyTitle: widget.property.title,
+                          ownerId: widget.property.ownerId,
+                          ownerName: _ownerName,
+                          pricePerNight: widget.property.priceNight > 0
+                              ? widget.property.priceNight
+                              : (double.tryParse(widget.property.price) ?? 0),
+                          propertyImageUrl: widget.property.imageUrl,
+                          propertyLocation: widget.property.location,
+                        ),
                   ),
                 );
               },
