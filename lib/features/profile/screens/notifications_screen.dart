@@ -10,7 +10,10 @@ import 'package:khozna/features/property/screens/payment_choice_screen.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/features/profile/screens/help_center_screen.dart';
+import 'package:intl/intl.dart';
 import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
+import 'package:khozna/features/property/screens/owner_visit_request_details_screen.dart';
+import 'package:khozna/features/property/screens/guest_visit_details_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -41,27 +44,38 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final titleStr = (note['title'] ?? '').toString();
       final msgStr = (note['message'] ?? '').toString();
 
-      final bool isBookingRequest =
+      final bool isVisitRequest =
           type == 'booking_request' ||
           type == 'visit_request' ||
+          type == 'visit_alert' ||
+          type == 'visit_cancelled' ||
+          type == 'visit_reminder' ||
           titleStr.contains('Visit') ||
+          titleStr.contains('अवलोकन') ||
           msgStr.contains('visit') ||
-          msgStr.contains('book');
+          msgStr.contains('अवलोकन');
 
-      final bool isApproved =
+      final bool isBooking =
           type == 'booking_approved' ||
-          titleStr.contains('Approved') ||
-          msgStr.contains('accepted');
-
-      final bool isPayment =
+          type == 'booking_rejected' ||
+          type == 'booking_alert' ||
           type == 'payment_received' ||
-          type == 'payment' ||
+          type == 'payment_verified' ||
+          type == 'payment_declined' ||
+          titleStr.contains('Booking') ||
           titleStr.contains('Payment') ||
           msgStr.contains('payment');
 
-      if (_selectedFilter == 'pending') return isBookingRequest;
-      if (_selectedFilter == 'approved') return isApproved;
-      if (_selectedFilter == 'payments') return isPayment;
+      final bool isMessage =
+          type == 'message' ||
+          type == 'chat' ||
+          type == 'chat_message' ||
+          titleStr.contains('Message') ||
+          msgStr.contains('message');
+
+      if (_selectedFilter == 'visit_requests') return isVisitRequest;
+      if (_selectedFilter == 'bookings') return isBooking;
+      if (_selectedFilter == 'messages') return isMessage;
 
       return true;
     }).toList();
@@ -349,9 +363,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _buildFilterBar() {
     final filters = [
       {'key': 'all', 'label': 'All'},
-      {'key': 'pending', 'label': 'Requests'},
-      {'key': 'approved', 'label': 'Approved'},
-      {'key': 'payments', 'label': 'Payments'},
+      {'key': 'visit_requests', 'label': 'Visit Requests'},
+      {'key': 'bookings', 'label': 'Bookings'},
+      {'key': 'messages', 'label': 'Messages'},
     ];
 
     return Container(
@@ -493,9 +507,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         final msgStr = note['message']?.toString() ?? '';
 
                         final bool isOwnerNote = note['is_owner_notification'] == true || id.startsWith('synth_owner_');
-                        final bool isGuestNote = note['is_guest_notification'] == true || id.startsWith('synth_');
+                        // isGuestNote must NOT match synth_owner_ ids
+                        final bool isGuestNote = (note['is_guest_notification'] == true || id.startsWith('synth_')) && !id.startsWith('synth_owner_');
 
-                        // 1. Owner Booking Request ("Respond to Booking Request")
+                        // 1. Owner Booking Request — with inline Accept/Reject
                         if (isOwnerNote && (type == 'booking_request' || id.startsWith('synth_owner_'))) {
                           return GestureDetector(
                             onLongPress: () => _confirmDelete(id, index),
@@ -511,7 +526,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           );
                         }
 
-                        // 2. Guest Sent Request ("Visit request sent — awaiting host response")
+                        // 2. Guest Visit Request Notification (Screen 1 & detail routing)
+                        if (isGuestNote && (type == 'visit_alert' || titleStr.contains('Visit') || titleStr.contains('Accepted') || titleStr.contains('Declined') || titleStr.contains('Suggested'))) {
+                          return GestureDetector(
+                            onLongPress: () => _confirmDelete(id, index),
+                            child: _buildGuestVisitRequestCard(
+                              note,
+                              id,
+                              index,
+                            ),
+                          );
+                        }
+
+                        // 2b. Guest Sent Request ("Visit request sent — awaiting host response")
                         if (isGuestNote && (type == 'booking_alert' || titleStr.contains('Sent') || msgStr.contains('sent'))) {
                           return GestureDetector(
                             onLongPress: () => _confirmDelete(id, index),
@@ -895,7 +922,208 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  /// Executive Minimalist: Booking request notification card
+  /// Guest: Visit request notification card (Screen 1)
+  Widget _buildGuestVisitRequestCard(
+    Map<String, dynamic> note,
+    String id,
+    int index,
+  ) {
+    final String bookingId = note['booking_id']?.toString() ?? id.replaceAll('synth_guest_', '');
+    final String title = note['title']?.toString() ?? 'Visit Request Update';
+    final String message = note['message']?.toString() ?? 'Update regarding your property visit.';
+    final String propTitle = note['property_title']?.toString() ?? note['properties']?['title']?.toString() ?? 'Mountain View Villa';
+    final String? propImg = note['property_image']?.toString() ?? (note['properties']?['images'] is List && (note['properties']?['images'] as List).isNotEmpty ? note['properties']['images'][0] : null);
+
+    final checkInRaw = note['check_in']?.toString();
+    String scheduleLine = 'Sept 20 • 2:00 PM • 2 visitors';
+    if (checkInRaw != null) {
+      final dt = DateTime.tryParse(checkInRaw);
+      if (dt != null) {
+        final formattedDate = DateFormat('MMM dd').format(dt);
+        final formattedTime = DateFormat('h:mm a').format(dt);
+        final int visitors = note['guests'] != null ? int.tryParse(note['guests'].toString()) ?? 2 : 2;
+        scheduleLine = '$formattedDate • $formattedTime • $visitors visitors';
+      }
+    }
+
+    final bool isUnread = note['is_read'] != true;
+
+    Color badgeColor = AppTheme.brandColor;
+    IconData badgeIcon = Icons.info_outline_rounded;
+    if (title.contains('Accepted') || title.contains('Approved') || title.contains('Confirmed')) {
+      badgeColor = const Color(0xFF10B981);
+      badgeIcon = Icons.check_circle_rounded;
+    } else if (title.contains('Declined') || title.contains('Rejected')) {
+      badgeColor = const Color(0xFF64748B);
+      badgeIcon = Icons.cancel_rounded;
+    } else if (title.contains('Suggested')) {
+      badgeColor = const Color(0xFF3B82F6);
+      badgeIcon = Icons.schedule_rounded;
+    }
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GuestVisitDetailsScreen(
+              bookingId: bookingId,
+              initialBookingData: note,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isUnread ? AppTheme.brandColor.withValues(alpha: 0.3) : const Color(0xFFE2E8F0),
+            width: isUnread ? 1.4 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Property Thumbnail with badge
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: propImg != null && propImg.isNotEmpty
+                        ? Image.network(
+                            propImg,
+                            width: 56,
+                            height: 56,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              width: 56, height: 56,
+                              color: const Color(0xFFF1F5F9),
+                              child: Icon(badgeIcon, color: badgeColor, size: 24),
+                            ),
+                          )
+                        : Container(
+                            width: 56, height: 56,
+                            color: const Color(0xFFF1F5F9),
+                            child: Icon(badgeIcon, color: badgeColor, size: 24),
+                          ),
+                  ),
+                  if (isUnread)
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: badgeColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 12),
+
+              // Title, Property Name, Message, Schedule details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF0F172A),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          _formatTime(note['created_at']),
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            color: const Color(0xFF94A3B8),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      propTitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.brandColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      message,
+                      style: GoogleFonts.inter(
+                        fontSize: 12.5,
+                        color: const Color(0xFF475569),
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Text(
+                          scheduleLine,
+                          style: GoogleFonts.inter(
+                            fontSize: 11.5,
+                            color: const Color(0xFF64748B),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const Spacer(),
+                        Row(
+                          children: [
+                            Text(
+                              'View Details',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.brandColor,
+                              ),
+                            ),
+                            const Icon(Icons.arrow_forward_ios_rounded, size: 10, color: AppTheme.brandColor),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Owner: Visit request notification item card (Screen 1)
   Widget _buildBookingRequestCard(
     Map<String, dynamic> note,
     String id,
@@ -904,144 +1132,170 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   ) {
     String guestName = sender?['full_name']?.toString() ?? 'Guest';
     if (guestName == 'Khozna app' || guestName.trim().isEmpty) guestName = 'Guest';
-    final String message = _cleanMessage(note['message']?.toString() ?? '');
+    final String bookingId = note['booking_id']?.toString() ?? id.replaceAll('synth_owner_', '');
+    final String propTitle = note['property_title']?.toString() ?? note['properties']?['title']?.toString() ?? 'Mountain View Villa';
+    final String? propImg = note['property_image']?.toString() ?? (note['properties']?['images'] is List && (note['properties']?['images'] as List).isNotEmpty ? note['properties']['images'][0] : null);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const OwnerBookingsScreen(),
+    final checkInRaw = note['check_in']?.toString();
+    String scheduleLine = 'Sept 20 • 2:00 PM • 2 visitors';
+    if (checkInRaw != null) {
+      final dt = DateTime.tryParse(checkInRaw);
+      if (dt != null) {
+        final formattedDate = DateFormat('MMM dd').format(dt);
+        final formattedTime = DateFormat('h:mm a').format(dt);
+        scheduleLine = '$formattedDate • $formattedTime • 2 visitors';
+      }
+    }
+
+    final bool isUnread = note['is_read'] != true;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OwnerVisitRequestDetailsScreen(
+              bookingId: bookingId,
+              initialBookingData: note,
             ),
-          );
-        },
-        borderRadius: BorderRadius.circular(14),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isUnread ? AppTheme.brandColor.withValues(alpha: 0.3) : const Color(0xFFE2E8F0),
+            width: isUnread ? 1.4 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
         child: Padding(
           padding: const EdgeInsets.all(14),
-          child: Column(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              // Property Thumbnail with unread indicator dot
+              Stack(
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      final guestId = (sender?['id'] ?? note['sender_id'] ?? note['sender']?['id'] ?? '').toString();
-                      if (guestId.isNotEmpty) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => OwnerProfileScreen(
-                              ownerId: guestId,
-                              name: guestName,
-                              avatar: sender?['avatar_url']?.toString() ?? '',
-                              location: sender?['area_name']?.toString() ?? 'Kathmandu, Nepal',
-                              totalListings: 0,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: propImg != null && propImg.isNotEmpty
+                        ? Image.network(
+                            propImg,
+                            width: 56,
+                            height: 56,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              width: 56, height: 56,
+                              color: const Color(0xFFF1F5F9),
+                              child: const Icon(Icons.home_work_rounded, color: Color(0xFF94A3B8), size: 24),
                             ),
+                          )
+                        : Container(
+                            width: 56, height: 56,
+                            color: const Color(0xFFF1F5F9),
+                            child: const Icon(Icons.home_work_rounded, color: Color(0xFF94A3B8), size: 24),
                           ),
-                        );
-                      }
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                  ),
+                  if (isUnread)
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEA580C),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 12),
+
+              // Title, Property Name, Schedule details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        _buildAvatar(sender, radius: 22),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Text(
+                          'New Visit Request',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF0F172A),
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          _formatTime(note['created_at']),
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            color: const Color(0xFF94A3B8),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      propTitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.brandColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      scheduleLine,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: const Color(0xFF64748B),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Text(
+                          'Requested by $guestName',
+                          style: GoogleFonts.inter(
+                            fontSize: 11.5,
+                            color: const Color(0xFF94A3B8),
+                          ),
+                        ),
+                        const Spacer(),
+                        Row(
                           children: [
-                            Row(
-                              children: [
-                                Text(
-                                  guestName,
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 14,
-                                    color: const Color(0xFF0F172A),
-                                  ),
-                                ),
-                                if (sender?['kyc_status'] == 'verified') ...[
-                                  const SizedBox(width: 4),
-                                  const Icon(Icons.verified_rounded, color: Color(0xFF1D4ED8), size: 14),
-                                ],
-                              ],
-                            ),
-                            const SizedBox(height: 2),
                             Text(
-                              _formatTime(note['created_at']),
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                color: const Color(0xFF94A3B8),
+                              'View Details',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.brandColor,
                               ),
                             ),
+                            const Icon(Icons.arrow_forward_ios_rounded, size: 10, color: AppTheme.brandColor),
                           ],
                         ),
                       ],
                     ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                    ),
-                    child: Text(
-                      'Booking Request',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        color: const Color(0xFF475569),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Text(
-                message,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: const Color(0xFF334155),
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const OwnerBookingsScreen(),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0F172A),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 11),
-                  ),
-                  child: Text(
-                    'Respond to Booking Request',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                    ),
-                  ),
+                  ],
                 ),
               ),
             ],

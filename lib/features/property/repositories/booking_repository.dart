@@ -4,6 +4,7 @@ import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/models/booking_model.dart';
 import 'package:khozna/core/models/review_model.dart';
 import 'package:khozna/core/security/security_utils.dart';
+import 'package:intl/intl.dart';
 import 'package:khozna/core/services/push_notification_service.dart';
 
 class BookingRepository {
@@ -250,6 +251,134 @@ class BookingRepository {
       }
     } catch (e) {
       debugPrint('Approve request error: $e');
+      rethrow;
+    }
+  }
+
+  /// Owner suggests a new visit time
+  static Future<void> suggestNewTime(
+    String bookingId, {
+    required DateTime newVisitTime,
+    String? message,
+  }) async {
+    try {
+      await _client
+          .from('bookings')
+          .update({
+            'status': 'suggested_time',
+            'check_in': newVisitTime.toIso8601String(),
+            'rejection_reason': message,
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', bookingId);
+
+      final booking = await getBookingById(bookingId);
+      if (booking != null) {
+        final dateStr = DateFormat('MMM dd, yyyy • hh:mm a').format(newVisitTime);
+        const String title = 'New Visit Time Suggested ⏰';
+        final String body = 'Host suggested a new visit time ($dateStr). ${message ?? ""}';
+        await _client.from('notifications').insert({
+          'user_id': booking.guestId,
+          'sender_id': _client.auth.currentUser?.id,
+          'title': title,
+          'message': body,
+          'type': 'visit_alert',
+          'property_id': booking.propertyId,
+          'booking_id': bookingId,
+        });
+
+        PushNotificationService.sendPushToUserId(
+          recipientUserId: booking.guestId,
+          title: title,
+          body: body,
+          data: {'type': 'visit_alert', 'booking_id': bookingId},
+        );
+      }
+    } catch (e) {
+      debugPrint('Suggest new time error: $e');
+      rethrow;
+    }
+  }
+
+  /// Guest accepts the new time suggested by the host
+  static Future<void> guestAcceptNewTime(String bookingId) async {
+    try {
+      await _client
+          .from('bookings')
+          .update({
+            'status': 'visit_accepted',
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', bookingId);
+
+      final booking = await getBookingById(bookingId);
+      if (booking != null && booking.ownerId.isNotEmpty) {
+        const String title = 'Visit Time Accepted ✓';
+        const String body = 'Guest accepted your suggested visit time. The visit is now confirmed!';
+        await _client.from('notifications').insert({
+          'user_id': booking.ownerId,
+          'sender_id': _client.auth.currentUser?.id,
+          'title': title,
+          'message': body,
+          'type': 'booking_request',
+          'property_id': booking.propertyId,
+          'booking_id': bookingId,
+        });
+
+        PushNotificationService.sendPushToUserId(
+          recipientUserId: booking.ownerId,
+          title: title,
+          body: body,
+          data: {'type': 'booking_request', 'booking_id': bookingId},
+        );
+      }
+    } catch (e) {
+      debugPrint('Guest accept new time error: $e');
+      rethrow;
+    }
+  }
+
+  /// Guest proposes a different visit time back to the owner
+  static Future<void> guestSuggestAnotherTime(
+    String bookingId, {
+    required DateTime newVisitTime,
+    String? message,
+  }) async {
+    try {
+      await _client
+          .from('bookings')
+          .update({
+            'status': 'pending_approval',
+            'check_in': newVisitTime.toIso8601String(),
+            'message': message,
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', bookingId);
+
+      final booking = await getBookingById(bookingId);
+      if (booking != null && booking.ownerId.isNotEmpty) {
+        final dateStr = DateFormat('MMM dd, yyyy • hh:mm a').format(newVisitTime);
+        const String title = 'New Visit Time Requested ⏰';
+        final String body = 'Guest requested a different visit time ($dateStr). ${message ?? ""}';
+        await _client.from('notifications').insert({
+          'user_id': booking.ownerId,
+          'sender_id': _client.auth.currentUser?.id,
+          'title': title,
+          'message': body,
+          'type': 'booking_request',
+          'property_id': booking.propertyId,
+          'booking_id': bookingId,
+        });
+
+        PushNotificationService.sendPushToUserId(
+          recipientUserId: booking.ownerId,
+          title: title,
+          body: body,
+          data: {'type': 'booking_request', 'booking_id': bookingId},
+        );
+      }
+    } catch (e) {
+      debugPrint('Guest suggest another time error: $e');
       rethrow;
     }
   }

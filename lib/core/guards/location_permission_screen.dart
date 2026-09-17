@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/features/auth/screens/login_screen.dart';
+import 'package:khozna/screens/main_screen.dart';
 
 class LocationPermissionScreen extends StatefulWidget {
   const LocationPermissionScreen({super.key});
@@ -54,7 +56,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen>
   Future<void> _checkPermissionStatus() async {
     if (await Permission.location.isGranted) {
       if (mounted) {
-        _navigateToLogin();
+        _navigateToNextScreen();
       }
     }
   }
@@ -73,7 +75,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen>
       PermissionStatus status = await Permission.location.request();
 
       if (status.isGranted) {
-        _navigateToLogin();
+        _navigateToNextScreen();
       } else {
         await openAppSettings();
       }
@@ -84,10 +86,13 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen>
     }
   }
 
-  void _navigateToLogin() {
-    Navigator.pushReplacement(
+  void _navigateToNextScreen() {
+    final user = Supabase.instance.client.auth.currentUser;
+    final Widget targetScreen = user != null ? const MainScreen() : const LoginScreen();
+    Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      MaterialPageRoute(builder: (_) => targetScreen),
+      (route) => false,
     );
   }
 
@@ -281,7 +286,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen>
                     width: double.infinity,
                     height: 48,
                     child: TextButton(
-                      onPressed: _navigateToLogin,
+                      onPressed: _navigateToNextScreen,
                       style: TextButton.styleFrom(
                         foregroundColor: const Color(0xFF64748B),
                         shape: RoundedRectangleBorder(
