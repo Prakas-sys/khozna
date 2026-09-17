@@ -324,8 +324,8 @@ class RootScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isInitializing) {
-      final screenWidth = MediaQuery.of(context).size.width;
-      final logoSize = (screenWidth * 0.26).clamp(80.0, 120.0);
+      final media = MediaQuery.of(context);
+      final logoSize = (media.size.shortestSide * 0.14).clamp(48.0, 64.0);
 
       return Scaffold(
         backgroundColor: Colors.white,
