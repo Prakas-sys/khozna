@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -138,7 +137,7 @@ class _KycScreenState extends State<KycScreen> {
       final Position position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
-          timeLimit: const Duration(seconds: 15),
+          timeLimit: Duration(seconds: 15),
         ),
       );
 

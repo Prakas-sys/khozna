@@ -101,13 +101,11 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
         if (permission == LocationPermission.whileInUse ||
             permission == LocationPermission.always) {
           position = await Geolocator.getLastKnownPosition();
-          if (position == null) {
-            position = await Geolocator.getCurrentPosition(
+          position ??= await Geolocator.getCurrentPosition(
               locationSettings: const LocationSettings(
                 accuracy: LocationAccuracy.low,
               ),
             ).timeout(const Duration(seconds: 2));
-          }
         }
       } catch (e) {
         debugPrint('Error getting location in filters: $e');

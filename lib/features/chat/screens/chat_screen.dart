@@ -1,11 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
@@ -55,6 +52,8 @@ class _ChatScreenState extends State<ChatScreen> {
   late String _displayLocation;
   late bool _isOwner;
   String _targetUserId = '';
+  bool _isSending = false;
+  bool _hasHandledInitialMessage = false;
 
   @override
   void initState() {
@@ -82,13 +81,18 @@ class _ChatScreenState extends State<ChatScreen> {
       _loadOwnerProfile();
       if (_activeChatId == null) {
         _initializeChat().then((_) {
-          if (widget.initialMessage != null && _activeChatId != null) {
+          if (widget.initialMessage != null && _activeChatId != null && !_hasHandledInitialMessage) {
+            _hasHandledInitialMessage = true;
             _sendMessage(widget.initialMessage);
           }
         });
       } else {
         // Chat already known — mark it read immediately
         ChatRepository.markChatAsRead(_activeChatId!);
+        if (widget.initialMessage != null && !_hasHandledInitialMessage) {
+          _hasHandledInitialMessage = true;
+          _sendMessage(widget.initialMessage);
+        }
       }
     } else if (_activeChatId != null) {
       ChatRepository.markChatAsRead(_activeChatId!);
@@ -136,6 +140,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (widget.ownerId.isNotEmpty && widget.ownerId == _currentUserId) {
       return;
     }
+    if (_activeChatId != null) return;
     try {
       final id = await ChatRepository.getOrCreateChat(widget.ownerId);
       if (mounted) {
@@ -155,6 +160,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMessage([String? text]) async {
+    if (_isSending) return;
+
     if (widget.ownerId.isNotEmpty && widget.ownerId == _currentUserId) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -166,10 +173,13 @@ class _ChatScreenState extends State<ChatScreen> {
       }
       return;
     }
-    final msgText = text ?? _messageController.text.trim();
-    if (msgText.isEmpty) return;
-    if (text == null) _messageController.clear();
 
+    final rawText = text ?? _messageController.text;
+    final msgText = rawText.trim();
+    if (msgText.isEmpty) return;
+
+    if (text == null) _messageController.clear();
+    _isSending = true;
 
     final tempMsg = ChatMessage(
       id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
@@ -180,15 +190,24 @@ class _ChatScreenState extends State<ChatScreen> {
       isOptimistic: true,
     );
 
-    setState(() => _optimisticMessages.insert(0, tempMsg));
-    if (_activeChatId == null && widget.ownerId.isNotEmpty) {
-      await _initializeChat();
+    if (mounted) {
+      setState(() => _optimisticMessages.insert(0, tempMsg));
     }
 
-    if (_activeChatId != null) {
-      ChatRepository.sendMessage(_activeChatId!, msgText).catchError((e) {
-        if (mounted) setState(() => _optimisticMessages.remove(tempMsg));
-      });
+    try {
+      if (_activeChatId == null && widget.ownerId.isNotEmpty) {
+        await _initializeChat();
+      }
+
+      if (_activeChatId != null) {
+        await ChatRepository.sendMessage(_activeChatId!, msgText);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _optimisticMessages.removeWhere((m) => m.id == tempMsg.id));
+      }
+    } finally {
+      _isSending = false;
     }
   }
 
@@ -328,12 +347,16 @@ class _ChatScreenState extends State<ChatScreen> {
                     stream: ChatRepository.getMessagesStream(_activeChatId!),
                     builder: (context, snapshot) {
                       final streamMessages = snapshot.data ?? [];
-                      final streamTexts = streamMessages
-                          .map((m) => m.text)
-                          .toSet();
-                      final pending = _optimisticMessages
-                          .where((m) => !streamTexts.contains(m.text))
-                          .toList();
+
+                      // Deduplicate optimistic messages cleanly:
+                      // Remove any optimistic message if a stream message from the same sender exists with matching text
+                      final pending = _optimisticMessages.where((opt) {
+                        return !streamMessages.any((sm) =>
+                            sm.senderId == opt.senderId &&
+                            (sm.text.trim() == opt.text.trim() ||
+                             sm.createdAt.difference(opt.createdAt).abs() < const Duration(seconds: 8)));
+                      }).toList();
+
                       final messages = [...pending, ...streamMessages];
 
                       return ListView.builder(

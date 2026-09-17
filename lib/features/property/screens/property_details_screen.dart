@@ -58,8 +58,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   String get _currentUserId =>
       Supabase.instance.client.auth.currentUser?.id ?? '';
   bool get _isMyProperty =>
-      _currentUserId != null &&
-      _currentUserId!.isNotEmpty &&
+      _currentUserId.isNotEmpty &&
       widget.property.ownerId == _currentUserId;
   bool get _hasLocation =>
       widget.property.latitude != null && widget.property.longitude != null;
@@ -875,7 +874,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  bool _showAllAmenities = false;
+  final bool _showAllAmenities = false;
 
   (IconData, String, Color) _getAmenityDisplayData(String feature) {
     final k = feature.toLowerCase().trim();
@@ -950,8 +949,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (k.contains('girl')) {
       return (Icons.woman_rounded, 'Girls Only', Colors.pink);
     }
-    if (k.contains('boy'))
+    if (k.contains('boy')) {
       return (Icons.man_rounded, 'Boys Only', Colors.indigo);
+    }
     if (k.contains('power') || k.contains('backup')) {
       return (Icons.electric_bolt_rounded, 'Power Backup', Colors.amber);
     }
@@ -1233,7 +1233,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               child: ListView.separated(
                 padding: const EdgeInsets.all(20),
                 itemCount: items.length,
-                separatorBuilder: (_, __) => const Divider(
+                separatorBuilder: (_, _) => const Divider(
                   height: 24,
                   thickness: 0.5,
                   color: Color(0xFFE2E8F0),
@@ -1614,7 +1614,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       ? Image.network(
                           _getStaticMapUrl(),
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Image.asset(
+                          errorBuilder: (_, _, _) => Image.asset(
                             'assets/images/Map view.png',
                             fit: BoxFit.cover,
                           ),

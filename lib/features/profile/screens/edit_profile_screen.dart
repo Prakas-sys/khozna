@@ -1,6 +1,4 @@
-import 'package:khozna/widgets/khozna_image.dart';
 import 'dart:io';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,9 +8,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/security/security_utils.dart';
-import 'package:khozna/features/profile/screens/kyc_screen.dart';
 import 'package:khozna/core/utils/offline_storage.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
+import 'package:khozna/widgets/khozna_image.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -34,9 +32,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _bioController = TextEditingController();
   final _orgController = TextEditingController();
 
-  // Focus nodes for interactive "Design Box" borders
   final Map<String, FocusNode> _focusNodes = {
     'name': FocusNode(),
+    'email': FocusNode(),
     'phone': FocusNode(),
     'area': FocusNode(),
     'role': FocusNode(),
@@ -49,6 +47,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   bool _isLoading = false;
   bool _isLocating = false;
+  bool _isAutoSaving = false;
   String? _avatarUrl;
   String? _qrCodeUrl;
   String? _studentIdUrl;
@@ -63,32 +62,61 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String _initialEmail = '';
   String _initialPhone = '';
 
-  // 🎨 COLOR PALETTE (60-30-10 Rule)
-  static const Color colorPrimary = Colors.white; // 60%
-  static const Color colorSecondary = Color(0xFFF7F7F7); // 30%
-  static const Color colorAccent = AppTheme.brandColor; // 10%
-  static const Color colorTextPrimary = Color(0xFF222222);
-  static const Color colorTextSecondary = Color(0xFF717171);
+  // Preset Role Options
+  final List<String> _roleOptions = [
+    'Tenant / Renter',
+    'Property Owner',
+    'Student',
+    'Agent / Broker',
+  ];
+
+  // Preset City Options for fast picking
+  final List<String> _cityOptions = [
+    'Kathmandu',
+    'Lalitpur',
+    'Pokhara',
+    'Bhaktapur',
+    'Chitwan',
+    'Dharan',
+  ];
 
   @override
   void initState() {
     super.initState();
     SecurityUtils.setSecure(true);
 
-    // Synchronously pre-fill from auth user metadata & memory cache
+    // Initial pre-fill from Auth metadata
     _emailController.text = user?.email ?? '';
-    _fullNameController.text = user?.userMetadata?['full_name'] ?? user?.userMetadata?['name'] ?? '';
-    _phoneController.text = user?.userMetadata?['phone_number'] ?? user?.userMetadata?['phone'] ?? '';
+    _fullNameController.text =
+        user?.userMetadata?['full_name'] ?? user?.userMetadata?['name'] ?? '';
+    _phoneController.text =
+        user?.userMetadata?['phone_number'] ?? user?.userMetadata?['phone'] ?? '';
     _avatarUrl = AppTheme.sanitizeAvatarUrl(
       user?.userMetadata?['avatar_url'] ?? user?.userMetadata?['picture'],
     );
 
+    // 0ms instant pre-fill from memory cache if available
     if (profileCache.value != null) {
       _applyCacheMap(profileCache.value!);
     }
 
     _loadFromDiskCache();
     _loadUserData();
+
+    // Attach listeners for instant auto-persistence draft saving
+    _fullNameController.addListener(_onFieldChanged);
+    _phoneController.addListener(_onFieldChanged);
+    _areaController.addListener(_onFieldChanged);
+    _userTypeController.addListener(_onFieldChanged);
+    _bioController.addListener(_onFieldChanged);
+    _orgController.addListener(_onFieldChanged);
+    _esewaController.addListener(_onFieldChanged);
+    _khaltiController.addListener(_onFieldChanged);
+    _accountNameController.addListener(_onFieldChanged);
+  }
+
+  void _onFieldChanged() {
+    _saveCurrentToCache();
   }
 
   @override
@@ -108,7 +136,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
     super.dispose();
   }
-
 
   Future<void> _loadFromDiskCache() async {
     final diskCache = await OfflineStorage.loadProfileCache();
@@ -183,11 +210,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     };
     profileCache.value = cacheData;
     OfflineStorage.saveProfileCache(cacheData);
+
+    if (mounted && !_isAutoSaving) {
+      setState(() => _isAutoSaving = true);
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) setState(() => _isAutoSaving = false);
+      });
+    }
   }
 
   Future<void> _loadUserData() async {
     if (user != null) {
-      final bool hasExistingData = _fullNameController.text.isNotEmpty || _phoneController.text.isNotEmpty;
+      final bool hasExistingData =
+          _fullNameController.text.isNotEmpty || _phoneController.text.isNotEmpty;
       if (!hasExistingData) {
         setState(() => _isLoading = true);
       }
@@ -207,27 +242,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             .maybeSingle();
 
         if (mounted && profile != null) {
-          final String kycTableStatus = (kyc?['status'] ?? '').toString().toLowerCase();
-          final bool kycDocVerified = kycTableStatus == 'verified' || kycTableStatus == 'approved';
+          final String kycTableStatus =
+              (kyc?['status'] ?? '').toString().toLowerCase();
+          final bool kycDocVerified =
+              kycTableStatus == 'verified' || kycTableStatus == 'approved';
 
           setState(() {
-            _fullNameController.text = profile['full_name'] ?? _fullNameController.text;
-            _emailController.text = profile['email'] ?? user?.email ?? _emailController.text;
-            _phoneController.text = profile['phone_number'] ?? _phoneController.text;
+            _fullNameController.text =
+                profile['full_name'] ?? _fullNameController.text;
+            _emailController.text =
+                profile['email'] ?? user?.email ?? _emailController.text;
+            _phoneController.text =
+                profile['phone_number'] ?? _phoneController.text;
             _avatarUrl = AppTheme.sanitizeAvatarUrl(
               profile['avatar_url'] ??
                   user?.userMetadata?['avatar_url'] ??
                   user?.userMetadata?['picture'] ??
                   _avatarUrl,
             );
-            _esewaController.text = profile['esewa_number'] ?? _esewaController.text;
-            _khaltiController.text = profile['khalti_number'] ?? _khaltiController.text;
-            _accountNameController.text = profile['account_holder_name'] ?? _accountNameController.text;
+            _esewaController.text =
+                profile['esewa_number'] ?? _esewaController.text;
+            _khaltiController.text =
+                profile['khalti_number'] ?? _khaltiController.text;
+            _accountNameController.text =
+                profile['account_holder_name'] ?? _accountNameController.text;
             _qrCodeUrl = profile['qr_code_url'] ?? _qrCodeUrl;
-            _areaController.text = profile['area_name'] ?? _areaController.text;
-            _userTypeController.text = profile['user_type'] ?? _userTypeController.text;
+            _areaController.text =
+                profile['area_name'] ?? _areaController.text;
+            _userTypeController.text =
+                profile['user_type'] ?? _userTypeController.text;
             _bioController.text = profile['bio'] ?? _bioController.text;
-            _orgController.text = profile['organization'] ?? _orgController.text;
+            _orgController.text =
+                profile['organization'] ?? _orgController.text;
             _studentIdUrl = profile['student_id_url'] ?? _studentIdUrl;
 
             if (kyc != null) {
@@ -243,7 +289,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
           _initialEmail = _emailController.text.trim();
           _initialPhone = _phoneController.text.trim();
-
           _saveCurrentToCache();
         }
       } catch (e) {
@@ -252,6 +297,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         if (mounted) setState(() => _isLoading = false);
       }
     }
+  }
+
+  double _calculateProfileCompleteness() {
+    int filled = 0;
+    const int total = 7;
+    if (_fullNameController.text.trim().isNotEmpty) filled++;
+    if (_phoneController.text.trim().isNotEmpty) filled++;
+    if (_areaController.text.trim().isNotEmpty) filled++;
+    if (_userTypeController.text.trim().isNotEmpty) filled++;
+    if (_bioController.text.trim().isNotEmpty) filled++;
+    if (_avatarUrl != null || _imageFile != null) filled++;
+    if (_latitude != null && _longitude != null) filled++;
+    return filled / total;
   }
 
   Future<void> _updateLocation() async {
@@ -264,8 +322,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
       );
 
-      // Save ONLY location coordinates — do NOT touch kyc_status here.
-      // Verification is done through the full KYC document flow only.
       try {
         final existingKyc = await Supabase.instance.client
             .from('kyc_verifications')
@@ -297,8 +353,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         setState(() {
           _latitude = position.latitude;
           _longitude = position.longitude;
-          // Do NOT change _kycStatus here — only KYC document review can verify
         });
+        _saveCurrentToCache();
 
         HapticFeedback.mediumImpact();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -312,7 +368,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  'Location saved!',
+                  'GPS location saved!',
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
@@ -330,7 +386,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         );
       }
     } catch (e) {
-      debugPrint('Location error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -353,17 +408,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) setState(() => _imageFile = File(image.path));
+    if (image != null) {
+      setState(() => _imageFile = File(image.path));
+      _saveCurrentToCache();
+    }
   }
 
   Future<void> _pickQrCode() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) setState(() => _qrFile = File(image.path));
+    if (image != null) {
+      setState(() => _qrFile = File(image.path));
+      _saveCurrentToCache();
+    }
   }
 
   Future<void> _pickStudentId() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) setState(() => _idFile = File(image.path));
+    if (image != null) {
+      setState(() => _idFile = File(image.path));
+      _saveCurrentToCache();
+    }
   }
 
   Future<bool> _showSecurityVerificationDialog({
@@ -475,7 +539,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(20),
               ),
               title: Row(
                 children: [
@@ -518,7 +582,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: 18),
-
                     TextField(
                       controller: oldPasswordController,
                       obscureText: hideOldPassword,
@@ -542,7 +605,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: 14),
-
                     TextField(
                       controller: newPasswordController,
                       obscureText: hideNewPassword,
@@ -566,7 +628,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-
                     Align(
                       alignment: Alignment.centerLeft,
                       child: TextButton.icon(
@@ -579,7 +640,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               )
                             : const Icon(Icons.mail_outline_rounded, size: 16, color: AppTheme.brandColor),
                         label: Text(
-                          'Forgot/missed password? Send link to email',
+                          'Forgot password? Send reset link',
                           style: GoogleFonts.inter(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w700,
@@ -588,7 +649,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                     ),
-
                     if (dialogError != null) ...[
                       const SizedBox(height: 8),
                       Container(
@@ -607,7 +667,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                     ],
-
                     if (dialogSuccess != null) ...[
                       const SizedBox(height: 8),
                       Container(
@@ -684,7 +743,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (sensitiveChanged) {
       final bool verified = await _showSecurityVerificationDialog(
         title: 'Security Verification',
-        subtitle: 'You are updating sensitive information (Email or Phone Number). Please enter your old password to confirm.',
+        subtitle:
+            'You are updating sensitive information (Email or Phone Number). Please enter your old password to confirm.',
       );
       if (!verified) return;
     }
@@ -695,11 +755,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       String? qr = _qrCodeUrl;
       String? idCard = _studentIdUrl;
 
-      if (_imageFile != null)
+      if (_imageFile != null) {
         avatar = await CloudinaryService.uploadImage(_imageFile!);
+      }
       if (_qrFile != null) qr = await CloudinaryService.uploadImage(_qrFile!);
-      if (_idFile != null)
+      if (_idFile != null) {
         idCard = await CloudinaryService.uploadImage(_idFile!);
+      }
 
       await Supabase.instance.client
           .from('profiles')
@@ -756,7 +818,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             duration: const Duration(seconds: 2),
           ),
         );
-        await Future.delayed(const Duration(milliseconds: 600));
+        await Future.delayed(const Duration(milliseconds: 500));
         if (mounted) Navigator.pop(context, true);
       }
     } catch (e) {
@@ -766,17 +828,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final errStr = e.toString().toLowerCase();
         if (errStr.contains('profiles_phone_number_key') ||
             (errStr.contains('duplicate key') && errStr.contains('phone'))) {
-          friendlyMsg = 'This phone number is already linked to another account. Please use a different number.';
-        } else if (errStr.contains('duplicate key') || errStr.contains('unique constraint')) {
-          friendlyMsg = 'One of your details is already in use by another account.';
-        } else if (errStr.contains('socketexception') || errStr.contains('failed host lookup')) {
-          friendlyMsg = 'Network error. Please check your internet connection.';
+          friendlyMsg =
+              'This phone number is already linked to another account.';
+        } else if (errStr.contains('duplicate key') ||
+            errStr.contains('unique constraint')) {
+          friendlyMsg =
+              'One of your details is already in use by another account.';
+        } else if (errStr.contains('socketexception') ||
+            errStr.contains('failed host lookup')) {
+          friendlyMsg =
+              'Network error. Please check your internet connection.';
         }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.error_outline_rounded, color: Colors.white, size: 20),
+                const Icon(Icons.error_outline_rounded,
+                    color: Colors.white, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -792,8 +860,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             backgroundColor: const Color(0xFFE11D48),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            duration: const Duration(seconds: 4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
         );
       }
@@ -805,200 +874,452 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colorPrimary,
-      appBar: _buildAirbnbAppBar(),
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: _buildHeaderAppBar(),
       body: Stack(
         children: [
           SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 12),
+                _buildProfileCompletenessCard(),
+                const SizedBox(height: 20),
                 _buildProfilePhotoSection(),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
 
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildKycHeaderBanner(),
-                      const SizedBox(height: 4),
-
-                      // ── 1. Personal Information ──
-                      _buildSectionCard(
-                        title: 'Personal Information',
-                        icon: Icons.person_outline_rounded,
-                        children: [
-                          _buildAirbnbField(
-                            'Full Name',
-                            _fullNameController,
-                            focusNode: _focusNodes['name'],
-                            prefixIcon: Icons.badge_outlined,
-                            hintText: 'e.g. Ram Bahadur Thapa',
+                // ── 1. Personal Information Card ──
+                _buildSectionCard(
+                  title: 'Personal Information',
+                  subtitle: 'Your name, contact & security details',
+                  icon: Icons.person_outline_rounded,
+                  children: [
+                    _buildCleanInputField(
+                      'Full Name',
+                      _fullNameController,
+                      focusNode: _focusNodes['name'],
+                      prefixIcon: Icons.badge_outlined,
+                      hintText: 'e.g. Ram Bahadur Thapa',
+                    ),
+                    _buildCleanInputField(
+                      'Email Address',
+                      _emailController,
+                      enabled: false,
+                      keyboardType: TextInputType.emailAddress,
+                      focusNode: _focusNodes['email'],
+                      prefixIcon: Icons.email_outlined,
+                      hintText: 'e.g. ram@example.com',
+                    ),
+                    _buildCleanInputField(
+                      'Phone Number',
+                      _phoneController,
+                      keyboardType: TextInputType.phone,
+                      focusNode: _focusNodes['phone'],
+                      prefixIcon: Icons.phone_outlined,
+                      hintText: 'e.g. 9800000000',
+                    ),
+                    const SizedBox(height: 6),
+                    InkWell(
+                      onTap: () => _showSecurityVerificationDialog(
+                        title: 'Change Password',
+                        subtitle:
+                            'Enter your current password and set a new password for your account.',
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                          horizontal: 14,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppTheme.brandColor.withOpacity(0.06),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: AppTheme.brandColor.withOpacity(0.2),
+                            width: 1.5,
                           ),
-                          _buildAirbnbField(
-                            'Email Address',
-                            _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            focusNode: _focusNodes['email'],
-                            prefixIcon: Icons.email_outlined,
-                            hintText: 'e.g. ram@example.com',
-                          ),
-                          _buildAirbnbField(
-                            'Phone Number',
-                            _phoneController,
-                            keyboardType: TextInputType.phone,
-                            focusNode: _focusNodes['phone'],
-                            prefixIcon: Icons.phone_outlined,
-                            hintText: 'e.g. 9800000000',
-                          ),
-                          const SizedBox(height: 8),
-                          InkWell(
-                            onTap: () => _showSecurityVerificationDialog(
-                              title: 'Change Password',
-                              subtitle: 'Enter your old password and a new password below. If forgotten, tap the reset link to receive a password email.',
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                              decoration: BoxDecoration(
-                                color: AppTheme.brandColor.withOpacity(0.06),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppTheme.brandColor.withOpacity(0.2)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.lock_reset_rounded,
+                                size: 20, color: AppTheme.brandColor),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Security & Password Settings',
+                              style: GoogleFonts.inter(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.brandColor,
                               ),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.lock_reset_rounded, size: 20, color: AppTheme.brandColor),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    'Change Password',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppTheme.brandColor,
+                            ),
+                            const Spacer(),
+                            const Icon(Icons.chevron_right_rounded,
+                                size: 20, color: AppTheme.brandColor),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // ── 2. Role & About You Card ──
+                _buildSectionCard(
+                  title: 'Role & Bio',
+                  subtitle: 'Select your role and describe yourself',
+                  icon: Icons.auto_stories_outlined,
+                  children: [
+                    Text(
+                      'Primary Role',
+                      style: GoogleFonts.inter(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF334155),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _roleOptions.map((role) {
+                        final isSelected =
+                            _userTypeController.text.trim() == role;
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _userTypeController.text = role;
+                            });
+                            _saveCurrentToCache();
+                            HapticFeedback.lightImpact();
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 9,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppTheme.brandColor
+                                  : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: isSelected
+                                    ? AppTheme.brandColor
+                                    : const Color(0xFFCBD5E1),
+                                width: 1.2,
+                              ),
+                            ),
+                            child: Text(
+                              role,
+                              style: GoogleFonts.inter(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected
+                                    ? Colors.white
+                                    : const Color(0xFF334155),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildCleanInputField(
+                      'Organization / College',
+                      _orgController,
+                      focusNode: _focusNodes['org'],
+                      prefixIcon: Icons.business_outlined,
+                      hintText: 'e.g. Kathmandu University / Khozna Tech',
+                    ),
+                    _buildCleanInputField(
+                      'Bio / About Me',
+                      _bioController,
+                      maxLines: 3,
+                      focusNode: _focusNodes['bio'],
+                      prefixIcon: Icons.notes_rounded,
+                      hintText: 'Share a brief introduction about yourself...',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // ── 3. Location & GPS Card ──
+                _buildSectionCard(
+                  title: 'Location & Address',
+                  subtitle: 'Set your area and GPS location pin',
+                  icon: Icons.location_on_outlined,
+                  children: [
+                    _buildCleanInputField(
+                      'City / Area Name',
+                      _areaController,
+                      focusNode: _focusNodes['area'],
+                      prefixIcon: Icons.map_outlined,
+                      hintText: 'e.g. Baneshwor, Kathmandu',
+                    ),
+                    Text(
+                      'Quick City Selection',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF64748B),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: _cityOptions.map((city) {
+                        final isSelected =
+                            _areaController.text.contains(city);
+                        return ChoiceChip(
+                          label: Text(city),
+                          selected: isSelected,
+                          selectedColor: AppTheme.brandColor.withOpacity(0.15),
+                          backgroundColor: const Color(0xFFF1F5F9),
+                          labelStyle: GoogleFonts.inter(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: isSelected
+                                ? AppTheme.brandColor
+                                : const Color(0xFF475569),
+                          ),
+                          onSelected: (bool selected) {
+                            if (selected) {
+                              setState(() {
+                                _areaController.text = city;
+                              });
+                              _saveCurrentToCache();
+                            }
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: const Color(0xFFE2E8F0),
+                          width: 1.2,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.gps_fixed_rounded,
+                                  size: 18, color: AppTheme.brandColor),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Precise GPS Pin',
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                  color: const Color(0xFF0F172A),
+                                ),
+                              ),
+                              const Spacer(),
+                              if (_latitude != null && _longitude != null)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade50,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: Colors.green.shade300,
                                     ),
                                   ),
-                                  const Spacer(),
-                                  const Icon(Icons.chevron_right_rounded, size: 20, color: AppTheme.brandColor),
-                                ],
+                                  child: Text(
+                                    'Pinned',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.green.shade700,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Capture your device GPS coordinates to calculate distances accurately.',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: const Color(0xFF64748B),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: _isLocating ? null : _updateLocation,
+                              icon: _isLocating
+                                  ? const SizedBox(
+                                      width: 14,
+                                      height: 14,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppTheme.brandColor,
+                                      ),
+                                    )
+                                  : Icon(
+                                      _latitude != null
+                                          ? Icons.refresh_rounded
+                                          : Icons.my_location_rounded,
+                                      size: 16,
+                                    ),
+                              label: Text(
+                                _isLocating
+                                    ? 'Acquiring Satellite GPS...'
+                                    : (_latitude != null
+                                        ? 'Update GPS Coordinates'
+                                        : 'Pin Device Location'),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppTheme.brandColor,
+                                side: const BorderSide(
+                                  color: AppTheme.brandColor,
+                                  width: 1.5,
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                textStyle: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 18),
-
-                      // ── 2. About You ──
-                      _buildSectionCard(
-                        title: 'About You',
-                        icon: Icons.auto_stories_outlined,
-                        children: [
-                          _buildAirbnbField(
-                            'Role',
-                            _userTypeController,
-                            focusNode: _focusNodes['role'],
-                            prefixIcon: Icons.work_outline_rounded,
-                            hintText: 'e.g. Property Owner / Student',
-                          ),
-                          _buildAirbnbField(
-                            'Organization',
-                            _orgController,
-                            focusNode: _focusNodes['org'],
-                            prefixIcon: Icons.business_outlined,
-                            hintText: 'e.g. Khozna Properties',
-                          ),
-                          _buildAirbnbField(
-                            'Bio',
-                            _bioController,
-                            maxLines: 4,
-                            focusNode: _focusNodes['bio'],
-                            prefixIcon: Icons.notes_rounded,
-                            hintText: 'e.g. Tell us a bit about yourself...',
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 18),
-
-                      // ── 3. Location ──
-                      _buildLocationSection(),
-                      const SizedBox(height: 18),
-
-                      // ── 4. Receive Money Options ──
-                      _buildSectionCard(
-                        title: 'Receive Money Options',
-                        icon: Icons.account_balance_wallet_outlined,
-                        children: [
-                          _buildAirbnbField(
-                            'eSewa ID',
-                            _esewaController,
-                            focusNode: _focusNodes['esewa'],
-                            hintText: 'e.g. 98XXXXXXXX',
-                            prefixWidget: ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: Image.asset(
-                                'assets/images/esewa.webp',
-                                width: 18,
-                                height: 18,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                          ),
-                          _buildAirbnbField(
-                            'Khalti ID',
-                            _khaltiController,
-                            focusNode: _focusNodes['khalti'],
-                            hintText: 'e.g. 98XXXXXXXX',
-                            prefixWidget: ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: Image.asset(
-                                'assets/images/khalti.png',
-                                width: 18,
-                                height: 18,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                          ),
-                          _buildAirbnbField(
-                            'Legal Account Name',
-                            _accountNameController,
-                            focusNode: _focusNodes['acc'],
-                            prefixIcon: Icons.account_box_outlined,
-                            hintText: 'e.g. Ram Bahadur Thapa',
-                          ),
-                          const SizedBox(height: 8),
-                          _buildPremiumMediaGrid(),
-                        ],
-                      ),
-
-                      const SizedBox(height: 32),
-                      _buildAirbnbSaveButton(),
-                      const SizedBox(height: 60),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 20),
+
+                // ── 4. Receive Money Options Card ──
+                _buildSectionCard(
+                  title: 'Receive Money Options',
+                  subtitle: 'Payment IDs & verification document uploads',
+                  icon: Icons.account_balance_wallet_outlined,
+                  children: [
+                    _buildCleanInputField(
+                      'eSewa Mobile ID',
+                      _esewaController,
+                      focusNode: _focusNodes['esewa'],
+                      hintText: 'e.g. 98XXXXXXXX',
+                      prefixWidget: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: Image.asset(
+                          'assets/images/esewa.webp',
+                          width: 18,
+                          height: 18,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                    _buildCleanInputField(
+                      'Khalti Mobile ID',
+                      _khaltiController,
+                      focusNode: _focusNodes['khalti'],
+                      hintText: 'e.g. 98XXXXXXXX',
+                      prefixWidget: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: Image.asset(
+                          'assets/images/khalti.png',
+                          width: 18,
+                          height: 18,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                    _buildCleanInputField(
+                      'Legal Account Holder Name',
+                      _accountNameController,
+                      focusNode: _focusNodes['acc'],
+                      prefixIcon: Icons.account_box_outlined,
+                      hintText: 'e.g. Ram Bahadur Thapa',
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildMediaTile(
+                            'PAYMENT QR',
+                            _qrFile,
+                            _qrCodeUrl,
+                            _pickQrCode,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: _buildMediaTile(
+                            'STUDENT / GOVT ID',
+                            _idFile,
+                            _studentIdUrl,
+                            _pickStudentId,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 32),
+                _buildSaveButton(),
+                const SizedBox(height: 50),
               ],
             ),
           ),
-          if (_isLoading) _buildPremiumLoadingOverlay(),
+          if (_isLoading) _buildLoadingOverlay(),
         ],
       ),
     );
   }
 
-  PreferredSizeWidget _buildAirbnbAppBar() {
+  PreferredSizeWidget _buildHeaderAppBar() {
     return AppBar(
-      backgroundColor: colorPrimary,
-      elevation: 0,
-      scrolledUnderElevation: 0,
+      backgroundColor: Colors.white,
+      elevation: 0.5,
       leading: IconButton(
         icon: const Icon(
-          Icons.close_rounded,
-          color: colorTextPrimary,
-          size: 22,
+          Icons.arrow_back_ios_new_rounded,
+          color: Color(0xFF0F172A),
+          size: 19,
         ),
         onPressed: () => Navigator.pop(context),
+      ),
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Edit Profile',
+            style: GoogleFonts.plusJakartaSans(
+              color: const Color(0xFF0F172A),
+              fontWeight: FontWeight.w800,
+              fontSize: 17,
+            ),
+          ),
+          Text(
+            _isAutoSaving ? 'Auto-saving changes...' : 'Draft saved locally',
+            style: GoogleFonts.inter(
+              color: _isAutoSaving ? AppTheme.brandColor : const Color(0xFF64748B),
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
       actions: [
         TextButton(
@@ -1006,39 +1327,250 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: Text(
             'Save',
             style: GoogleFonts.plusJakartaSans(
-              color: colorAccent,
+              color: AppTheme.brandColor,
               fontWeight: FontWeight.w800,
-              fontSize: 16,
-              decoration: TextDecoration.underline,
+              fontSize: 15,
             ),
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 12),
       ],
     );
   }
 
-  Widget _buildKycHeaderBanner() {
-    return const SizedBox.shrink();
-  }
+  Widget _buildProfileCompletenessCard() {
+    final double completeness = _calculateProfileCompleteness();
+    final int percentage = (completeness * 100).round();
 
-  Widget _buildSectionCard({
-    required String title,
-    required IconData icon,
-    required List<Widget> children,
-  }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.02),
             blurRadius: 10,
-            offset: const Offset(0, 3),
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.stars_rounded,
+                      color: AppTheme.brandColor, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Profile Strength',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                      color: const Color(0xFF0F172A),
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.brandColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '$percentage% Complete',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                    color: AppTheme.brandColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              value: completeness,
+              minHeight: 8,
+              backgroundColor: const Color(0xFFF1F5F9),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                AppTheme.brandColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfilePhotoSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Center(
+            child: Stack(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppTheme.brandColor.withOpacity(0.3),
+                      width: 2,
+                    ),
+                  ),
+                  child: _imageFile != null
+                      ? CircleAvatar(
+                          radius: 50,
+                          backgroundImage: FileImage(_imageFile!),
+                        )
+                      : AppTheme.buildAvatarWidget(
+                          avatarUrl: _avatarUrl,
+                          radius: 50,
+                          name: _fullNameController.text,
+                        ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.brandColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 6,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt_rounded,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildAvatarChip(
+                label: '👨 Male Preset',
+                isSelected:
+                    _avatarUrl == 'assets/images/man avatar.jpeg' &&
+                    _imageFile == null,
+                onTap: () {
+                  setState(() {
+                    _imageFile = null;
+                    _avatarUrl = 'assets/images/man avatar.jpeg';
+                  });
+                  _saveCurrentToCache();
+                  HapticFeedback.lightImpact();
+                },
+              ),
+              const SizedBox(width: 10),
+              _buildAvatarChip(
+                label: '👩 Female Preset',
+                isSelected:
+                    _avatarUrl == 'assets/images/women avatar.jpeg' &&
+                    _imageFile == null,
+                onTap: () {
+                  setState(() {
+                    _imageFile = null;
+                    _avatarUrl = 'assets/images/women avatar.jpeg';
+                  });
+                  _saveCurrentToCache();
+                  HapticFeedback.lightImpact();
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvatarChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.brandColor : const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppTheme.brandColor : const Color(0xFFCBD5E1),
+            width: 1.2,
+          ),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w700,
+            color: isSelected ? Colors.white : const Color(0xFF334155),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -1053,16 +1585,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   color: AppTheme.brandColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: AppTheme.brandColor, size: 18),
+                child: Icon(icon, color: AppTheme.brandColor, size: 20),
               ),
               const SizedBox(width: 12),
-              Text(
-                title,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF0F172A),
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF0F172A),
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.inter(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w400,
+                      color: const Color(0xFF64748B),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -1073,7 +1618,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildAirbnbField(
+  Widget _buildCleanInputField(
     String label,
     TextEditingController controller, {
     bool enabled = true,
@@ -1085,7 +1630,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     String? hintText,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1093,8 +1638,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             label,
             style: GoogleFonts.inter(
               fontSize: 12.5,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF475569),
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF334155),
             ),
           ),
           const SizedBox(height: 6),
@@ -1107,7 +1652,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: enabled ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+              color: enabled
+                  ? const Color(0xFF0F172A)
+                  : const Color(0xFF64748B),
             ),
             decoration: InputDecoration(
               isDense: true,
@@ -1129,21 +1676,40 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child: prefixWidget,
                     )
                   : (prefixIcon != null
-                      ? Icon(prefixIcon, size: 18, color: enabled ? const Color(0xFF64748B) : const Color(0xFF94A3B8))
+                      ? Icon(
+                          prefixIcon,
+                          size: 18,
+                          color: enabled
+                              ? const Color(0xFF64748B)
+                              : const Color(0xFF94A3B8),
+                        )
                       : null),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                borderSide: const BorderSide(
+                  color: Color(0xFFE2E8F0),
+                  width: 1.5,
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                borderSide: const BorderSide(
+                  color: Color(0xFFE2E8F0),
+                  width: 1.5,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
                   color: AppTheme.brandColor,
-                  width: 1.5,
+                  width: 1.8,
+                ),
+              ),
+              disabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: Color(0xFFE2E8F0),
+                  width: 1.2,
                 ),
               ),
               suffixIcon: !enabled
@@ -1160,235 +1726,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildProfilePhotoSection() {
-    return Column(
-      children: [
-        Center(
-          child: Stack(
-            children: [
-              _imageFile != null
-                  ? Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          image: FileImage(_imageFile!),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    )
-                  : AppTheme.buildAvatarWidget(
-                      avatarUrl: _avatarUrl,
-                      radius: 60,
-                      name: _fullNameController.text,
-                    ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: GestureDetector(
-                  onTap: _pickImage,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: colorTextPrimary,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: colorPrimary, width: 3),
-                    ),
-                    child: const Icon(
-                      Icons.camera_alt_rounded,
-                      color: colorPrimary,
-                      size: 16,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildAvatarChip(
-              label: '👨 Man Avatar',
-              isSelected:
-                  _avatarUrl == 'assets/images/man avatar.jpeg' &&
-                  _imageFile == null,
-              onTap: () {
-                setState(() {
-                  _imageFile = null;
-                  _avatarUrl = 'assets/images/man avatar.jpeg';
-                });
-                HapticFeedback.lightImpact();
-              },
-            ),
-            const SizedBox(width: 10),
-            _buildAvatarChip(
-              label: '👩 Woman Avatar',
-              isSelected:
-                  _avatarUrl == 'assets/images/women avatar.jpeg' &&
-                  _imageFile == null,
-              onTap: () {
-                setState(() {
-                  _imageFile = null;
-                  _avatarUrl = 'assets/images/women avatar.jpeg';
-                });
-                HapticFeedback.lightImpact();
-              },
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAvatarChip({
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.brandColor : Colors.grey[100],
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
-          ),
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : colorTextPrimary,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLocationSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: colorPrimary,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.location_on_rounded, color: AppTheme.brandColor, size: 22),
-              const SizedBox(width: 10),
-              Text(
-                'Location / ठेगाना',
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: colorTextPrimary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Pin your exact GPS location to enable distance calculation for guests and nearby services.',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: colorTextSecondary,
-              height: 1.4,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: _isLocating ? null : _updateLocation,
-              icon: _isLocating
-                  ? const SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: colorTextPrimary,
-                      ),
-                    )
-                  : Icon(
-                      _latitude != null
-                          ? Icons.refresh_rounded
-                          : Icons.my_location_rounded,
-                      size: 18,
-                    ),
-              label: Text(
-                _isLocating
-                    ? 'Capturing GPS...'
-                    : (_latitude != null
-                          ? 'Update GPS Location'
-                          : 'Pin My Location'),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: colorTextPrimary,
-                side: const BorderSide(color: colorTextPrimary),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                textStyle: GoogleFonts.inter(fontWeight: FontWeight.w700),
-              ),
-            ),
-          ),
-          if (_latitude != null && _longitude != null) ...[
-            const SizedBox(height: 10),
-            Center(
-              child: Text(
-                '📍 Location saved: ${_latitude!.toStringAsFixed(4)}, ${_longitude!.toStringAsFixed(4)}',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: AppTheme.brandColor,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPremiumMediaGrid() {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildAirbnbMediaTile(
-            'PAYMENT QR',
-            _qrFile,
-            _qrCodeUrl,
-            _pickQrCode,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _buildAirbnbMediaTile(
-            'STUDENT ID',
-            _idFile,
-            _studentIdUrl,
-            _pickStudentId,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAirbnbMediaTile(
+  Widget _buildMediaTile(
     String label,
     File? file,
     String? url,
@@ -1402,19 +1740,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           Text(
             label,
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              color: colorTextSecondary,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF475569),
             ),
           ),
           const SizedBox(height: 8),
           Container(
-            height: 100,
+            height: 105,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: colorSecondary,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.transparent),
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
             ),
             child: (file != null || url != null)
                 ? ClipRRect(
@@ -1423,20 +1761,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ? Image.file(file, fit: BoxFit.cover)
                         : KhoznaImage(imageUrl: url!, fit: BoxFit.cover),
                   )
-                : const Icon(Icons.add_rounded, color: colorTextSecondary),
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.add_a_photo_outlined,
+                          color: AppTheme.brandColor, size: 22),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Upload Image',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.brandColor,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAirbnbSaveButton() {
+  Widget _buildSaveButton() {
     return Container(
       width: double.infinity,
-      height: 58,
+      height: 54,
       decoration: BoxDecoration(
-        color: colorAccent,
-        borderRadius: BorderRadius.circular(12),
+        color: AppTheme.brandColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.brandColor.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: ElevatedButton(
         onPressed: _isLoading ? null : _updateProfile,
@@ -1446,23 +1806,35 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           shadowColor: Colors.transparent,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
-        child: Text(
-          'Update Profile',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 17),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.check_circle_outline_rounded,
+                size: 20, color: Colors.white),
+            const SizedBox(width: 8),
+            Text(
+              'Save & Update Profile',
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildPremiumLoadingOverlay() {
+  Widget _buildLoadingOverlay() {
     return Container(
-      color: Colors.white.withOpacity(0.8),
+      color: Colors.white.withOpacity(0.85),
       child: const Center(
         child: CircularProgressIndicator(
-          color: colorTextPrimary,
+          color: AppTheme.brandColor,
           strokeWidth: 3,
         ),
       ),

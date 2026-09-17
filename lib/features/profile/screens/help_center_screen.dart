@@ -246,7 +246,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: filteredFaqs.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (context, index) {
                   final faq = filteredFaqs[index];
                   final isExpanded = _expandedFaqIndex == index;

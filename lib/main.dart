@@ -229,6 +229,7 @@ class _KhoznaAppState extends State<KhoznaApp> {
       initializeBadgeSync();
       SupabaseService.fetchUnreadMessageCount();
       SupabaseService.fetchUnreadNotificationCount();
+      SupabaseService.getConversations(); // Pre-warm conversations for 0ms instant loading!
     }
 
     // Listen for Auth State changes to update internal state and initialize services reactively
@@ -321,13 +322,16 @@ class RootScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isInitializing) {
+      final screenWidth = MediaQuery.of(context).size.width;
+      final logoSize = (screenWidth * 0.26).clamp(80.0, 120.0);
+
       return Scaffold(
         backgroundColor: Colors.white,
         body: Center(
           child: Image.asset(
             'assets/images/logo 2.png',
-            width: 140,
-            height: 140,
+            width: logoSize,
+            height: logoSize,
             fit: BoxFit.contain,
           ),
         ),

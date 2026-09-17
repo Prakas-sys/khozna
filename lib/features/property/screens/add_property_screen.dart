@@ -12,7 +12,6 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/khozna_ai_service.dart';
 import 'package:khozna/features/property/widgets/add_property_widgets.dart';
 import 'package:khozna/features/property/repositories/property_repository.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/services/upload_manager.dart';
@@ -92,7 +91,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   // Selected Data State
   String? _selectedCategory = 'Room';
-  bool _isNegotiable = true;
+  final bool _isNegotiable = true;
   final List<String> _selectedAmenities = [];
   final List<String> _selectedRules = [];
   final List<File> _selectedImages = [];
@@ -416,7 +415,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             .select('id')
             .eq('owner_id', user.id);
 
-        if (existingProperties is List && existingProperties.length >= 3) {
+        if (existingProperties.length >= 3) {
           setState(() => _isPublishing = false);
           if (mounted) {
             showDialog(
@@ -480,10 +479,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       String? qrUrl;
       if (_payoutQrImage != null) {
         qrUrl = UploadManager.instance.getUrl(_payoutQrImage!.path);
-        if (qrUrl == null) {
-          // If not uploaded yet, do it now
-          qrUrl = await CloudinaryService.uploadImage(_payoutQrImage!);
-        }
+        qrUrl ??= await CloudinaryService.uploadImage(_payoutQrImage!);
       }
 
       // 2. Update Profile with Payout Details
@@ -493,7 +489,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       } else if (_selectedPayoutMethod == 'khalti') {
         payoutUpdates['khalti_number'] = _payoutAccountController.text.trim();
       } else if (_selectedPayoutMethod == 'bank') {
-        payoutUpdates['account_holder_name'] = '${_selectedBank}: ${_payoutAccountController.text.trim()}';
+        payoutUpdates['account_holder_name'] = '$_selectedBank: ${_payoutAccountController.text.trim()}';
       }
       if (qrUrl != null) payoutUpdates['qr_code_url'] = qrUrl;
 

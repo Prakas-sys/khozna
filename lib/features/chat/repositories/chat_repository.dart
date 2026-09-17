@@ -23,24 +23,12 @@ class ChatRepository {
           .order('updated_at', ascending: false);
 
       final List chatsData = response as List;
-      if (chatsData.isEmpty) return [];
-
-      // 1.5 Fetch unread counts
-      final unreadResponse = await _client
-          .from('messages')
-          .select('chat_id')
-          .eq('is_read', false)
-          .neq('sender_id', user.id);
-
-      final Map<String, int> unreadCounts = {};
-      for (var row in (unreadResponse as List)) {
-        final cId = row['chat_id']?.toString();
-        if (cId != null) {
-          unreadCounts[cId] = (unreadCounts[cId] ?? 0) + 1;
-        }
+      if (chatsData.isEmpty) {
+        chatListCache.value = [];
+        return [];
       }
 
-      // 2. Identify all "other" user IDs to fetch profiles in bulk
+      // 2. Extract "other" user IDs for profile fetching
       final Set<String> otherUserIds = {};
       for (var chat in chatsData) {
         final u1 = chat['user1_id']?.toString();
@@ -52,17 +40,37 @@ class ChatRepository {
         }
       }
 
-      // 3. Fetch profiles
-      Map<String, dynamic> profiles = {};
-      if (otherUserIds.isNotEmpty) {
-        final profilesResponse = await _client
-            .from('profiles')
-            .select('id, full_name, avatar_url')
-            .inFilter('id', otherUserIds.toList());
+      // 3. Parallelize fetching unread counts and profiles using Future.wait
+      final results = await Future.wait([
+        _client
+            .from('messages')
+            .select('chat_id')
+            .eq('is_read', false)
+            .neq('sender_id', user.id)
+            .catchError((_) => []),
+        otherUserIds.isNotEmpty
+            ? _client
+                .from('profiles')
+                .select('id, full_name, avatar_url')
+                .inFilter('id', otherUserIds.toList())
+                .catchError((_) => [])
+            : Future.value([]),
+      ]);
 
-        for (var p in (profilesResponse as List)) {
-          profiles[p['id']] = p;
+      final unreadResponse = results[0] as List;
+      final profilesResponse = results[1] as List;
+
+      final Map<String, int> unreadCounts = {};
+      for (var row in unreadResponse) {
+        final cId = row['chat_id']?.toString();
+        if (cId != null) {
+          unreadCounts[cId] = (unreadCounts[cId] ?? 0) + 1;
         }
+      }
+
+      Map<String, dynamic> profiles = {};
+      for (var p in profilesResponse) {
+        profiles[p['id']] = p;
       }
 
       // 4. Map to models and deduplicate by other user
@@ -98,10 +106,11 @@ class ChatRepository {
 
       final sortedList = uniqueChats.values.toList();
       sortedList.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
+      chatListCache.value = sortedList; // Update in-memory cache for 0ms loads
       return sortedList;
     } catch (e) {
       debugPrint('Error fetching chat conversations: $e');
-      return [];
+      return chatListCache.value ?? [];
     }
   }
 

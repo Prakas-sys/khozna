@@ -14,7 +14,6 @@ import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/widgets/property_card.dart';
 import 'package:khozna/features/property/screens/discovery_map_screen.dart';
-import 'package:khozna/core/guards/auth_guard.dart';
 
 class SearchScreen extends StatefulWidget {
   final String? initialQuery;
@@ -101,17 +100,15 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
       if (permission == LocationPermission.whileInUse ||
           permission == LocationPermission.always) {
         Position? position = await Geolocator.getLastKnownPosition();
-        if (position == null) {
-          position = await Geolocator.getCurrentPosition(
+        position ??= await Geolocator.getCurrentPosition(
             locationSettings: const LocationSettings(
               accuracy: LocationAccuracy.low,
             ),
           ).timeout(const Duration(seconds: 2));
-        }
         currentLoc = LatLng(position.latitude, position.longitude);
         if (mounted) {
           setState(() => _userLocation = currentLoc);
-          _miniMapController.move(currentLoc!, 13.0);
+          _miniMapController.move(currentLoc, 13.0);
         }
       }
     } catch (e) {
@@ -134,7 +131,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
 
       filtered.sort((a, b) {
         final dA = distance.as(LengthUnit.Meter, currentLoc!, LatLng(a.latitude!, a.longitude!));
-        final dB = distance.as(LengthUnit.Meter, currentLoc!, LatLng(b.latitude!, b.longitude!));
+        final dB = distance.as(LengthUnit.Meter, currentLoc, LatLng(b.latitude!, b.longitude!));
         return dA.compareTo(dB);
       });
     }
@@ -668,7 +665,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                                           ),
                                                           const WidgetSpan(child: SizedBox(width: 2)),
                                                           TextSpan(
-                                                            text: '${(p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) > 999 ? '${((p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) / 1000).toStringAsFixed(0)}K' : (p.priceNight > 0 ? p.priceNight.toInt().toString() : (double.tryParse(p.price)?.toInt().toString() ?? p.price))}',
+                                                            text: (p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) > 999 ? '${((p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) / 1000).toStringAsFixed(0)}K' : (p.priceNight > 0 ? p.priceNight.toInt().toString() : (double.tryParse(p.price)?.toInt().toString() ?? p.price)),
                                                             style: GoogleFonts.plusJakartaSans(
                                                               color: Colors.black,
                                                               fontWeight: FontWeight.w800,

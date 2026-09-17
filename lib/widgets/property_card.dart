@@ -9,10 +9,8 @@ import 'package:khozna/features/property/screens/property_details_screen.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/formatters.dart';
 import 'favourite_button.dart';
-import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PropertyCard extends StatelessWidget {
   final Property property;

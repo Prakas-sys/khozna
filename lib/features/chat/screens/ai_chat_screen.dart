@@ -5,7 +5,6 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/khozna_ai_service.dart';
 import 'package:khozna/features/property/screens/filter_results_screen.dart';
 import 'package:khozna/core/models/property_model.dart';
-import 'package:khozna/widgets/property_card.dart';
 
 class AiChatScreen extends StatefulWidget {
   const AiChatScreen({super.key});
@@ -493,7 +492,7 @@ class _ChatBubble extends StatelessWidget {
                                           child: Image.network(
                                             prop.imageUrl,
                                             fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) => Container(
+                                            errorBuilder: (_, _, _) => Container(
                                               color: const Color(0xFFF0F4FF),
                                               child: const Icon(Icons.home_rounded, size: 20, color: AppTheme.brandColor),
                                             ),

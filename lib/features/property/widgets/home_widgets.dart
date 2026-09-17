@@ -776,9 +776,9 @@ class HomeHorizontalSection extends StatelessWidget {
                 ? CachedNetworkImage(
                     imageUrl: url,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) =>
+                    placeholder: (_, _) =>
                         Container(color: const Color(0xFFE2E8F0)),
-                    errorWidget: (_, __, ___) => _buildFallbackThumbnail(),
+                    errorWidget: (_, _, _) => _buildFallbackThumbnail(),
                   )
                 : _buildFallbackThumbnail(),
           ),

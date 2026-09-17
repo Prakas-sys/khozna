@@ -724,7 +724,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppTheme.brandColor,
+            activeThumbColor: AppTheme.brandColor,
             activeTrackColor: AppTheme.brandColor.withOpacity(0.2),
             inactiveThumbColor: Colors.grey[400],
             inactiveTrackColor: Colors.grey[200],

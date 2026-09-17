@@ -982,7 +982,7 @@ class _FullImageCarouselState extends State<_FullImageCarousel> {
                   fit: StackFit.expand,
                   children: <Widget>[
                     ...previousChildren,
-                    if (currentChild != null) currentChild,
+                    ?currentChild,
                   ],
                 );
               },

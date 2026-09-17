@@ -1,4 +1,3 @@
-import 'package:khozna/widgets/khozna_image.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';

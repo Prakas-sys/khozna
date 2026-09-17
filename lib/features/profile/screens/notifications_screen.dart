@@ -804,7 +804,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             width: radius * 2,
             height: radius * 2,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Icon(
+            errorBuilder: (_, _, _) => Icon(
               Icons.verified_user_rounded,
               size: radius * 1.3,
               color: AppTheme.brandColor,
@@ -2409,7 +2409,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           height: 120,
                           width: double.infinity,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
+                          errorBuilder: (_, _, _) => Container(
                             height: 60,
                             color: const Color(0xFFF1F5F9),
                             child: const Center(

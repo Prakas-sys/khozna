@@ -14,7 +14,6 @@ import 'dart:io';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -1106,7 +1105,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                         width: 48,
                         height: 48,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                        errorBuilder: (_, _, _) => Container(
                           width: 48,
                           height: 48,
                           color: const Color(0xFFF1F5F9),
@@ -1733,8 +1732,11 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
       String finalBookingId = _currentBooking.id;
       if (finalBookingId.startsWith('draft_')) {
         final newBooking = await BookingRepository.createBooking(_currentBooking);
-        if (newBooking != null) finalBookingId = newBooking.id;
-        else throw 'Failed to create booking record.';
+        if (newBooking != null) {
+          finalBookingId = newBooking.id;
+        } else {
+          throw 'Failed to create booking record.';
+        }
       }
 
       // Normalize method to DB-allowed values

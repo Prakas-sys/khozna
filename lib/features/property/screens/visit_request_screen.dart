@@ -151,8 +151,11 @@ class _VisitRequestScreenState extends State<VisitRequestScreen>
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios_new_rounded, color: _textPrimary, size: 18),
         onPressed: () {
-          if (_currentStep > 0) _prevStep();
-          else Navigator.pop(context);
+          if (_currentStep > 0) {
+            _prevStep();
+          } else {
+            Navigator.pop(context);
+          }
         },
       ),
       title: Text(
@@ -666,8 +669,11 @@ class _VisitRequestScreenState extends State<VisitRequestScreen>
               height: 52,
               child: ElevatedButton(
                 onPressed: _isSubmitting ? null : () {
-                  if (isLastStep) _submit();
-                  else _nextStep();
+                  if (isLastStep) {
+                    _submit();
+                  } else {
+                    _nextStep();
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _brand,

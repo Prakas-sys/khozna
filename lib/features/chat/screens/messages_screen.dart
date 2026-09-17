@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -39,7 +38,24 @@ class _MessagesScreenState extends State<MessagesScreen>
     _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    // Instant 0ms load if cache is pre-warmed
+    if (chatListCache.value != null && chatListCache.value!.isNotEmpty) {
+      _chats = chatListCache.value!;
+      _isLoading = false;
+    }
+    chatListCache.addListener(_onCacheUpdated);
+
     _initData();
+  }
+
+  void _onCacheUpdated() {
+    if (mounted && chatListCache.value != null) {
+      setState(() {
+        _chats = chatListCache.value!;
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _initData() async {
@@ -49,17 +65,10 @@ class _MessagesScreenState extends State<MessagesScreen>
   Future<void> _loadChats() async {
     if (!mounted) return;
 
-    // 1. Instant rendering from cache if available
-    if (chatListCache.value != null && _chats.isEmpty) {
-      setState(() {
-        _chats = chatListCache.value!;
-        _isLoading = false;
-      });
-    } else if (_chats.isEmpty) {
+    if (_chats.isEmpty) {
       setState(() => _isLoading = true);
     }
 
-    // 2. Fetch fresh data
     try {
       final data = await SupabaseService.getConversations();
       if (mounted) {
@@ -67,7 +76,6 @@ class _MessagesScreenState extends State<MessagesScreen>
           _chats = data;
           _isLoading = false;
         });
-        chatListCache.value = data; // Update cache
       }
     } catch (e) {
       debugPrint('Error loading chats: $e');
@@ -79,6 +87,7 @@ class _MessagesScreenState extends State<MessagesScreen>
 
   @override
   void dispose() {
+    chatListCache.removeListener(_onCacheUpdated);
     _pulseController.dispose();
     super.dispose();
   }

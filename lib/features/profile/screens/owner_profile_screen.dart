@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,7 +6,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:intl/intl.dart';
 import 'package:khozna/core/models/review_model.dart';
@@ -746,7 +744,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               ),
             ),
           ),
-          if (trailing != null) trailing,
+          ?trailing,
           if (value != null && trailing == null)
             Text(
               value,
@@ -929,7 +927,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             physics: const NeverScrollableScrollPhysics(),
             padding: EdgeInsets.zero,
             itemCount: _ownerReviews.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            separatorBuilder: (_, _) => const SizedBox(height: 12),
             itemBuilder: (_, i) => _buildReviewCard(_ownerReviews[i]),
           ),
       ],
