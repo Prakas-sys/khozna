@@ -171,6 +171,8 @@ class BookingRepository {
             'check_out': checkOut.toIso8601String(),
             'total_price': totalPrice,
             'status': 'pending_approval',
+            'booking_status': 'pending',
+            'payment_status': 'not_required',
           })
           .select()
           .single();
@@ -179,8 +181,8 @@ class BookingRepository {
 
       // Notify owner
       final String name = user.userMetadata?['full_name'] ?? 'A user';
-      final String vTitle = 'नयाँ अवलोकन अनुरोध (New Visit Request!)';
-      final String vMessage = '$name ले तपाइँको कोठा हेर्न अनुरोध गर्नुभएको छ। ${message ?? ""}';
+      final String vTitle = 'नयाँ अवलोकन तथा बुकिङ अनुरोध (New Booking Request!)';
+      final String vMessage = '$name ले तपाइँको कोठा बुक गर्ने अनुरोध गर्नुभएको छ। ${message ?? ""}';
 
       await _client.from('notifications').insert({
         'user_id': ownerId,
@@ -207,11 +209,13 @@ class BookingRepository {
   }
 
 
-  /// 2. Owner approves request -> moves to Visit Accepted
+  /// 2. Owner approves request -> moves to Accepted & Payment Pending
   static Future<void> approveRequest(String bookingId, {DateTime? newCheckIn}) async {
     try {
       final updates = <String, dynamic>{
-        'status': 'visit_accepted',
+        'status': 'awaiting_payment',
+        'booking_status': 'accepted',
+        'payment_status': 'payment_pending',
         'updated_at': DateTime.now().toUtc().toIso8601String(),
       };
       
@@ -228,8 +232,8 @@ class BookingRepository {
       final booking = await getBookingById(bookingId);
       if (booking != null) {
         debugPrint('Sending approval notification to guest: ${booking.guestId}');
-        const String title = 'अवलोकन स्वीकृत (Visit Approved!)';
-        const String body = 'तपाइँको अवलोकन अनुरोध स्वीकृत भएको छ। कोठा हेरेर मन पराएपछि मात्र भुक्तानीको प्रक्रिया हुनेछ।';
+        const String title = 'बुकिङ अनुरोध स्वीकृत (Booking Request Accepted!)';
+        const String body = 'तपाइँको बुकिङ अनुरोध स्वीकृत भएको छ। कृपया घरधनीलाई सिधै भुक्तानी गर्नुहोस्।';
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
@@ -545,11 +549,11 @@ class BookingRepository {
     }
   }
 
-  /// 3. Guest submits payment (Direct or Khozna)
+  /// 3. Guest submits payment directly to property owner
   static Future<void> submitPayment({
     required String bookingId,
-    required String paymentType, // 'direct' or 'khozna'
-    required String method, // 'esewa', 'khalti' etc.
+    String paymentType = 'direct',
+    required String method, // 'esewa', 'khalti', 'bank_transfer', 'qr'
     required double amount,
     String? referenceId,
     String? proofImageUrl,
@@ -562,50 +566,58 @@ class BookingRepository {
       final booking = await getBookingById(bookingId);
       if (booking == null) throw Exception('Booking not found');
 
-      // 1. Update booking with payment type and status
-      final double fee = paymentType == 'khozna'
-          ? (amount * 0.10)
-          : (amount * 0.05);
+      // 1. Update booking with direct payment status
+      final updates = <String, dynamic>{
+        'payment_type': 'direct',
+        'khozna_fee': 0.0,
+        'status': 'paid',
+        'booking_status': 'accepted',
+        'payment_status': 'payment_submitted',
+        'payment_proof_url': proofImageUrl,
+        'payment_reference': referenceId,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      };
 
-      await _client
-          .from('bookings')
-          .update({
-            'payment_type': paymentType,
-            'khozna_fee': fee,
-            'status': 'paid',
-            'payment_proof_url': proofImageUrl,
-            'updated_at': DateTime.now().toUtc().toIso8601String(),
-          })
-          .eq('id', bookingId)
-          .catchError((_) async {
-            // Fallback in case payment_proof_url column is not on bookings table
-            await _client
-                .from('bookings')
-                .update({
-                  'payment_type': paymentType,
-                  'khozna_fee': fee,
-                  'status': 'paid',
-                  'updated_at': DateTime.now().toUtc().toIso8601String(),
-                })
-                .eq('id', bookingId);
-          });
+      try {
+        await _client
+            .from('bookings')
+            .update(updates)
+            .eq('id', bookingId);
+      } catch (_) {
+        // Fallback if some schema columns are missing
+        await _client
+            .from('bookings')
+            .update({
+              'payment_type': 'direct',
+              'status': 'paid',
+              'booking_status': 'accepted',
+              'payment_status': 'payment_submitted',
+              'updated_at': DateTime.now().toUtc().toIso8601String(),
+            })
+            .eq('id', bookingId);
+      }
 
       // 2. Create payment record
-      await _client.from('payments').insert({
-        'booking_id': bookingId,
-        'payer_id': user.id,
-        'amount': amount,
-        'payment_method': method,
-        'reference_id': referenceId,
-        'proof_image_url': proofImageUrl,
-        'status': 'pending',
-      });
+      try {
+        await _client.from('payments').insert({
+          'booking_id': bookingId,
+          'payer_id': user.id,
+          'amount': amount,
+          'payment_method': method,
+          'reference_id': referenceId,
+          'proof_image_url': proofImageUrl,
+          'status': 'submitted',
+        });
+      } catch (e) {
+        debugPrint('Payment record creation notice: $e');
+      }
 
       final guestName = user.userMetadata?['full_name'] ?? 'A Guest';
 
       // 3. Notify owner
-      const String pTitle = 'New Payment Received 💸';
-      final String pBody = '$guestName sent payment for your property (${booking.propertyTitle ?? "Property"}) via Khozna Escrow.';
+      const String pTitle = 'भुक्तानी विवरण प्राप्त भयो (Payment Info Submitted 💸)';
+      final String refInfo = referenceId != null && referenceId.isNotEmpty ? ' (Ref: $referenceId)' : '';
+      final String pBody = '$guestName ले घरधनीको खातामा सिधै भुक्तानी पठाउनुभएको छ$refInfo। कृपया विवरण जाँच गरी स्वीकृत गर्नुहोस्।';
       await _client.from('notifications').insert({
         'user_id': booking.ownerId,
         'sender_id': user.id,
@@ -629,45 +641,45 @@ class BookingRepository {
     }
   }
 
+  /// Owner confirms payment receipt -> moves booking to Confirmed
   static Future<void> confirmPayment(String bookingId) async {
     try {
-      // 1. Fetch booking with property details to know the rental type
       final response = await _client
           .from('bookings')
           .select('*, properties(id, category, price_month, price_night)')
           .eq('id', bookingId)
           .single();
 
-      final property = response['properties'];
-      final String propertyId = property['id'];
-      final String category = property['category']?.toString().toLowerCase() ?? '';
       final String guestId = response['guest_id']?.toString() ?? '';
 
-      // 2. Update booking and payment status
+      // Update booking and payment status
       await _client
           .from('bookings')
           .update({
             'status': 'confirmed',
+            'booking_status': 'confirmed',
+            'payment_status': 'payment_confirmed',
             'updated_at': DateTime.now().toUtc().toIso8601String(),
           })
           .eq('id', bookingId);
 
-      await _client
-          .from('payments')
-          .update({'status': 'verified'})
-          .eq('booking_id', bookingId);
+      try {
+        await _client
+            .from('payments')
+            .update({'status': 'verified'})
+            .eq('booking_id', bookingId);
+      } catch (_) {}
 
       // Notify confirmed guest
       if (guestId.isNotEmpty) {
         const String confTitle = 'बुकिङ पक्का भयो! (Booking Confirmed! 🏠)';
-        const String confBody = 'तपाइँको भुक्तानी प्रमाणीकरण भएको छ र कोठा पक्का भयो।';
+        const String confBody = 'घरधनीले भुक्तानी प्राप्त भएको पुष्टि गर्नुभयो। तपाइँको बुकिङ पक्का भएको छ!';
         await _client.from('notifications').insert({
           'user_id': guestId,
           'sender_id': _client.auth.currentUser?.id,
           'title': confTitle,
           'message': confBody,
-          'type': 'booking_alert',
-          'property_id': propertyId,
+          'type': 'booking_confirmed',
           'booking_id': bookingId,
         });
 
@@ -675,96 +687,48 @@ class BookingRepository {
           recipientUserId: guestId,
           title: confTitle,
           body: confBody,
-          data: {'type': 'booking_alert', 'booking_id': bookingId},
+          data: {'type': 'booking_confirmed', 'booking_id': bookingId},
         );
       }
-
-      // 3. Smart Property Hiding:
-      // If it's a long-term rental (Room, Flat, Apartment), hide the property.
-      // If it's short-term (Homestay, GuestHouse), keep it available for other nights.
-      final bool isLongTerm = category == 'room' ||
-          category == 'flat' ||
-          category == 'apartment' ||
-          category == 'house';
-
-      if (isLongTerm) {
-        await _client
-            .from('properties')
-            .update({'status': 'booked'})
-            .eq('id', propertyId);
-        debugPrint('Long-term property $propertyId marked as BOOKED (Hidden)');
-
-        // 4. Airbnb Logic: Auto-cancel all other pending visit/booking requests for this property
-        try {
-          final pendingOthers = await _client
-              .from('bookings')
-              .select('id, guest_id')
-              .eq('property_id', propertyId)
-              .neq('id', bookingId)
-              .inFilter('status', ['pending_approval', 'visit_accepted', 'awaiting_payment']);
-
-          for (var p in pendingOthers) {
-            final otherBookingId = p['id'].toString();
-            final otherGuestId = p['guest_id'].toString();
-
-            const String cTitle = 'प्रोपर्टी बुक भयो (Property Booked)';
-            const String cBody = 'यो कोठा अर्को ग्राहकद्वारा बुक भइसकेको छ।';
-
-            await _client
-                .from('bookings')
-                .update({
-                  'status': 'cancelled',
-                  'rejection_reason': 'Property booked by another guest',
-                  'updated_at': DateTime.now().toUtc().toIso8601String(),
-                })
-                .eq('id', otherBookingId);
-
-            await _client.from('notifications').insert({
-              'user_id': otherGuestId,
-              'sender_id': _client.auth.currentUser?.id,
-              'title': cTitle,
-              'message': cBody,
-              'type': 'booking_alert',
-              'property_id': propertyId,
-              'booking_id': otherBookingId,
-            });
-
-            PushNotificationService.sendPushToUserId(
-              recipientUserId: otherGuestId,
-              title: cTitle,
-              body: cBody,
-              data: {'type': 'booking_alert', 'booking_id': otherBookingId},
-            );
-          }
-        } catch (e) {
-          debugPrint('Error auto-cancelling other pending bookings: $e');
-        }
-      } else {
-        debugPrint('Nightly property $propertyId remains AVAILABLE for other dates');
-      }
-
-      // Trigger in DB will automatically block dates in property_availability
     } catch (e) {
       debugPrint('Confirm payment error: $e');
       rethrow;
     }
   }
 
-  static Future<void> rejectPayment(String bookingId) async {
+  /// Owner reports a payment issue or invalid transaction reference
+  static Future<void> rejectPayment(String bookingId, {String? reason}) async {
     try {
-      // Revert booking to awaiting_payment so guest can try again
       await _client
           .from('bookings')
           .update({
-            'status': 'awaiting_payment',
+            'status': 'payment_issue',
+            'payment_status': 'payment_issue',
+            'rejection_reason': reason ?? 'Payment verification failed',
             'updated_at': DateTime.now().toUtc().toIso8601String(),
           })
           .eq('id', bookingId);
 
-      await _client
-          .from('payments')
-          .update({'status': 'failed'})
-          .eq('booking_id', bookingId);
+      final booking = await getBookingById(bookingId);
+      if (booking != null && booking.guestId.isNotEmpty) {
+        const String title = 'भुक्तानी प्रमाणीकरण हुन सकेन (Payment Issue ⚠️)';
+        final String body = 'घरधनीले तपाइँको भुक्तानी प्रमाणीकरण गर्न सक्नुभएन। ${reason ?? "कृपया पुनः विवरण वा प्रमाण पठाउनुहोस्।"}';
+        await _client.from('notifications').insert({
+          'user_id': booking.guestId,
+          'sender_id': _client.auth.currentUser?.id,
+          'title': title,
+          'message': body,
+          'type': 'payment_issue',
+          'booking_id': bookingId,
+        });
+
+        PushNotificationService.sendPushToUserId(
+          recipientUserId: booking.guestId,
+          title: title,
+          body: body,
+          data: {'type': 'payment_issue', 'booking_id': bookingId},
+        );
+      }
     } catch (e) {
       debugPrint('Reject payment error: $e');
       rethrow;

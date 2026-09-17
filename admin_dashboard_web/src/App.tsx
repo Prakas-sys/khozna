@@ -168,7 +168,7 @@ const DashboardHome = () => {
     { title: 'Safety Reports', val: stats.reports, label: 'Active flags & reports', icon: <ShieldAlert size={18} />, path: '/reports', color: 'bg-rose-50 text-rose-700 border-rose-200/60' },
     { title: 'Pending Payments', val: stats.payments, label: 'Transactions to confirm', icon: <CreditCard size={18} />, path: '/payments', color: 'bg-violet-50 text-violet-700 border-violet-200/60' },
     { title: 'Total Bookings', val: stats.bookings, label: 'Active guest reservations', icon: <CalendarDays size={18} />, path: '/bookings', color: 'bg-blue-50 text-blue-700 border-blue-200/60' },
-    { title: 'Escrow Vault', val: 'NPR Active', label: 'Platform financial escrow', icon: <Landmark size={18} />, path: '/escrow', color: 'bg-slate-100 text-slate-800 border-slate-200' },
+    { title: 'Direct Payments', val: 'Peer-to-Peer', label: 'Direct guest-to-owner model', icon: <Landmark size={18} />, path: '/bookings', color: 'bg-slate-100 text-slate-800 border-slate-200' },
   ];
 
   return (

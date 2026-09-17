@@ -278,8 +278,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             'id': synthId,
             'booking_id': bId,
             'property_id': req.propertyId,
-            'title': 'Property Visit Request',
-            'message': 'Requested a visit for "$propTitle".',
+            'title': 'Request to Book',
+            'message': 'Requested a booking for "$propTitle".',
             'type': 'booking_request',
             'is_owner_notification': true,
             'sender': guestProfile,
@@ -958,16 +958,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
 
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => GuestVisitDetailsScreen(
-              bookingId: bookingId,
-              initialBookingData: note,
-            ),
-          ),
-        );
+      onTap: () async {
+        final booking = await SupabaseService.getVisitById(bookingId);
+        if (booking != null && mounted) {
+          if (booking.status == 'awaiting_payment') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PaymentChoiceScreen(
+                  booking: booking,
+                  propertyTitle: booking.propertyTitle ?? 'Your Property',
+                ),
+              ),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BookingStatusScreen(
+                  booking: booking,
+                ),
+              ),
+            );
+          }
+        }
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -1187,10 +1201,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OwnerVisitRequestDetailsScreen(
-              bookingId: bookingId,
-              initialBookingData: note,
-            ),
+            builder: (context) => const OwnerBookingsScreen(),
           ),
         );
       },
@@ -1259,7 +1270,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            'New Visit Request',
+                            'New Request to Book',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,

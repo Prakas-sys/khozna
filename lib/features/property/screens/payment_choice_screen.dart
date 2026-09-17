@@ -1,2035 +1,462 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/core/models/booking_model.dart';
-import 'package:khozna/features/property/repositories/booking_repository.dart';
-import 'package:khozna/core/utils/formatters.dart';
-import 'package:intl/intl.dart';
-import 'package:khozna/core/models/user_model.dart';
-import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
-import 'package:khozna/core/services/cloudinary_service.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
+import 'package:khozna/core/models/booking_model.dart';
+import 'package:khozna/core/models/user_model.dart';
+import 'package:khozna/core/theme/app_theme.dart';
+import 'package:khozna/core/utils/supabase_service.dart';
+import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:khozna/core/models/property_model.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Design tokens
+// ─────────────────────────────────────────────────────────────────────────────
+const _bg    = Color(0xFFF8FAFC);
+const _card  = Colors.white;
+const _ink   = Color(0xFF0F172A);
+const _sub   = Color(0xFF64748B);
+const _bdr   = Color(0xFFE2E8F0);
+const _brand = AppTheme.brandColor;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Payment Method enum
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum _PayMethod { esewa, khalti, bankTransfer, qr }
+
+extension _PayMethodExt on _PayMethod {
+  String get label {
+    switch (this) {
+      case _PayMethod.esewa:       return 'eSewa';
+      case _PayMethod.khalti:      return 'Khalti';
+      case _PayMethod.bankTransfer: return 'Bank Transfer';
+      case _PayMethod.qr:          return 'QR Code';
+    }
+  }
+
+  String get key {
+    switch (this) {
+      case _PayMethod.esewa:       return 'esewa';
+      case _PayMethod.khalti:      return 'khalti';
+      case _PayMethod.bankTransfer: return 'bank_transfer';
+      case _PayMethod.qr:          return 'qr';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case _PayMethod.esewa:       return Icons.payment_rounded;
+      case _PayMethod.khalti:      return Icons.account_balance_wallet_rounded;
+      case _PayMethod.bankTransfer: return Icons.account_balance_rounded;
+      case _PayMethod.qr:          return Icons.qr_code_scanner_rounded;
+    }
+  }
+
+  Color get color {
+    switch (this) {
+      case _PayMethod.esewa:        return const Color(0xFF60B246);
+      case _PayMethod.khalti:       return const Color(0xFF5C2D91);
+      case _PayMethod.bankTransfer: return const Color(0xFF1D4ED8);
+      case _PayMethod.qr:           return _brand;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Screen
+// ─────────────────────────────────────────────────────────────────────────────
 
 class PaymentChoiceScreen extends StatefulWidget {
-  final BookingModel? booking;
-  final String? propertyTitle;
-  final Property? property;
+  final BookingModel booking;
 
-  const PaymentChoiceScreen({
-    super.key,
-    this.booking,
-    this.propertyTitle,
-    this.property,
-  });
+  const PaymentChoiceScreen({super.key, required this.booking});
 
   @override
   State<PaymentChoiceScreen> createState() => _PaymentChoiceScreenState();
 }
 
 class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
-  final TextEditingController _transactionController = TextEditingController();
-  
-  // 3-step checkout state:
-  // Step 0 = Choose Path (Khozna Escrow vs Host Direct)
-  // Step 1 = Select Specific Method (eSewa, Khalti, Bank, Fonepay, Host QR, etc.)
-  // Step 2 = Account Details & Upload Proof
-  int _currentStep = 0;
-  String _paymentPath = 'khozna_escrow'; // 'khozna_escrow' or 'host_direct'
-  String _selectedMethod = 'khozna_esewa';
-  
+  _PayMethod? _selectedMethod;
+  final _refCtrl  = TextEditingController();
+  File? _proofImage;
   bool _isSubmitting = false;
   bool _isLoadingOwner = true;
   UserModel? _ownerProfile;
-  File? _proofImage;
-  late BookingModel _currentBooking;
-  late String _currentTitle;
 
   @override
   void initState() {
     super.initState();
-    _initializeData();
-    _loadOwnerPaymentDetails();
+    _loadOwnerProfile();
   }
 
   @override
   void dispose() {
-    _transactionController.dispose();
+    _refCtrl.dispose();
     super.dispose();
   }
 
-
-  void _initializeData() {
-    if (widget.booking != null) {
-      _currentBooking = widget.booking!;
-      _currentTitle = widget.propertyTitle ?? _currentBooking.propertyTitle ?? 'Property';
-
-      // Fallback: If totalPrice in booking model is 0, check widget.property
-      if (_currentBooking.totalPrice <= 0 && widget.property != null) {
-        final p = widget.property!;
-        final double pPrice = p.priceMonth > 0
-            ? p.priceMonth
-            : (p.priceNight > 0
-                ? p.priceNight
-                : (double.tryParse(p.price.replaceAll(',', '')) ?? 0));
-        if (pPrice > 0) {
-          _currentBooking = _currentBooking.copyWith(totalPrice: pPrice);
-        }
-      }
-    } else if (widget.property != null) {
-      final p = widget.property!;
-      _currentTitle = p.title;
-      double price = p.priceMonth > 0
-          ? p.priceMonth
-          : (p.priceNight > 0
-              ? p.priceNight
-              : (double.tryParse(p.price.replaceAll(',', '')) ?? 0));
-      _currentBooking = BookingModel(
-        id: 'draft_${p.id}',
-        propertyId: p.id,
-        guestId: Supabase.instance.client.auth.currentUser?.id ?? '',
-        ownerId: p.ownerId,
-        checkIn: DateTime.now(),
-        checkOut: DateTime.now().add(const Duration(days: 30)),
-        totalPrice: price,
-        khoznaFee: price * 0.05,
-        status: 'pending_approval',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        propertyTitle: p.title,
-      );
-    }
-  }
-
-  Future<void> _loadOwnerPaymentDetails() async {
+  Future<void> _loadOwnerProfile() async {
     try {
-      final profile = await SupabaseService.getUserProfile(_currentBooking.ownerId);
-
-      // Extra safeguard: Fetch property price directly from Supabase if totalPrice is still 0
-      if (_currentBooking.totalPrice <= 0 && _currentBooking.propertyId.isNotEmpty) {
-        final propRes = await Supabase.instance.client
-            .from('properties')
-            .select('title, price, price_month, price_night')
-            .eq('id', _currentBooking.propertyId)
-            .maybeSingle();
-
-        if (propRes != null) {
-          final double pm = double.tryParse(propRes['price_month']?.toString() ?? '0') ?? 0;
-          final double pn = double.tryParse(propRes['price_night']?.toString() ?? '0') ?? 0;
-          final double p = double.tryParse(propRes['price']?.toString().replaceAll(',', '') ?? '0') ?? 0;
-
-          final double realPrice = pm > 0 ? pm : (pn > 0 ? pn : p);
-          if (realPrice > 0) {
-            _currentBooking = _currentBooking.copyWith(
-              totalPrice: realPrice,
-              propertyTitle: _currentBooking.propertyTitle ?? propRes['title'],
-            );
-            if (_currentTitle == 'Property' && propRes['title'] != null) {
-              _currentTitle = propRes['title'];
-            }
-          }
-        }
-      }
-
-      if (mounted) setState(() { _ownerProfile = profile; _isLoadingOwner = false; });
-    } catch (e) {
+      final p = await SupabaseService.getUserProfile(widget.booking.ownerId);
+      if (mounted) setState(() { _ownerProfile = p; _isLoadingOwner = false; });
+    } catch (_) {
       if (mounted) setState(() => _isLoadingOwner = false);
     }
   }
 
-  Future<void> _pickImage() async {
+  // ─── Actions ───────────────────────────────────────────────────────────────
+
+  Future<void> _pickProofImage() async {
     final picker = ImagePicker();
-    try {
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
-      if (image != null) {
-        HapticFeedback.lightImpact();
-        setState(() => _proofImage = File(image.path));
-      }
-    } catch (_) {}
+    final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+    if (picked != null) setState(() => _proofImage = File(picked.path));
   }
 
-  Future<void> _launchWalletApp(String appType) async {
-    final String appName = appType == 'esewa' ? 'eSewa' : 'Khalti';
-    final List<String> launchCandidates = appType == 'esewa'
-        ? [
-            'esewa://',
-            'intent://esewa.com.np/#Intent;scheme=esewa;package=np.com.esewa.app;end',
-            'https://esewa.com.np',
-          ]
-        : [
-            'khalti://',
-            'intent://khalti.com/#Intent;scheme=khalti;package=com.khalti;end',
-            'https://khalti.com',
-          ];
-
-    bool launchedSuccess = false;
-    for (final uriStr in launchCandidates) {
-      try {
-        final Uri uri = Uri.parse(uriStr);
-        if (await canLaunchUrl(uri)) {
-          launchedSuccess = await launchUrl(uri, mode: LaunchMode.externalApplication);
-          if (launchedSuccess) break;
-        }
-      } catch (_) {}
+  Future<void> _submit() async {
+    if (_selectedMethod == null) {
+      _showSnack('Please select a payment method.', const Color(0xFFE11D48));
+      return;
+    }
+    if (_refCtrl.text.trim().isEmpty) {
+      _showSnack('Please enter a transaction reference or wallet number.', const Color(0xFFE11D48));
+      return;
     }
 
-    if (!launchedSuccess) {
-      try {
-        final Uri directUri = Uri.parse(appType == 'esewa' ? 'esewa://' : 'khalti://');
-        await launchUrl(directUri, mode: LaunchMode.externalApplication);
-      } catch (_) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Please open $appName app manually to complete payment.', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      }
-    }
-  }
-
-  String get _paymentDestination => _paymentPath == 'khozna_escrow' ? 'khozna' : 'owner';
-
-  String get _stepTitle {
-    switch (_currentStep) {
-      case 0:
-        return 'Payment Type';
-      case 1:
-        return 'Select Method';
-      case 2:
-      default:
-        return 'Complete Payment';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87, size: 18),
-          onPressed: () {
-            if (_currentStep > 0) {
-              setState(() => _currentStep--);
-            } else {
-              Navigator.pop(context);
-            }
-          },
-        ),
-        title: Text(
-          _stepTitle,
-          style: GoogleFonts.plusJakartaSans(
-            color: Colors.black,
-            fontWeight: FontWeight.w800,
-            fontSize: 16,
-          ),
-        ),
-        centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
-            child: Row(
-              children: List.generate(3, (i) {
-                final isDone = i < _currentStep;
-                final isActive = i == _currentStep;
-                return Expanded(
-                  child: Container(
-                    margin: EdgeInsets.only(right: i < 2 ? 6 : 0),
-                    height: 6,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      color: isDone
-                          ? Colors.black
-                          : isActive
-                              ? AppTheme.brandColor
-                              : Colors.grey.shade200,
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ),
-        ),
-      ),
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 220),
-        transitionBuilder: (child, animation) => FadeTransition(
-          opacity: animation,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0.04, 0),
-              end: Offset.zero,
-            ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
-            child: child,
-          ),
-        ),
-        child: KeyedSubtree(
-          key: ValueKey(_currentStep),
-          child: _buildCurrentStepView(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCurrentStepView() {
-    switch (_currentStep) {
-      case 0:
-        return _buildStepZeroPathSelection();
-      case 1:
-        return _buildStepOneMethodSelection();
-      case 2:
-      default:
-        return _buildStepTwoAccountAndUpload();
-    }
-  }
-
-  bool _isValidPayNumber(String? val) {
-    if (val == null || val.trim().isEmpty) return false;
-    final clean = val.replaceAll(RegExp(r'[^0-9]'), '');
-    if (clean.length < 7) return false;
-    // Check if number is all zeros or repeating single digit (e.g. 00000, 0000000000)
-    if (clean.replaceAll(clean[0], '').isEmpty) return false;
-    return true;
-  }
-
-  String get _ownerEsewaNumber {
-    if (_isValidPayNumber(_ownerProfile?.esewaNumber)) {
-      return _ownerProfile!.esewaNumber!;
-    }
-    if (_isValidPayNumber(_ownerProfile?.phoneNumber)) {
-      return _ownerProfile!.phoneNumber!;
-    }
-    return '';
-  }
-
-  String get _ownerKhaltiNumber {
-    if (_isValidPayNumber(_ownerProfile?.khaltiNumber)) {
-      return _ownerProfile!.khaltiNumber!;
-    }
-    if (_isValidPayNumber(_ownerProfile?.phoneNumber)) {
-      return _ownerProfile!.phoneNumber!;
-    }
-    return '';
-  }
-
-  // ── STEP 1 OF 3: CHOOSE PAYMENT PATH (ESCROW VS HOST DIRECT) ──
-  Widget _buildStepZeroPathSelection() {
-    final hasHostPayment = _ownerEsewaNumber.isNotEmpty ||
-        _ownerKhaltiNumber.isNotEmpty ||
-        (_ownerProfile?.qrCodeUrl != null &&
-            _ownerProfile!.qrCodeUrl!.isNotEmpty &&
-            !_ownerProfile!.qrCodeUrl!.contains('00000'));
-
-    return Column(
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildReceiptTicket(),
-
-                const SizedBox(height: 24),
-
-                Text(
-                  'How would you like to pay?',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF0F172A),
-                    letterSpacing: -0.3,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Choose the payment route that works best for you.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12.5,
-                    color: const Color(0xFF94A3B8),
-                    height: 1.4,
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // ── Khozna Secure Escrow ──
-                _buildPathCard(
-                  id: 'khozna_escrow',
-                  title: 'Khozna Secure',
-                  subtitle: 'Funds held safely & released after move-in.',
-                  badge: 'RECOMMENDED',
-                  icon: Icons.account_balance_wallet_rounded,
-                  iconColor: AppTheme.brandColor,
-                  features: ['100% Refund Protection', 'Dispute Resolution', 'KYC Verified'],
-                ),
-
-                const SizedBox(height: 8),
-
-                // ── Pay to Owner ──
-                _buildPathCard(
-                  id: 'host_direct',
-                  title: 'Pay to Owner',
-                  subtitle: hasHostPayment
-                      ? 'Pay directly to landlord via eSewa, Khalti, or QR.'
-                      : 'Owner hasn\'t set up direct payment yet.',
-                  badge: 'DIRECT',
-                  icon: Icons.person_rounded,
-                  iconColor: const Color(0xFF6366F1),
-                  features: hasHostPayment
-                      ? ['eSewa / Khalti', 'Owner QR Code', 'Instant Transfer']
-                      : [],
-                  disabled: !hasHostPayment,
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        // Sticky Bottom Button
-        _buildBottomStickyButton(
-          label: 'Continue to Methods',
-          onPressed: () {
-            HapticFeedback.mediumImpact();
-            if (_paymentPath == 'khozna_escrow') {
-              _selectedMethod = 'khozna_esewa';
-            } else {
-              if (_ownerEsewaNumber.isNotEmpty) {
-                _selectedMethod = 'owner_esewa';
-              } else if (_ownerKhaltiNumber.isNotEmpty) {
-                _selectedMethod = 'owner_khalti';
-              } else {
-                _selectedMethod = 'owner_qr';
-              }
-            }
-            setState(() => _currentStep = 1);
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPathCard({
-    required String id,
-    required String title,
-    required String subtitle,
-    required String badge,
-    required IconData icon,
-    required Color iconColor,
-    List<String> features = const [],
-    bool disabled = false,
-  }) {
-    final isSelected = _paymentPath == id;
-    final isEscrow = id == 'khozna_escrow';
-    final Color activeColor = isEscrow ? AppTheme.brandColor : const Color(0xFF0F172A);
-
-    return GestureDetector(
-      onTap: disabled ? null : () {
-        HapticFeedback.selectionClick();
-        setState(() => _paymentPath = id);
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? activeColor : const Color(0xFFE8EDF2),
-            width: isSelected ? 1.8 : 1,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Top section ──────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Icon bubble
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: disabled
-                          ? const Color(0xFFF1F5F9)
-                          : isEscrow
-                              ? AppTheme.brandColor.withOpacity(0.10)
-                              : const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      icon,
-                      size: 20,
-                      color: disabled
-                          ? const Color(0xFFCBD5E1)
-                          : isEscrow
-                              ? AppTheme.brandColor
-                              : const Color(0xFF1E293B),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-
-                  // Title + description
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              title,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
-                                color: disabled
-                                    ? const Color(0xFFCBD5E1)
-                                    : const Color(0xFF0F172A),
-                                letterSpacing: -0.3,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                              decoration: BoxDecoration(
-                                color: Colors.transparent,
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(
-                                  color: disabled
-                                      ? const Color(0xFFCBD5E1)
-                                      : isEscrow
-                                          ? AppTheme.brandColor.withOpacity(0.4)
-                                          : const Color(0xFFCBD5E1),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Text(
-                                badge,
-                                style: GoogleFonts.inter(
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 0.5,
-                                  color: disabled
-                                      ? const Color(0xFFCBD5E1)
-                                      : isEscrow
-                                          ? AppTheme.brandColor
-                                          : const Color(0xFF64748B),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle,
-                          style: GoogleFonts.inter(
-                            fontSize: 11.5,
-                            height: 1.35,
-                            color: disabled
-                                ? const Color(0xFFCBD5E1)
-                                : const Color(0xFF475569),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(width: 10),
-
-                  // Radio indicator
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 180),
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: isSelected ? activeColor : Colors.transparent,
-                        border: Border.all(
-                          color: isSelected ? activeColor : const Color(0xFFCBD5E1),
-                          width: 2,
-                        ),
-                      ),
-                      alignment: Alignment.center,
-                      child: isSelected
-                          ? const Icon(Icons.check_rounded, size: 11, color: Colors.white)
-                          : null,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // ── Divider ──
-            if (!disabled) ...[
-              Container(height: 1, color: const Color(0xFFF1F5F9)),
-
-              // ── Bottom section: accepted methods / milestones ──
-              Padding(
-                padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-                child: isEscrow
-                    // Khozna Secure: show the 3-step escrow flow
-                    ? Row(
-                        children: [
-                          _buildFlowStep('Deposit', Icons.upload_rounded, activeColor),
-                          _buildFlowArrow(),
-                          _buildFlowStep('Held Safe', Icons.lock_rounded, activeColor),
-                          _buildFlowArrow(),
-                          _buildFlowStep('Released', Icons.check_circle_rounded, activeColor),
-                        ],
-                      )
-                    // Pay to Owner: show real logo image badges (no ACCEPTED VIA text)
-                    : Row(
-                      children: [
-                        _buildWalletLogoImage('assets/images/esewa.webp'),
-                        const SizedBox(width: 8),
-                        _buildWalletLogoImage('assets/images/khalti.png'),
-                        const SizedBox(width: 8),
-                        _buildWalletQrPill(),
-                      ],
-                    ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFlowStep(String label, IconData icon, Color color) {
-    return Expanded(
-      child: Column(
-        children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(height: 3),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 9.5,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF475569),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFlowArrow() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Icon(Icons.arrow_forward_rounded, size: 12, color: Colors.grey[300]),
-    );
-  }
-
-  Widget _buildWalletLogoImage(String assetPath) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Image.asset(
-        assetPath,
-        height: 16,
-        fit: BoxFit.contain,
-      ),
-    );
-  }
-
-  Widget _buildWalletQrPill() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.qr_code_2_rounded, size: 15, color: Color(0xFF334155)),
-          const SizedBox(width: 4),
-          Text(
-            'QR',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF334155),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── STEP 2 OF 3: SELECT METHOD ──
-  Widget _buildStepOneMethodSelection() {
-    final isEscrow = _paymentPath == 'khozna_escrow';
-
-    return Column(
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 3,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: AppTheme.brandColor,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      isEscrow ? 'Khozna Escrow Methods' : 'Host Direct Methods',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                if (isEscrow) ...[
-                  _buildMethodOptionTile(
-                    id: 'khozna_esewa',
-                    title: 'eSewa Wallet',
-                    subtitle: 'Pay via eSewa to Khozna Escrow',
-                    logo: 'assets/images/esewa.webp',
-                  ),
-                  _buildMethodOptionTile(
-                    id: 'khozna_khalti',
-                    title: 'Khalti Digital Wallet',
-                    subtitle: 'Pay via Khalti to Khozna Escrow',
-                    logo: 'assets/images/khalti.png',
-                  ),
-                  _buildMethodOptionTile(
-                    id: 'khozna_bank',
-                    title: 'Direct Bank Transfer',
-                    subtitle: 'Transfer to NABIL Bank (IPS / Banking)',
-                    icon: Icons.account_balance_rounded,
-                  ),
-                  _buildMethodOptionTile(
-                    id: 'khozna_fonepay',
-                    title: 'Fonepay Interbank QR',
-                    subtitle: 'Scan using any Mobile Banking App',
-                    icon: Icons.qr_code_2_rounded,
-                  ),
-                ] else ...[
-                  if (_ownerEsewaNumber.isNotEmpty)
-                    _buildMethodOptionTile(
-                      id: 'owner_esewa',
-                      title: 'Owner\'s eSewa Wallet',
-                      subtitle: 'Transfer directly to $_ownerEsewaNumber',
-                      logo: 'assets/images/esewa.webp',
-                    ),
-                  if (_ownerKhaltiNumber.isNotEmpty)
-                    _buildMethodOptionTile(
-                      id: 'owner_khalti',
-                      title: 'Owner\'s Khalti Wallet',
-                      subtitle: 'Transfer directly to $_ownerKhaltiNumber',
-                      logo: 'assets/images/khalti.png',
-                    ),
-                  if (_ownerProfile?.qrCodeUrl != null &&
-                      _ownerProfile!.qrCodeUrl!.isNotEmpty &&
-                      !_ownerProfile!.qrCodeUrl!.contains('00000'))
-                    _buildMethodOptionTile(
-                      id: 'owner_qr',
-                      title: 'Owner\'s Bank QR Code',
-                      subtitle: 'Scan owner\'s personal QR code',
-                      icon: Icons.qr_code_scanner_rounded,
-                    ),
-                ],
-              ],
-            ),
-          ),
-        ),
-
-        // Sticky Bottom Button
-        _buildBottomStickyButton(
-          label: 'Proceed to Payment Details',
-          onPressed: () {
-            HapticFeedback.mediumImpact();
-            setState(() => _currentStep = 2);
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMethodOptionTile({
-    required String id,
-    required String title,
-    required String subtitle,
-    String? logo,
-    IconData? icon,
-  }) {
-    final isSelected = _selectedMethod == id;
-
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        setState(() => _selectedMethod = id);
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? Colors.black : Colors.grey[200]!,
-            width: isSelected ? 1.8 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isSelected ? 0.04 : 0.01),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // Logo / Icon
-            if (logo != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(logo, width: 36, height: 36, fit: BoxFit.contain),
-              )
-            else if (icon != null)
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                alignment: Alignment.center,
-                child: Icon(icon, size: 20, color: Colors.grey[700]),
-              ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 11.5,
-                      color: Colors.grey[500],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            // Selected indicator
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isSelected ? AppTheme.brandColor : Colors.transparent,
-                border: Border.all(
-                  color: isSelected ? AppTheme.brandColor : Colors.grey.shade300,
-                  width: 2,
-                ),
-              ),
-              alignment: Alignment.center,
-              child: isSelected
-                  ? const Icon(Icons.check_rounded, size: 13, color: Colors.white)
-                  : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ── STEP 3 OF 3: ACCOUNT DETAILS & UPLOAD PROOF ──
-  Widget _buildStepTwoAccountAndUpload() {
-    return Column(
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSelectedPaymentCard(),
-
-                const SizedBox(height: 20),
-
-                _buildProofUploadSection(),
-
-                const SizedBox(height: 20),
-
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.verified_user_rounded, color: Color(0xFF2E7D32), size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          _paymentPath == 'khozna_escrow'
-                              ? 'Your funds stay safe in Khozna Escrow until you inspect the property in person.'
-                              : 'You are transferring directly to landlord. Screenshot will be recorded with host.',
-                          style: GoogleFonts.inter(fontSize: 11.5, color: const Color(0xFF334155), height: 1.35),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        // Sticky Bottom Submit Button
-        Container(
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(top: BorderSide(color: Colors.grey.shade100)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: SizedBox(
-              width: double.infinity,
-              height: 54,
-              child: ElevatedButton(
-                onPressed: _isSubmitting ? null : _proceed,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.brandColor,
-                  foregroundColor: Colors.white,
-                  shadowColor: Colors.transparent,
-                  disabledBackgroundColor: Colors.grey[200],
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-                  elevation: 0,
-                  padding: EdgeInsets.zero,
-                ),
-                child: _isSubmitting
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Submit Payment & Confirm',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 15,
-                              color: Colors.white,
-                              height: 1.0,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
-                        ],
-                      ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBottomStickyButton({required String label, required VoidCallback onPressed}) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey.shade100)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          width: double.infinity,
-          height: 54,
-          child: ElevatedButton(
-            onPressed: onPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.brandColor,
-              foregroundColor: Colors.white,
-              shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-              elevation: 0,
-              padding: EdgeInsets.zero,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  label,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                    color: Colors.white,
-                    height: 1.0,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 17),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ── RECEIPT TICKET ──
-  Widget _buildReceiptTicket() {
-    final String dateStr = DateFormat('MMM d, yyyy').format(_currentBooking.checkIn);
-    final String amountStr = PriceFormatter.format(_currentBooking.totalPrice.toString());
-    final prop = widget.property;
-    final String dateLabel = (prop != null && prop.priceNight > 0 && prop.priceMonth == 0)
-        ? 'Check-in'
-        : (prop != null && prop.priceMonth > 0 && prop.priceNight == 0)
-            ? 'Move-in'
-            : 'Check-in / Move-in';
-
-    return CustomPaint(
-      painter: TicketBorderPainter(),
-      child: ClipPath(
-        clipper: ReceiptTicketClipper(),
-        child: Container(
-          color: Colors.white,
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.home_work_rounded,
-                    color: Colors.black87,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      'BOOKING SUMMARY',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.8,
-                        color: Colors.black87,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE8F5E9),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.shield_outlined, size: 10, color: Color(0xFF2E7D32)),
-                        const SizedBox(width: 3),
-                        Text(
-                          'ESCROW SECURE',
-                          style: GoogleFonts.inter(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF2E7D32),
-                            letterSpacing: 0.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              Row(
-                children: [
-                  if (widget.property != null && widget.property!.images.isNotEmpty) ...[
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        widget.property!.images.first,
-                        width: 48,
-                        height: 48,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Container(
-                          width: 48,
-                          height: 48,
-                          color: const Color(0xFFF1F5F9),
-                          child: const Icon(Icons.apartment_rounded, size: 22, color: Colors.grey),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                  ],
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _currentTitle,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.black,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(Icons.calendar_today_outlined, size: 12, color: Colors.grey[500]),
-                            const SizedBox(width: 4),
-                            Text(
-                              '$dateLabel: $dateStr',
-                              style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w500),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              CustomPaint(
-                size: const Size(double.infinity, 1),
-                painter: DashedLinePainter(),
-              ),
-
-              const SizedBox(height: 16),
-
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Text(
-                      'TOTAL RENT',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.grey[700],
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Transform.translate(
-                        offset: const Offset(0, 2.5),
-                        child: SvgPicture.asset(
-                          'assets/icons/vector of ruppes.svg',
-                          width: 20,
-                          height: 20,
-                          colorFilter: const ColorFilter.mode(
-                            Colors.black,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 2),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 130),
-                        child: Text(
-                          amountStr,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.black,
-                            letterSpacing: -0.5,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ),
-                      Text(
-                        ' /mo',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ── SELECTED METHOD DISPLAY ──
-  Widget _buildSelectedPaymentCard() {
-    if (_selectedMethod == 'khozna_esewa') {
-      return _buildCopyDetailCard(
-        title: 'Khozna eSewa Escrow ID',
-        number: '9863590097',
-        logo: 'assets/images/esewa.webp',
-        showOpenEsewa: true,
-      );
-    }
-    if (_selectedMethod == 'khozna_khalti') {
-      return _buildCopyDetailCard(
-        title: 'Khozna Khalti Escrow ID',
-        number: '9863590097',
-        logo: 'assets/images/khalti.png',
-        showOpenKhalti: true,
-      );
-    }
-    if (_selectedMethod == 'khozna_bank') {
-      return _buildBankDetailCard();
-    }
-    if (_selectedMethod == 'khozna_fonepay') {
-      return _buildCopyDetailCard(
-        title: 'Fonepay / Interbank ID',
-        number: '9863590097',
-        icon: Icons.qr_code_2_rounded,
-        holderName: 'Khozna Tech (NABIL Bank)',
-      );
-    }
-    if (_selectedMethod == 'owner_esewa') {
-      return _buildCopyDetailCard(
-        title: 'Owner eSewa Number',
-        number: _ownerEsewaNumber,
-        logo: 'assets/images/esewa.webp',
-        holderName: _ownerProfile?.accountHolderName ?? _ownerProfile?.fullName,
-        showOpenEsewa: true,
-      );
-    }
-    if (_selectedMethod == 'owner_khalti') {
-      return _buildCopyDetailCard(
-        title: 'Owner Khalti Number',
-        number: _ownerKhaltiNumber,
-        logo: 'assets/images/khalti.png',
-        holderName: _ownerProfile?.accountHolderName ?? _ownerProfile?.fullName,
-        showOpenKhalti: true,
-      );
-    }
-    if (_selectedMethod == 'owner_qr') {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.grey[200]!),
-        ),
-        child: Column(
-          children: [
-            Text(
-              'Scan Host QR Code',
-              style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.black),
-            ),
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(_ownerProfile?.qrCodeUrl ?? '', width: 170, height: 170, fit: BoxFit.cover),
-            ),
-          ],
-        ),
-      );
-    }
-    return const SizedBox.shrink();
-  }
-
-  Widget _buildBankDetailCard() {
-    const bankName = 'NABIL Bank Ltd.';
-    const accountName = 'Khozna Tech Pvt. Ltd.';
-    const accountNumber = '0100017523901';
-    const branch = 'Kathmandu Main Branch';
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'BANK TRANSFER (NEPAL)',
-                style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 0.8),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text('IPS / Mobile Banking', style: GoogleFonts.inter(fontSize: 9.5, color: Colors.grey[600], fontWeight: FontWeight.w700)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Text(bankName, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.black)),
-          Text(branch, style: GoogleFonts.inter(fontSize: 11.5, color: Colors.grey[500])),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Account Name:', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500])),
-                    Text(accountName, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.black)),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Account Number:', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500])),
-                    Row(
-                      children: [
-                        Text(accountNumber, style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.black)),
-                        const SizedBox(width: 6),
-                        GestureDetector(
-                          onTap: () {
-                            Clipboard.setData(const ClipboardData(text: accountNumber));
-                            HapticFeedback.lightImpact();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Account number copied!', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
-                                duration: const Duration(seconds: 1),
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
-                            child: const Icon(Icons.copy_rounded, size: 14, color: Colors.black),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCopyDetailCard({
-    required String title,
-    required String number,
-    String? logo,
-    IconData? icon,
-    bool showOpenEsewa = false,
-    bool showOpenKhalti = false,
-    String? holderName,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title.toUpperCase(),
-            style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 0.8),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              if (logo != null)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: Image.asset(logo, width: 28, height: 28, fit: BoxFit.contain),
-                )
-              else if (icon != null)
-                Icon(icon, size: 26, color: Colors.grey[800]),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  number,
-                  style: GoogleFonts.outfit(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.black,
-                    letterSpacing: 0,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: number));
-                  HapticFeedback.lightImpact();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('ID copied to clipboard!', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
-                      duration: const Duration(seconds: 1),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.copy_rounded, size: 14, color: Colors.black),
-                      const SizedBox(width: 4),
-                      Text('Copy', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.black)),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          if (holderName != null && holderName.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              'Account Name: $holderName',
-              style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w500),
-            ),
-          ],
-          const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.info_outline_rounded, size: 14, color: Color(0xFF64748B)),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Copy the ID → Transfer the amount → Upload your screenshot below.',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF475569),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (showOpenEsewa) ...[
-            const SizedBox(height: 14),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () => _launchWalletApp('esewa'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF60BB46), // Official eSewa Green
-                  elevation: 0,
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Open eSewa App',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 15,
-                        color: Colors.white,
-                        height: 1.0,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.open_in_new_rounded, size: 16, color: Colors.white),
-                  ],
-                ),
-              ),
-            ),
-          ],
-          if (showOpenKhalti) ...[
-            const SizedBox(height: 14),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () => _launchWalletApp('khalti'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF5C2D91), // Official Khalti Purple
-                  elevation: 0,
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Open Khalti App',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 15,
-                        color: Colors.white,
-                        height: 1.0,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.open_in_new_rounded, size: 16, color: Colors.white),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFlowPill(String num, String label) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 17,
-          height: 17,
-          decoration: const BoxDecoration(
-            color: Color(0xFFE2E8F0),
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            num,
-            style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w800, color: const Color(0xFF475569)),
-          ),
-        ),
-        const SizedBox(width: 5),
-        Text(
-          label,
-          style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600, color: const Color(0xFF334155)),
-        ),
-      ],
-    );
-  }
-
-  // ── PROOF UPLOAD ──
-  Widget _buildProofUploadSection() {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'UPLOAD PAYMENT SCREENSHOT',
-            style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 0.8),
-          ),
-          const SizedBox(height: 10),
-          GestureDetector(
-            onTap: _pickImage,
-            child: Container(
-              width: double.infinity,
-              height: 110,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: _proofImage != null ? Colors.black : Colors.grey[300]!,
-                  width: _proofImage != null ? 1.8 : 1,
-                ),
-              ),
-              child: _proofImage != null
-                  ? Stack(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.file(_proofImage!, width: double.infinity, height: 110, fit: BoxFit.cover),
-                        ),
-                        Positioned(
-                          right: 8, top: 8,
-                          child: GestureDetector(
-                            onTap: () => setState(() => _proofImage = null),
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(color: Colors.black.withOpacity(0.6), shape: BoxShape.circle),
-                              child: const Icon(Icons.close_rounded, size: 14, color: Colors.white),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.add_photo_alternate_outlined, size: 26, color: Colors.grey[400]),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Tap to upload transfer receipt',
-                          style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _transactionController,
-            style: GoogleFonts.inter(fontSize: 13),
-            decoration: InputDecoration(
-              labelText: 'Transaction ID / Ref Code *',
-              hintText: 'Enter eSewa / Khalti Transaction Code (Required)',
-              labelStyle: GoogleFonts.inter(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.w600),
-              hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 12),
-              filled: true,
-              fillColor: const Color(0xFFF8FAFC),
-              isDense: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey[200]!)),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey[200]!)),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.black, width: 1.5)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _proceed() async {
+    HapticFeedback.mediumImpact();
     setState(() => _isSubmitting = true);
-    final refCode = _transactionController.text.trim();
 
-    if (_proofImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please upload a payment screenshot first.', style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
-          backgroundColor: Colors.black,
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.only(bottom: 85, left: 16, right: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-      setState(() => _isSubmitting = false);
-      return;
-    }
-
-    if (refCode.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please enter the Transaction ID / Ref Code.', style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.only(bottom: 85, left: 16, right: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-      setState(() => _isSubmitting = false);
-      return;
-    }
     try {
-      final imageUrl = await CloudinaryService.uploadImage(_proofImage!);
-      if (imageUrl == null) throw 'Failed to upload image.';
-
-      String finalBookingId = _currentBooking.id;
-      if (finalBookingId.startsWith('draft_')) {
-        final newBooking = await BookingRepository.createBooking(_currentBooking);
-        if (newBooking != null) {
-          finalBookingId = newBooking.id;
-        } else {
-          throw 'Failed to create booking record.';
-        }
-      }
-
-      // Normalize method to DB-allowed values
-      String normalizedMethod = _selectedMethod;
-      if (_selectedMethod.contains('esewa')) {
-        normalizedMethod = 'esewa';
-      } else if (_selectedMethod.contains('khalti')) {
-        normalizedMethod = 'khalti';
-      } else if (_selectedMethod.contains('bank')) {
-        normalizedMethod = 'bank';
-      } else if (_selectedMethod.contains('fonepay')) {
-        normalizedMethod = 'fonepay';
-      } else if (_selectedMethod.contains('qr')) {
-        normalizedMethod = 'qr';
+      String? proofUrl;
+      if (_proofImage != null) {
+        // Upload proof screenshot to Supabase Storage
+        final bytes = await _proofImage!.readAsBytes();
+        final fileName = 'proof_${widget.booking.id}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final client = Supabase.instance.client;
+        await client.storage.from('payment_proofs').uploadBinary(fileName, bytes);
+        proofUrl = client.storage.from('payment_proofs').getPublicUrl(fileName);
       }
 
       await BookingRepository.submitPayment(
-        bookingId: finalBookingId,
-        paymentType: _paymentDestination,
-        method: normalizedMethod,
-        amount: _currentBooking.totalPrice,
-        referenceId: _transactionController.text.trim(),
-        proofImageUrl: imageUrl,
+        bookingId: widget.booking.id,
+        method: _selectedMethod!.key,
+        amount: widget.booking.totalPrice,
+        referenceId: _refCtrl.text.trim(),
+        proofImageUrl: proofUrl,
       );
 
-      if (mounted) {
-        HapticFeedback.mediumImpact();
-        await _showSuccessDialog(finalBookingId, _transactionController.text.trim());
-      }
+      if (!mounted) return;
+      _showSuccessSheet();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.redAccent,
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.only(bottom: 85, left: 16, right: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        );
-      }
+      if (!mounted) return;
+      _showSnack('Failed to submit. Please try again.', const Color(0xFFE11D48));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
-  Widget _receiptRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF64748B))),
-        Flexible(
-          child: Text(
-            value,
-            style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A)),
-            textAlign: TextAlign.right,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Builds a real bank-style PDF receipt document.
-  Future<pw.Document> _generateReceiptPdf({
-    required String propertyName,
-    required String amountStr,
-    required String refCode,
-    required String dateStr,
-    required String bookingId,
-    required String paymentMethod,
-  }) async {
-    final pdf = pw.Document();
-
-    // Brand colours (CMYK-safe)
-    const brandBlue = PdfColor.fromInt(0xFF1D4ED8);
-    const ink = PdfColor.fromInt(0xFF0F172A);
-    const inkSub = PdfColor.fromInt(0xFF64748B);
-    const green = PdfColor.fromInt(0xFF15803D);
-    const greenBg = PdfColor.fromInt(0xFFDCFCE7);
-    const border = PdfColor.fromInt(0xFFE2E8F0);
-    const bgLight = PdfColor.fromInt(0xFFF8FAFC);
-
-    pdf.addPage(
-      pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(0),
-        build: (pw.Context ctx) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-            children: [
-
-              // ── Header band ──────────────────────────────────────────────
-              pw.Container(
-                color: const PdfColor.fromInt(0xFF0F172A),
-                padding: const pw.EdgeInsets.symmetric(horizontal: 48, vertical: 36),
-                child: pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text(
-                          'KHOZNA',
-                          style: pw.TextStyle(
-                            fontSize: 28,
-                            fontWeight: pw.FontWeight.bold,
-                            color: PdfColors.white,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                        pw.SizedBox(height: 4),
-                        pw.Text(
-                          'Property Rental Platform',
-                          style: pw.TextStyle(fontSize: 11, color: const PdfColor.fromInt(0xFF94A3B8)),
-                        ),
-                      ],
-                    ),
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.end,
-                      children: [
-                        pw.Text(
-                          'PAYMENT RECEIPT',
-                          style: pw.TextStyle(
-                            fontSize: 13,
-                            fontWeight: pw.FontWeight.bold,
-                            color: PdfColors.white,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        pw.SizedBox(height: 6),
-                        pw.Container(
-                          padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: pw.BoxDecoration(
-                            color: greenBg,
-                            borderRadius: pw.BorderRadius.circular(4),
-                          ),
-                          child: pw.Text(
-                            'UNDER ADMIN REVIEW',
-                            style: pw.TextStyle(
-                              fontSize: 9,
-                              fontWeight: pw.FontWeight.bold,
-                              color: green,
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // ── Body ─────────────────────────────────────────────────────
-              pw.Expanded(
-                child: pw.Container(
-                  color: bgLight,
-                  padding: const pw.EdgeInsets.fromLTRB(48, 40, 48, 40),
-                  child: pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-                    children: [
-
-                      // Amount block
-                      pw.Container(
-                        padding: const pw.EdgeInsets.all(24),
-                        decoration: pw.BoxDecoration(
-                          color: PdfColors.white,
-                          borderRadius: pw.BorderRadius.circular(12),
-                          border: pw.Border.all(color: border),
-                        ),
-                        child: pw.Row(
-                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                          children: [
-                            pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.start,
-                              children: [
-                                pw.Text('AMOUNT PAID', style: pw.TextStyle(fontSize: 9, color: inkSub, letterSpacing: 1.2)),
-                                pw.SizedBox(height: 6),
-                                pw.Text(
-                                  'Rs. $amountStr',
-                                  style: pw.TextStyle(fontSize: 30, fontWeight: pw.FontWeight.bold, color: ink),
-                                ),
-                              ],
-                            ),
-                            pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.end,
-                              children: [
-                                pw.Text('DATE', style: pw.TextStyle(fontSize: 9, color: inkSub, letterSpacing: 1.2)),
-                                pw.SizedBox(height: 6),
-                                pw.Text(dateStr, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: ink)),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      pw.SizedBox(height: 24),
-
-                      // Details table
-                      pw.Container(
-                        decoration: pw.BoxDecoration(
-                          color: PdfColors.white,
-                          borderRadius: pw.BorderRadius.circular(12),
-                          border: pw.Border.all(color: border),
-                        ),
-                        child: pw.Column(
-                          children: [
-                            _pdfRow('Property', propertyName, isFirst: true),
-                            _pdfDivider(),
-                            _pdfRow('Payment Method', paymentMethod.toUpperCase()),
-                            _pdfDivider(),
-                            _pdfRow('Transaction / Ref ID', refCode),
-                            _pdfDivider(),
-                            _pdfRow('Booking Reference', bookingId.length > 16 ? '${bookingId.substring(0, 16)}…' : bookingId),
-                            _pdfDivider(),
-                            _pdfRow('Status', 'Under Admin Review', valueColor: green),
-                          ],
-                        ),
-                      ),
-
-                      pw.SizedBox(height: 24),
-
-                      // Notice box
-                      pw.Container(
-                        padding: const pw.EdgeInsets.all(16),
-                        decoration: pw.BoxDecoration(
-                          color: greenBg,
-                          borderRadius: pw.BorderRadius.circular(10),
-                          border: pw.Border.all(color: const PdfColor.fromInt(0xFF86EFAC)),
-                        ),
-                        child: pw.Row(
-                          children: [
-                            pw.Text('ℹ', style: pw.TextStyle(fontSize: 14, color: green)),
-                            pw.SizedBox(width: 10),
-                            pw.Expanded(
-                              child: pw.Text(
-                                'Your payment proof has been received and is currently being verified by the Khozna admin team. '
-                                'You will be notified once verification is complete. Please keep this receipt for your records.',
-                                style: pw.TextStyle(fontSize: 10.5, color: green, lineSpacing: 2),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // ── Footer ───────────────────────────────────────────────────
-              pw.Container(
-                color: PdfColors.white,
-                padding: const pw.EdgeInsets.symmetric(horizontal: 48, vertical: 20),
-                child: pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text(
-                      'This is an official Khozna payment receipt.',
-                      style: pw.TextStyle(fontSize: 9.5, color: inkSub),
-                    ),
-                    pw.Text(
-                      'khozna.com  •  Generated $dateStr',
-                      style: pw.TextStyle(fontSize: 9.5, color: inkSub),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
+  void _showSuccessSheet() {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _SuccessSheet(
+        bookingId: widget.booking.formattedBookingId,
+        onDone: () {
+          Navigator.of(context).popUntil((r) => r.isFirst);
         },
       ),
     );
-
-    return pdf;
   }
 
-  pw.Widget _pdfRow(String label, String value, {bool isFirst = false, PdfColor? valueColor}) {
-    return pw.Padding(
-      padding: const pw.EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      child: pw.Row(
-        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+  void _showSnack(String msg, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(msg, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13)),
+      backgroundColor: color,
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.all(16),
+    ));
+  }
+
+  // ─── Build ────────────────────────────────────────────────────────────────
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _bg,
+      appBar: AppBar(
+        backgroundColor: _card,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: _ink, size: 18),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Submit Payment',
+          style: GoogleFonts.plusJakartaSans(
+              color: _ink, fontWeight: FontWeight.w800, fontSize: 17, letterSpacing: -0.3),
+        ),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildBookingSummary(),
+            const SizedBox(height: 16),
+            _buildOwnerPaymentDetails(),
+            const SizedBox(height: 16),
+            _buildMethodSelector(),
+            const SizedBox(height: 14),
+            _buildReferenceField(),
+            const SizedBox(height: 14),
+            _buildProofUpload(),
+            const SizedBox(height: 14),
+            _buildDisclaimerBox(),
+          ],
+        ),
+      ),
+      bottomNavigationBar: _buildBottomCTA(),
+    );
+  }
+
+  // ─── Booking Summary ────────────────────────────────────────────────────────
+
+  Widget _buildBookingSummary() {
+    final nights = widget.booking.nights;
+    final total  = NumberFormat('#,##0').format(widget.booking.totalPrice);
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: _card, borderRadius: BorderRadius.circular(18), border: Border.all(color: _bdr),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          pw.Text(label, style: pw.TextStyle(fontSize: 11, color: const PdfColor.fromInt(0xFF64748B))),
-          pw.Flexible(
-            child: pw.Text(
-              value,
-              style: pw.TextStyle(
-                fontSize: 11.5,
-                fontWeight: pw.FontWeight.bold,
-                color: valueColor ?? const PdfColor.fromInt(0xFF0F172A),
+          Row(children: [
+            Container(
+              width: 38, height: 38,
+              decoration: BoxDecoration(color: _brand.withOpacity(0.08), borderRadius: BorderRadius.circular(10)),
+              child: const Icon(Icons.home_work_rounded, color: _brand, size: 19),
+            ),
+            const SizedBox(width: 12),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(widget.booking.propertyTitle ?? 'Booking',
+                  style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _ink),
+                  maxLines: 1, overflow: TextOverflow.ellipsis),
+              Text(widget.booking.formattedBookingId,
+                  style: GoogleFonts.inter(fontSize: 11, color: _sub, fontWeight: FontWeight.w600)),
+            ])),
+          ]),
+          const SizedBox(height: 12),
+          Container(height: 1, color: _bdr),
+          const SizedBox(height: 12),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            _infoChip(Icons.calendar_today_rounded, '$nights ${nights == 1 ? "night" : "nights"}'),
+            _infoChip(Icons.people_rounded, '${widget.booking.guestCount} ${widget.booking.guestCount == 1 ? "guest" : "guests"}'),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(color: _brand.withOpacity(0.08), borderRadius: BorderRadius.circular(10)),
+              child: Text('NPR $total',
+                  style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _brand)),
+            ),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoChip(IconData icon, String label) {
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      Icon(icon, size: 13, color: _sub),
+      const SizedBox(width: 5),
+      Text(label, style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w600)),
+    ]);
+  }
+
+  // ─── Owner Payment Details ─────────────────────────────────────────────────
+
+  Widget _buildOwnerPaymentDetails() {
+    if (_isLoadingOwner) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(color: _card, borderRadius: BorderRadius.circular(18), border: Border.all(color: _bdr)),
+        child: const Center(child: CircularProgressIndicator(color: _brand, strokeWidth: 2)),
+      );
+    }
+
+    final hasEsewa   = _ownerProfile?.esewaNumber?.isNotEmpty == true;
+    final hasKhalti  = _ownerProfile?.khaltiNumber?.isNotEmpty == true;
+    final hasBank    = _ownerProfile?.accountHolderName?.isNotEmpty == true;
+    final hasQr      = _ownerProfile?.qrCodeUrl?.isNotEmpty == true;
+    final hasAny     = hasEsewa || hasKhalti || hasBank || hasQr;
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: _card, borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFBAE6FD)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            const Icon(Icons.account_circle_rounded, color: _brand, size: 20),
+            const SizedBox(width: 8),
+            Text('Pay the Property Owner',
+                style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _ink)),
+          ]),
+          const SizedBox(height: 4),
+          Text('Transfer the amount to the owner using any of their payment methods below.',
+              style: GoogleFonts.inter(fontSize: 12, color: _sub, height: 1.4)),
+          const SizedBox(height: 14),
+          if (!hasAny)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: const Color(0xFFFFF7ED), borderRadius: BorderRadius.circular(12)),
+              child: Text(
+                'The owner hasn\'t added payment details yet. Please contact them via chat to arrange payment.',
+                style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFFD97706), height: 1.4),
               ),
-              textAlign: pw.TextAlign.right,
+            )
+          else ...[ 
+            if (hasEsewa)  _ownerDetailRow('eSewa',    Icons.payment_rounded,                const Color(0xFF60B246), _ownerProfile!.esewaNumber!),
+            if (hasKhalti) _ownerDetailRow('Khalti',   Icons.account_balance_wallet_rounded, const Color(0xFF5C2D91), _ownerProfile!.khaltiNumber!),
+            if (hasBank)   _ownerDetailRow('Bank',     Icons.account_balance_rounded,        const Color(0xFF1D4ED8), _ownerProfile!.accountHolderName!),
+            if (hasQr) ...[
+              const SizedBox(height: 10),
+              Center(
+                child: Column(children: [
+                  Text('Scan QR Code', style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(_ownerProfile!.qrCodeUrl!, width: 140, height: 140, fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.qr_code_rounded, size: 80, color: _sub)),
+                  ),
+                ]),
+              ),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _ownerDetailRow(String method, IconData icon, Color color, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(children: [
+        Container(
+          width: 34, height: 34,
+          decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(9)),
+          child: Icon(icon, color: color, size: 17),
+        ),
+        const SizedBox(width: 12),
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(method, style: GoogleFonts.inter(fontSize: 10.5, color: _sub, fontWeight: FontWeight.w600)),
+          Text(value, style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _ink)),
+        ]),
+        const Spacer(),
+        GestureDetector(
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: value));
+            _showSnack('$method number copied!', _brand);
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: _brand.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: _brand.withOpacity(0.2)),
+            ),
+            child: Text('Copy', style: GoogleFonts.inter(fontSize: 11, color: _brand, fontWeight: FontWeight.w700)),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  // ─── Method Selector ──────────────────────────────────────────────────────
+
+  Widget _buildMethodSelector() {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(color: _card, borderRadius: BorderRadius.circular(18), border: Border.all(color: _bdr)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('How did you pay?',
+              style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: _ink)),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 10, runSpacing: 10,
+            children: _PayMethod.values.map((m) {
+              final selected = _selectedMethod == m;
+              return GestureDetector(
+                onTap: () { HapticFeedback.lightImpact(); setState(() => _selectedMethod = m); },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: selected ? m.color.withOpacity(0.1) : _bg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: selected ? m.color : _bdr, width: selected ? 1.5 : 1),
+                  ),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(m.icon, size: 16, color: selected ? m.color : _sub),
+                    const SizedBox(width: 7),
+                    Text(m.label,
+                        style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                            color: selected ? m.color : _ink)),
+                  ]),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── Reference Field ──────────────────────────────────────────────────────
+
+  Widget _buildReferenceField() {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(color: _card, borderRadius: BorderRadius.circular(18), border: Border.all(color: _bdr)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Transaction Reference / ID',
+              style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: _ink)),
+          const SizedBox(height: 4),
+          Text('Enter the transaction ID, wallet number, or confirmation code from your payment.',
+              style: GoogleFonts.inter(fontSize: 11.5, color: _sub, height: 1.4)),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _refCtrl,
+            style: GoogleFonts.inter(fontSize: 14, color: _ink, fontWeight: FontWeight.w700),
+            decoration: InputDecoration(
+              hintText: 'e.g. TXN123456789',
+              hintStyle: GoogleFonts.inter(fontSize: 13, color: _sub, fontWeight: FontWeight.w500),
+              prefixIcon: const Icon(Icons.receipt_long_rounded, color: _sub, size: 18),
+              fillColor: _bg,
+              filled: true,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _bdr)),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _bdr)),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _brand, width: 1.5)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             ),
           ),
         ],
@@ -2037,243 +464,186 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     );
   }
 
-  pw.Widget _pdfDivider() => pw.Divider(height: 1, thickness: 1, color: const PdfColor.fromInt(0xFFE2E8F0));
+  // ─── Proof Upload ─────────────────────────────────────────────────────────
 
-  Future<void> _showSuccessDialog(String bookingId, String refCode) async {
-    final amountStr = PriceFormatter.format(_currentBooking.totalPrice.toString());
-    final dateStr = DateFormat('MMM d, yyyy  •  h:mm a').format(DateTime.now());
-    final propertyName = _currentTitle;
-    final paymentMethod = _selectedMethod.replaceAll('khozna_', '').replaceAll('host_', '');
-    bool isExporting = false;
-
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          return Dialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            backgroundColor: Colors.white,
-            insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Success icon
-                  Container(
-                    width: 58,
-                    height: 58,
-                    decoration: const BoxDecoration(color: Color(0xFFDCFCE7), shape: BoxShape.circle),
-                    child: const Icon(Icons.check_circle_rounded, color: Color(0xFF16A34A), size: 34),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Payment Submitted!',
-                    style: GoogleFonts.plusJakartaSans(fontSize: 19, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A)),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Your payment proof is undergoing admin review.',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(fontSize: 12.5, color: const Color(0xFF64748B)),
-                  ),
-
-                  const SizedBox(height: 18),
-
-                  // Summary receipt card (UI only — PDF is the real download)
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+  Widget _buildProofUpload() {
+    return GestureDetector(
+      onTap: _pickProofImage,
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: _card, borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: _proofImage != null ? _brand : _bdr, width: _proofImage != null ? 1.5 : 1),
+        ),
+        child: _proofImage != null
+            ? Row(children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.file(_proofImage!, width: 60, height: 60, fit: BoxFit.cover),
+                ),
+                const SizedBox(width: 14),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('Screenshot Added ✓',
+                      style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: _brand)),
+                  const SizedBox(height: 3),
+                  Text('Tap to change screenshot', style: GoogleFonts.inter(fontSize: 11.5, color: _sub)),
+                ])),
+                Icon(Icons.edit_rounded, color: _sub, size: 18),
+              ])
+            : Row(children: [
+                Container(
+                  width: 44, height: 44,
+                  decoration: BoxDecoration(color: _bdr.withOpacity(0.6), borderRadius: BorderRadius.circular(12)),
+                  child: const Icon(Icons.add_photo_alternate_rounded, color: _sub, size: 22),
+                ),
+                const SizedBox(width: 14),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('Attach Payment Screenshot',
+                      style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: _ink)),
+                  const SizedBox(height: 2),
+                  Row(children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(color: _sub.withOpacity(0.1), borderRadius: BorderRadius.circular(5)),
+                      child: Text('Optional', style: GoogleFonts.inter(fontSize: 10, color: _sub, fontWeight: FontWeight.w600)),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(5),
-                                  decoration: BoxDecoration(color: AppTheme.brandColor, borderRadius: BorderRadius.circular(7)),
-                                  child: const Icon(Icons.receipt_long_rounded, color: Colors.white, size: 14),
-                                ),
-                                const SizedBox(width: 8),
-                                Text('KHOZNA RECEIPT', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A), letterSpacing: 0.5)),
-                              ],
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(6), border: Border.all(color: const Color(0xFF86EFAC))),
-                              child: Text('UNDER REVIEW', style: GoogleFonts.inter(fontSize: 9.5, fontWeight: FontWeight.w800, color: const Color(0xFF15803D))),
-                            ),
-                          ],
-                        ),
-                        const Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Divider(height: 1, color: Color(0xFFE2E8F0))),
-                        _receiptRow('Property', propertyName),
-                        const SizedBox(height: 6),
-                        _receiptRow('Amount Paid', 'Rs. $amountStr'),
-                        const SizedBox(height: 6),
-                        _receiptRow('Ref Code', refCode),
-                        const SizedBox(height: 6),
-                        _receiptRow('Date', DateFormat('MMM d, yyyy').format(DateTime.now())),
-                      ],
-                    ),
-                  ),
+                    const SizedBox(width: 6),
+                    Text('Recommended for faster verification', style: GoogleFonts.inter(fontSize: 11, color: _sub)),
+                  ]),
+                ])),
+              ]),
+      ),
+    );
+  }
 
-                  const SizedBox(height: 20),
+  // ─── Disclaimer ───────────────────────────────────────────────────────────
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: isExporting
-                              ? null
-                              : () async {
-                                  setDialogState(() => isExporting = true);
-                                  try {
-                                    final pdf = await _generateReceiptPdf(
-                                      propertyName: propertyName,
-                                      amountStr: amountStr,
-                                      refCode: refCode,
-                                      dateStr: dateStr,
-                                      bookingId: bookingId,
-                                      paymentMethod: paymentMethod,
-                                    );
-                                    final pdfBytes = await pdf.save();
+  Widget _buildDisclaimerBox() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFFDE68A)),
+      ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFFD97706)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            'By submitting, you confirm you\'ve paid the owner directly. KHOZNA does not process or hold payments. The owner will verify and confirm your booking.',
+            style: GoogleFonts.inter(fontSize: 11.5, color: Color(0xFF92400E), height: 1.45),
+          ),
+        ),
+      ]),
+    );
+  }
 
-                                    HapticFeedback.heavyImpact();
+  // ─── Bottom CTA ───────────────────────────────────────────────────────────
 
-                                    // Open native print/save/share sheet
-                                    await Printing.sharePdf(
-                                      bytes: pdfBytes,
-                                      filename: 'Khozna_Receipt_$refCode.pdf',
-                                    );
-                                  } catch (e) {
-                                    debugPrint('PDF export error: $e');
-                                  } finally {
-                                    setDialogState(() => isExporting = false);
-                                  }
-                                },
-                          icon: isExporting
-                              ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
-                              : const Icon(Icons.picture_as_pdf_rounded, size: 18),
-                          label: Text(
-                            isExporting ? 'Generating...' : 'Download PDF',
-                            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF0F172A),
-                            side: const BorderSide(color: Color(0xFFCBD5E1)),
-                            padding: const EdgeInsets.symmetric(vertical: 13),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(ctx);
-                            Navigator.pop(context, true);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.brandColor,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 13),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          child: Text('Done', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13)),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+  Widget _buildBottomCTA() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 30),
+      decoration: BoxDecoration(
+        color: _card,
+        border: const Border(top: BorderSide(color: _bdr)),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, -4))],
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 54,
+          child: ElevatedButton(
+            onPressed: _isSubmitting ? null : _submit,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _brand,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              disabledBackgroundColor: _brand.withOpacity(0.5),
             ),
-          );
-        },
+            child: _isSubmitting
+                ? const SizedBox(width: 22, height: 22,
+                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    const Icon(Icons.check_circle_rounded, size: 20),
+                    const SizedBox(width: 10),
+                    Text("I've Made Payment — Submit",
+                        style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800)),
+                  ]),
+          ),
+        ),
       ),
     );
   }
 }
 
-// ── PERFORATED RECEIPT CLIPPER & PAINTERS ──
-class ReceiptTicketClipper extends CustomClipper<Path> {
+// ─────────────────────────────────────────────────────────────────────────────
+// Success Sheet
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _SuccessSheet extends StatelessWidget {
+  final String bookingId;
+  final VoidCallback onDone;
+
+  const _SuccessSheet({required this.bookingId, required this.onDone});
+
   @override
-  Path getClip(Size size) {
-    const double radius = 14.0;
-    const double circleRadius = 5.0;
-    const double spacing = 14.0;
-
-    final path = Path();
-    path.moveTo(0, radius);
-    path.quadraticBezierTo(0, 0, radius, 0);
-    path.lineTo(size.width - radius, 0);
-    path.quadraticBezierTo(size.width, 0, size.width, radius);
-    path.lineTo(size.width, size.height);
-
-    final int count = (size.width / spacing).floor();
-    final double step = size.width / count;
-
-    for (int i = count; i >= 0; i--) {
-      final double x = i * step;
-      path.arcToPoint(
-        Offset(x, size.height),
-        radius: const Radius.circular(circleRadius),
-        clockwise: false,
-      );
-    }
-
-    path.lineTo(0, radius);
-    path.close();
-    return path;
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: _card,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 72, height: 72,
+            decoration: BoxDecoration(color: const Color(0xFFF0FDF4), shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFBBF7D0), width: 2)),
+            child: const Icon(Icons.check_circle_rounded, color: Color(0xFF16A34A), size: 36),
+          ),
+          const SizedBox(height: 20),
+          Text('Payment Info Submitted!',
+              style: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w900, color: _ink, letterSpacing: -0.5),
+              textAlign: TextAlign.center),
+          const SizedBox(height: 8),
+          Text('The owner will verify your payment and confirm your booking.\nWe\'ll notify you once it\'s confirmed.',
+              style: GoogleFonts.inter(fontSize: 14, color: _sub, height: 1.55),
+              textAlign: TextAlign.center),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            decoration: BoxDecoration(
+              color: _brand.withOpacity(0.07),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: _brand.withOpacity(0.2)),
+            ),
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Icon(Icons.confirmation_number_rounded, color: _brand, size: 18),
+              const SizedBox(width: 10),
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('Booking Reference', style: GoogleFonts.inter(fontSize: 11, color: _sub, fontWeight: FontWeight.w600)),
+                Text(bookingId, style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w900, color: _brand, letterSpacing: 1)),
+              ]),
+            ]),
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity, height: 52,
+            child: ElevatedButton(
+              onPressed: onDone,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _brand, foregroundColor: Colors.white, elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              ),
+              child: Text('Done', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800)),
+            ),
+          ),
+        ],
+      ),
+    );
   }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
-class TicketBorderPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final path = ReceiptTicketClipper().getClip(size);
-    final paint = Paint()
-      ..color = const Color(0xFFCBD5E1)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
-}
-
-class DashedLinePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    const double dashWidth = 5;
-    const double dashSpace = 4;
-    final paint = Paint()
-      ..color = const Color(0xFFCBD5E1)
-      ..strokeWidth = 1;
-
-    double startX = 0;
-    while (startX < size.width) {
-      canvas.drawLine(
-        Offset(startX, 0),
-        Offset(startX + dashWidth, 0),
-        paint,
-      );
-      startX += dashWidth + dashSpace;
-    }
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

@@ -15,7 +15,7 @@ import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
 import 'package:khozna/core/utils/formatters.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:khozna/features/property/screens/visit_request_screen.dart';
+import 'package:khozna/features/property/screens/booking_request_screen.dart';
 import 'package:khozna/features/property/screens/booking_status_screen.dart';
 import 'package:khozna/features/property/screens/payment_choice_screen.dart';
 import 'package:share_plus/share_plus.dart';
@@ -2752,7 +2752,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (_) =>
-                        VisitRequestScreen(property: widget.property),
+                        BookingRequestScreen(property: widget.property),
                   ),
                 ).then((v) => v == true ? _updateBookingStatus() : null);
               },
