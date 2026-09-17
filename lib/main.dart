@@ -230,6 +230,7 @@ class _KhoznaAppState extends State<KhoznaApp> {
       SupabaseService.fetchUnreadMessageCount();
       SupabaseService.fetchUnreadNotificationCount();
       SupabaseService.getConversations(); // Pre-warm conversations for 0ms instant loading!
+      PushNotificationService.syncFcmToken(); // Sync FCM push token for logged-in user
     }
 
     // Listen for Auth State changes to update internal state and initialize services reactively
@@ -253,6 +254,7 @@ class _KhoznaAppState extends State<KhoznaApp> {
         SupabaseService.initRealtimeListeners();
         SupabaseService.fetchSavedPropertyIds();
         SupabaseService.fetchBookedPropertyIds();
+        PushNotificationService.syncFcmToken();
       }
 
       if (event == supabase.AuthChangeEvent.signedOut) {

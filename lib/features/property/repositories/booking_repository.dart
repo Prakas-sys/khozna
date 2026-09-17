@@ -214,16 +214,24 @@ class BookingRepository {
       final booking = await getBookingById(bookingId);
       if (booking != null) {
         debugPrint('Sending approval notification to guest: ${booking.guestId}');
+        const String title = 'अवलोकन स्वीकृत (Visit Approved!)';
+        const String body = 'तपाइँको अवलोकन अनुरोध स्वीकृत भएको छ। कोठा हेरेर मन पराएपछि मात्र भुक्तानीको प्रक्रिया हुनेछ।';
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
-          'title': 'अवलोकन स्वीकृत (Visit Approved!)',
-          'message':
-              'तपाइँको अवलोकन अनुरोध स्वीकृत भएको छ। कोठा हेरेर मन पराएपछि मात्र भुक्तानीको प्रक्रिया हुनेछ।',
+          'title': title,
+          'message': body,
           'type': 'visit_alert',
           'property_id': booking.propertyId,
           'booking_id': bookingId,
         });
+
+        PushNotificationService.sendPushToUserId(
+          recipientUserId: booking.guestId,
+          title: title,
+          body: body,
+          data: {'type': 'visit_alert', 'booking_id': bookingId},
+        );
       } else {
         debugPrint('Could not find booking $bookingId to notify guest');
       }
@@ -248,15 +256,24 @@ class BookingRepository {
       if (booking != null) {
         final user = _client.auth.currentUser;
         final String name = user?.userMetadata?['full_name'] ?? 'Guest';
+        const String title = 'अवलोकन अनुरोध रद्द गरियो (Visit Request Cancelled)';
+        final String body = '$name ले अवलोकन अनुरोध रद्द गर्नुभयो।';
         await _client.from('notifications').insert({
           'user_id': booking.ownerId,
           'sender_id': user?.id,
-          'title': 'अवलोकन अनुरोध रद्द गरियो (Visit Request Cancelled)',
-          'message': '$name ले अवलोकन अनुरोध रद्द गर्नुभयो।',
+          'title': title,
+          'message': body,
           'type': 'visit_cancelled',
           'property_id': booking.propertyId,
           'booking_id': bookingId,
         });
+
+        PushNotificationService.sendPushToUserId(
+          recipientUserId: booking.ownerId,
+          title: title,
+          body: body,
+          data: {'type': 'visit_cancelled', 'booking_id': bookingId},
+        );
       }
     } catch (e) {
       debugPrint('Cancel booking request error: $e');
@@ -286,15 +303,23 @@ class BookingRepository {
       if (booking != null) {
         debugPrint('Sending rejection notification to guest: ${booking.guestId}');
         final String displayReason = reason != null ? 'कारण: $reason' : 'घरधनीले यो समयमा अवलोकन व्यवस्था गर्न सक्नुभएन।';
+        const String title = 'अवलोकन अस्वीकृत (Visit Rejected)';
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
-          'title': 'अवलोकन अस्वीकृत (Visit Rejected)',
+          'title': title,
           'message': displayReason,
           'type': 'visit_alert',
           'property_id': booking.propertyId,
           'booking_id': bookingId,
         });
+
+        PushNotificationService.sendPushToUserId(
+          recipientUserId: booking.guestId,
+          title: title,
+          body: displayReason,
+          data: {'type': 'visit_alert', 'booking_id': bookingId},
+        );
       } else {
         debugPrint('Could not find booking $bookingId to notify guest of rejection');
       }
@@ -311,15 +336,24 @@ class BookingRepository {
       if (booking != null) {
         final user = _client.auth.currentUser;
         final String name = user?.userMetadata?['full_name'] ?? 'Guest';
+        const String title = 'अवलोकन अनुरोध याद दिलाउँदै (Visit Reminder)';
+        final String body = '$name ले तपाइँको जवाफको लागि प्रतीक्षा गर्दैछ।';
         await _client.from('notifications').insert({
           'user_id': booking.ownerId,
           'sender_id': user?.id,
-          'title': 'अवलोकन अनुरोध याद दिलाउँदै (Visit Reminder)',
-          'message': '$name ले तपाइँको जवाफको लागि प्रतीक्षा गर्दैछ।',
+          'title': title,
+          'message': body,
           'type': 'visit_reminder',
           'property_id': booking.propertyId,
           'booking_id': bookingId,
         });
+
+        PushNotificationService.sendPushToUserId(
+          recipientUserId: booking.ownerId,
+          title: title,
+          body: body,
+          data: {'type': 'visit_reminder', 'booking_id': bookingId},
+        );
       }
     } catch (e) {
       debugPrint('Remind owner error: $e');
@@ -428,15 +462,24 @@ class BookingRepository {
       final guestName = user.userMetadata?['full_name'] ?? 'A Guest';
 
       // 3. Notify owner
+      const String pTitle = 'New Payment Received 💸';
+      final String pBody = '$guestName sent payment for your property (${booking.propertyTitle ?? "Property"}) via Khozna Escrow.';
       await _client.from('notifications').insert({
         'user_id': booking.ownerId,
         'sender_id': user.id,
-        'title': 'New Payment Received 💸',
-        'message': '$guestName sent payment for your property (${booking.propertyTitle ?? "Property"}) via Khozna Escrow.',
+        'title': pTitle,
+        'message': pBody,
         'type': 'payment_received',
         'property_id': booking.propertyId,
         'booking_id': bookingId,
       });
+
+      PushNotificationService.sendPushToUserId(
+        recipientUserId: booking.ownerId,
+        title: pTitle,
+        body: pBody,
+        data: {'type': 'payment_received', 'booking_id': bookingId},
+      );
 
     } catch (e) {
       debugPrint('Submit payment error: $e');
@@ -456,6 +499,7 @@ class BookingRepository {
       final property = response['properties'];
       final String propertyId = property['id'];
       final String category = property['category']?.toString().toLowerCase() ?? '';
+      final String guestId = response['guest_id']?.toString() ?? '';
 
       // 2. Update booking and payment status
       await _client
@@ -470,6 +514,28 @@ class BookingRepository {
           .from('payments')
           .update({'status': 'verified'})
           .eq('booking_id', bookingId);
+
+      // Notify confirmed guest
+      if (guestId.isNotEmpty) {
+        const String confTitle = 'बुकिङ पक्का भयो! (Booking Confirmed! 🏠)';
+        const String confBody = 'तपाइँको भुक्तानी प्रमाणीकरण भएको छ र कोठा पक्का भयो।';
+        await _client.from('notifications').insert({
+          'user_id': guestId,
+          'sender_id': _client.auth.currentUser?.id,
+          'title': confTitle,
+          'message': confBody,
+          'type': 'booking_alert',
+          'property_id': propertyId,
+          'booking_id': bookingId,
+        });
+
+        PushNotificationService.sendPushToUserId(
+          recipientUserId: guestId,
+          title: confTitle,
+          body: confBody,
+          data: {'type': 'booking_alert', 'booking_id': bookingId},
+        );
+      }
 
       // 3. Smart Property Hiding:
       // If it's a long-term rental (Room, Flat, Apartment), hide the property.
@@ -499,6 +565,9 @@ class BookingRepository {
             final otherBookingId = p['id'].toString();
             final otherGuestId = p['guest_id'].toString();
 
+            const String cTitle = 'प्रोपर्टी बुक भयो (Property Booked)';
+            const String cBody = 'यो कोठा अर्को ग्राहकद्वारा बुक भइसकेको छ।';
+
             await _client
                 .from('bookings')
                 .update({
@@ -511,12 +580,19 @@ class BookingRepository {
             await _client.from('notifications').insert({
               'user_id': otherGuestId,
               'sender_id': _client.auth.currentUser?.id,
-              'title': 'प्रोपर्टी बुक भयो (Property Booked)',
-              'message': 'यो कोठा अर्को ग्राहकद्वारा बुक भइसकेको छ।',
+              'title': cTitle,
+              'message': cBody,
               'type': 'booking_alert',
               'property_id': propertyId,
               'booking_id': otherBookingId,
             });
+
+            PushNotificationService.sendPushToUserId(
+              recipientUserId: otherGuestId,
+              title: cTitle,
+              body: cBody,
+              data: {'type': 'booking_alert', 'booking_id': otherBookingId},
+            );
           }
         } catch (e) {
           debugPrint('Error auto-cancelling other pending bookings: $e');

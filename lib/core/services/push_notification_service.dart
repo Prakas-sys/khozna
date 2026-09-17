@@ -72,13 +72,7 @@ class PushNotificationService {
 
     // 4. Get FCM Token & Subscribe to Broadcast Topic
     try {
-      // Force-refresh: delete old token first to clear any stale/expired tokens
-      await _messaging.deleteToken();
-      String? token = await _messaging.getToken();
-      if (token != null) {
-        debugPrint('--- [PUSH] Fresh FCM Token: $token ---');
-        await SupabaseService.saveDeviceToken(token);
-      }
+      await syncFcmToken();
 
       // Subscribe to a generic topic for broadcast campaigns
       await _messaging.subscribeToTopic('all_users');
@@ -99,13 +93,26 @@ class PushNotificationService {
     // 6. Handle Background/Terminated Click
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       debugPrint('--- [PUSH] App opened from notification: ${message.messageId} ---');
-      // Handle navigation
     });
 
     // Check if app was opened from terminated state via notification
     RemoteMessage? initialMessage = await _messaging.getInitialMessage();
     if (initialMessage != null) {
       debugPrint('--- [PUSH] App launched from terminated state via notification ---');
+    }
+  }
+
+  /// Explicitly fetches current FCM device token and syncs it with Supabase profiles table
+  static Future<void> syncFcmToken() async {
+    if (kIsWeb) return;
+    try {
+      String? token = await _messaging.getToken();
+      if (token != null && token.isNotEmpty) {
+        debugPrint('--- [PUSH] Syncing FCM Token: $token ---');
+        await SupabaseService.saveDeviceToken(token);
+      }
+    } catch (e) {
+      debugPrint('--- [PUSH] Failed to fetch or sync FCM token: $e ---');
     }
   }
 

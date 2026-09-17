@@ -217,6 +217,26 @@ class ChatRepository {
         'sender_id': user.id,
         'image_url': imageUrl,
       });
+
+      final chatData = await _client
+          .from('chats')
+          .select('user1_id, user2_id')
+          .eq('id', chatId)
+          .maybeSingle();
+
+      if (chatData != null) {
+        final String recipientId = chatData['user1_id'] == user.id
+            ? chatData['user2_id']
+            : chatData['user1_id'];
+
+        final senderName = user.userMetadata?['full_name'] ?? 'Someone';
+        PushNotificationService.sendPushToUserId(
+          recipientUserId: recipientId,
+          title: 'सन्देश (Message from $senderName)',
+          body: '📷 Sent an image',
+          data: {'type': 'chat', 'chat_id': chatId},
+        );
+      }
     } catch (e) {
       debugPrint('Error sending image message: $e');
     }
@@ -237,6 +257,26 @@ class ChatRepository {
         'audio_url': audioUrl,
         'audio_duration': durationSeconds,
       });
+
+      final chatData = await _client
+          .from('chats')
+          .select('user1_id, user2_id')
+          .eq('id', chatId)
+          .maybeSingle();
+
+      if (chatData != null) {
+        final String recipientId = chatData['user1_id'] == user.id
+            ? chatData['user2_id']
+            : chatData['user1_id'];
+
+        final senderName = user.userMetadata?['full_name'] ?? 'Someone';
+        PushNotificationService.sendPushToUserId(
+          recipientUserId: recipientId,
+          title: 'सन्देश (Message from $senderName)',
+          body: '🎙️ Sent a voice message (${durationSeconds}s)',
+          data: {'type': 'chat', 'chat_id': chatId},
+        );
+      }
     } catch (e) {
       debugPrint('Error sending audio message: $e');
     }
