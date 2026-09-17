@@ -149,7 +149,7 @@ class BookingRepository {
           .select('id, status')
           .eq('property_id', propertyId)
           .eq('guest_id', user.id)
-          .in_('status', ['pending_approval', 'visit_accepted', 'confirmed'])
+          .inFilter('status', ['pending_approval', 'visit_accepted', 'confirmed'])
           .maybeSingle();
 
       if (existing != null) {
