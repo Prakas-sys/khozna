@@ -118,34 +118,37 @@ const Header = () => {
 
 // ─── Dashboard Home ─────────────────────────────────────────────────────────
 const DashboardHome = () => {
-  const [stats, setStats] = useState({ users: 0, kyc: 0, reports: 0, payments: 0 });
+  const [stats, setStats] = useState({ users: 0, kyc: 0, reports: 0, payments: 0, bookings: 0 });
   const [activities, setActivities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [usersRes, kycRes, reportsRes, paymentsRes, latestK] = await Promise.all([
+        const [usersRes, kycRes, reportsRes, paymentsRes, bookingsRes, latestK] = await Promise.all([
           supabase.from('profiles').select('*', { count: 'exact', head: true }),
           supabase.from('kyc_verifications').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
           supabase.from('user_reports').select('*', { count: 'exact', head: true }),
           supabase.from('payments').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-          supabase.from('kyc_verifications').select('*').order('updated_at', { ascending: false }).limit(5),
+          supabase.from('bookings').select('*', { count: 'exact', head: true }),
+          supabase.from('kyc_verifications').select('*').order('created_at', { ascending: false }).limit(5),
         ]);
         
         setStats({ 
           users: usersRes.count || 0, 
           kyc: kycRes.count || 0, 
           reports: reportsRes.count || 0,
-          payments: paymentsRes.count || 0
+          payments: paymentsRes.count || 0,
+          bookings: bookingsRes.count || 0,
         });
 
         const combined = [
           ...(latestK.data || []).map(item => ({ 
-            user: 'System', 
-            action: `KYC Status Update: ${item.status}`, 
-            time: new Date(item.updated_at).toLocaleDateString(), 
+            user: item.full_name || 'System User', 
+            action: `Submitted KYC Verification (${item.status})`, 
+            time: new Date(item.created_at).toLocaleDateString(), 
             type: 'KYC', 
+            path: '/kyc'
           }))
         ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 5);
 
@@ -160,61 +163,87 @@ const DashboardHome = () => {
   }, []);
 
   const statCards = [
-    { title: 'Users', val: stats.users, label: 'Registered profiles', icon: <Users size={16} strokeWidth={1.5} /> },
-    { title: 'Pending KYC', val: stats.kyc, label: 'Awaiting review', icon: <UserCheck size={16} strokeWidth={1.5} /> },
-    { title: 'Reports', val: stats.reports, label: 'Safety flags', icon: <ShieldAlert size={16} strokeWidth={1.5} /> },
-    { title: 'Payments', val: stats.payments, label: 'Pending verification', icon: <CreditCard size={16} strokeWidth={1.5} /> },
+    { title: 'User Directory', val: stats.users, label: 'Registered profiles & accounts', icon: <Users size={18} />, path: '/users', color: 'bg-neutral-100 text-neutral-800 border-neutral-200' },
+    { title: 'Pending KYC', val: stats.kyc, label: 'Documents awaiting review', icon: <UserCheck size={18} />, path: '/kyc', color: 'bg-emerald-50 text-emerald-700 border-emerald-200/60' },
+    { title: 'Safety Reports', val: stats.reports, label: 'Active flags & reports', icon: <ShieldAlert size={18} />, path: '/reports', color: 'bg-rose-50 text-rose-700 border-rose-200/60' },
+    { title: 'Pending Payments', val: stats.payments, label: 'Transactions to confirm', icon: <CreditCard size={18} />, path: '/payments', color: 'bg-violet-50 text-violet-700 border-violet-200/60' },
+    { title: 'Total Bookings', val: stats.bookings, label: 'Active guest reservations', icon: <CalendarDays size={18} />, path: '/bookings', color: 'bg-blue-50 text-blue-700 border-blue-200/60' },
+    { title: 'Escrow Vault', val: 'NPR Active', label: 'Platform financial escrow', icon: <Landmark size={18} />, path: '/escrow', color: 'bg-slate-100 text-slate-800 border-slate-200' },
   ];
 
   return (
     <div className="flex-1 overflow-y-auto px-8 py-8 bg-[#FAFAFA]">
-      <div className="mb-8">
-        <h2 className="text-[22px] font-semibold text-[#171717] tracking-tight mb-1">Platform Overview</h2>
-        <p className="text-[#737373] text-[13px]">Real-time operational data for Khozna.</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-[#171717] tracking-tight mb-1">Platform Overview</h2>
+          <p className="text-[#737373] text-xs font-medium">Click any module below to inspect & manage real-time Khozna operations.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-[#737373] bg-white px-3 py-1.5 rounded-xl border border-[#E5E5E5] shadow-xs flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Live System Active
+          </span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
         {statCards.map((s, i) => (
-          <div key={i} className="card-minimal p-5">
+          <Link key={i} to={s.path} className="card-interactive p-6 group block relative overflow-hidden">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-[#A3A3A3]">{s.icon}</span>
-              <span className="text-[11px] font-medium text-[#A3A3A3]">{s.title}</span>
+              <div className={`p-2.5 rounded-xl border ${s.color} shadow-xs transition-transform group-hover:scale-110 duration-200`}>
+                {s.icon}
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[#737373] group-hover:text-[#171717] transition-colors">
+                <span>Manage</span>
+                <span className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-[#171717]">↗</span>
+              </div>
             </div>
-            <p className="text-[28px] font-semibold text-[#171717] tracking-tight leading-none">
-              {loading ? <span className="inline-block w-8 h-7 bg-[#F5F5F5] rounded animate-pulse" /> : s.val}
+
+            <p className="text-3xl font-extrabold text-[#171717] tracking-tight leading-none mb-2">
+              {loading ? <span className="inline-block w-12 h-8 bg-[#F5F5F5] rounded-lg animate-pulse" /> : s.val}
             </p>
-            <p className="text-[12px] text-[#A3A3A3] mt-1.5">{s.label}</p>
-          </div>
+            
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-[#171717] tracking-tight">{s.title}</h3>
+              <span className="text-[11px] text-[#737373] font-medium">{s.label}</span>
+            </div>
+          </Link>
         ))}
       </div>
 
-      <div className="card-minimal overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#E5E5E5] flex items-center justify-between">
-          <h3 className="text-[13px] font-semibold text-[#171717]">Recent Activity</h3>
+      <div className="card-minimal overflow-hidden shadow-xs">
+        <div className="px-6 py-4 border-b border-[#E5E5E5] bg-white flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <h3 className="text-xs font-bold text-[#171717] uppercase tracking-wider">Recent Operational Activity</h3>
+          </div>
+          <span className="text-[11px] text-[#737373] font-medium">Real-time log</span>
         </div>
         <div>
           {loading ? (
             <div className="empty-state">
-              <div className="w-5 h-5 border-2 border-[#E5E5E5] border-t-[#737373] rounded-full animate-spin mb-3" />
-              <p className="text-[13px] text-[#A3A3A3]">Loading...</p>
+              <div className="w-5 h-5 border-2 border-[#E5E5E5] border-t-[#171717] rounded-full animate-spin mb-3" />
+              <p className="text-xs text-[#737373]">Loading operational events...</p>
             </div>
           ) : activities.length > 0 ? (
             <div className="divide-y divide-[#F5F5F5]">
               {activities.map((log, i) => (
-                <div key={i} className="px-6 py-4 flex items-center justify-between hover:bg-[#FAFAFA] transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-lg bg-[#F5F5F5] flex items-center justify-center text-[#A3A3A3]">
-                      {log.type === 'KYC' ? <UserCheck size={14} strokeWidth={1.5} /> : <ShieldAlert size={14} strokeWidth={1.5} />}
+                <Link key={i} to={log.path} className="px-6 py-4 flex items-center justify-between hover:bg-[#FAFAFA] transition-colors group block">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-9 h-9 rounded-xl bg-[#F5F5F5] border border-[#E5E5E5] flex items-center justify-center text-[#171717] font-bold shadow-xs">
+                      {log.type === 'KYC' ? <UserCheck size={16} /> : <ShieldAlert size={16} />}
                     </div>
                     <div>
-                      <p className="text-[13px] font-medium text-[#171717]">{log.action}</p>
-                      <p className="text-[11px] text-[#A3A3A3]">{log.time}</p>
+                      <p className="text-xs font-bold text-[#171717] group-hover:text-emerald-700 transition-colors">{log.user}</p>
+                      <p className="text-[11px] text-[#737373]">{log.action}</p>
                     </div>
                   </div>
-                  <span className="text-[11px] font-medium text-[#A3A3A3] bg-[#F5F5F5] px-2 py-0.5 rounded-full">
-                    {log.type}
-                  </span>
-                </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-bold text-[#737373] bg-[#F5F5F5] px-2.5 py-1 rounded-full border border-[#E5E5E5]">
+                      {log.time}
+                    </span>
+                    <span className="text-xs text-[#A3A3A3] group-hover:text-[#171717] group-hover:translate-x-0.5 transition-all">→</span>
+                  </div>
+                </Link>
               ))}
             </div>
           ) : (

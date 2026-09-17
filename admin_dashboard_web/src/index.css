@@ -1,27 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
 
 @theme {
   --color-brand: #171717;
   --color-brand-dark: #0A0A0A;
   --color-brand-light: #F5F5F5;
   
-  --color-bg: #FAFAFA;
-  --color-surface: #FFFFFF;
-  --color-border: #E5E5E5;
+  --color-bg-warm: #FAFAFA;
+  --color-surface-warm: #FFFFFF;
+  --color-border-warm: #E5E5E5;
   
-  --color-text-main: #0A0A0A;
-  --color-text-soft: #525252;
-  --color-text-muted: #A3A3A3;
-  
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.06);
-  
-  --radius-lg: 0.625rem;
-  --radius-xl: 0.75rem;
-  --radius-2xl: 1rem;
+  --shadow-warm-sm: 0 2px 5px rgba(0, 0, 0, 0.04);
+  --shadow-warm-md: 0 6px 16px rgba(0, 0, 0, 0.06);
+  --shadow-warm-lg: 0 12px 32px rgba(0, 0, 0, 0.08);
 }
 
 @layer base {
@@ -32,8 +23,8 @@
   }
   body {
     background-color: #FAFAFA;
-    color: #0A0A0A;
-    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #171717;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     letter-spacing: -0.011em;
   }
   
@@ -45,26 +36,43 @@
 
 @layer components {
   .card-minimal {
-    background-color: white;
+    background-color: #FFFFFF;
     border: 1px solid #E5E5E5;
-    border-radius: var(--radius-xl);
-    transition: border-color 200ms ease;
+    border-radius: 0.875rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
   }
   
   .card-minimal:hover {
     border-color: #D4D4D4;
   }
 
+  .card-interactive {
+    background-color: #FFFFFF;
+    border: 1px solid #E5E5E5;
+    border-radius: 0.875rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    transition: all 220ms cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+  }
+
+  .card-interactive:hover {
+    transform: translateY(-2px);
+    border-color: #171717;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  }
+
   /* Legacy alias for existing code */
   .card-pro {
-    background-color: white;
-    border: 1px solid #E5E5E5;
-    border-radius: var(--radius-xl);
-    transition: border-color 200ms ease;
+    background-color: #FFFFFF;
+    border: 1px solid #E7E5E4;
+    border-radius: 0.875rem;
+    box-shadow: 0 1px 3px rgba(28, 25, 23, 0.03);
+    transition: all 200ms ease;
   }
   
   .card-pro:hover {
-    border-color: #D4D4D4;
+    border-color: #D6D3D1;
   }
 
   .badge {
@@ -74,8 +82,8 @@
     padding: 0.25rem 0.625rem;
     border-radius: 9999px;
     font-size: 0.6875rem;
-    font-weight: 500;
-    letter-spacing: 0;
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
 
   .empty-state {
@@ -88,27 +96,27 @@
   }
 
   .empty-state-icon {
-    width: 3rem;
-    height: 3rem;
-    border-radius: var(--radius-xl);
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 1rem;
-    background: #F5F5F5;
-    color: #A3A3A3;
+    background: #F5F5F4;
+    color: #A8A29E;
   }
 
   .empty-state-title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #171717;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #1C1917;
     margin-bottom: 0.25rem;
   }
 
   .empty-state-desc {
     font-size: 0.8125rem;
-    color: #737373;
+    color: #78716C;
     max-width: 20rem;
     line-height: 1.5;
   }
