@@ -62,6 +62,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       widget.property.ownerId == _currentUserId;
   bool get _hasLocation =>
       widget.property.latitude != null && widget.property.longitude != null;
+  String get _ownerName {
+    final name = _ownerData?['full_name']?.toString() ?? 'Property Owner';
+    return (name == 'Khozna app' || name.trim().isEmpty) ? 'Property Owner' : name;
+  }
+
   static const Color _airbnbGrey = Color(0xFF717171);
 
   late final List<String> displayImages;
