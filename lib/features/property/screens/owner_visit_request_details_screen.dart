@@ -146,7 +146,7 @@ class _OwnerVisitRequestDetailsScreenState extends State<OwnerVisitRequestDetail
     HapticFeedback.mediumImpact();
     setState(() => _isActioning = true);
     try {
-      await BookingRepository.approveRequest(widget.bookingId);
+      await BookingRepository.approveVisitRequest(widget.bookingId);
       if (mounted) {
         setState(() {
           _currentStatus = 'visit_accepted';

@@ -207,7 +207,56 @@ class BookingRepository {
   }
 
 
-  /// 2. Owner approves request -> moves to Accepted & Payment Pending
+  /// 2a. Owner approves visit request -> status moves to visit_accepted (free property tour)
+  static Future<void> approveVisitRequest(String bookingId, {DateTime? newCheckIn}) async {
+    try {
+      final updates = <String, dynamic>{
+        'status': 'visit_accepted',
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      };
+      
+      if (newCheckIn != null) {
+        updates['check_in'] = newCheckIn.toIso8601String();
+      }
+
+      await _client
+          .from('bookings')
+          .update(updates)
+          .eq('id', bookingId);
+
+      // Fetch booking to notify guest
+      final booking = await getBookingById(bookingId);
+      if (booking != null) {
+        debugPrint('Sending visit approval notification to guest: ${booking.guestId}');
+        final DateTime scheduledDt = newCheckIn ?? DateTime.tryParse(booking.checkIn) ?? DateTime.now();
+        final String dateStr = DateFormat('MMM dd, yyyy • hh:mm a').format(scheduledDt);
+        const String title = 'Visit Request Approved 🎉';
+        final String body = 'The host accepted your visit request for "${booking.propertyTitle}". Scheduled for $dateStr.';
+
+        await _client.from('notifications').insert({
+          'user_id': booking.guestId,
+          'sender_id': _client.auth.currentUser?.id,
+          'title': title,
+          'message': body,
+          'type': 'visit_accepted',
+          'property_id': booking.propertyId,
+          'booking_id': bookingId,
+        });
+
+        PushNotificationService.sendPushToUserId(
+          recipientUserId: booking.guestId,
+          title: title,
+          body: body,
+          data: {'type': 'visit_accepted', 'booking_id': bookingId},
+        );
+      }
+    } catch (e) {
+      debugPrint('Approve visit request error: $e');
+      rethrow;
+    }
+  }
+
+  /// 2b. Owner approves booking request -> moves to Accepted & Payment Pending
   static Future<void> approveRequest(String bookingId, {DateTime? newCheckIn}) async {
     try {
       final updates = <String, dynamic>{
@@ -227,15 +276,15 @@ class BookingRepository {
       // Fetch booking to notify guest
       final booking = await getBookingById(bookingId);
       if (booking != null) {
-        debugPrint('Sending approval notification to guest: ${booking.guestId}');
-        const String title = 'Booking Request Accepted';
-        const String body = 'Your booking request was accepted by the host. Please proceed to payment.';
+        debugPrint('Sending booking approval notification to guest: ${booking.guestId}');
+        const String title = 'Booking Approved — Pay Now 💳';
+        final String body = 'Your booking request for "${booking.propertyTitle}" was accepted by the host. Please complete payment to confirm.';
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
           'title': title,
           'message': body,
-          'type': 'visit_alert',
+          'type': 'booking_approved',
           'property_id': booking.propertyId,
           'booking_id': bookingId,
         });
@@ -244,10 +293,8 @@ class BookingRepository {
           recipientUserId: booking.guestId,
           title: title,
           body: body,
-          data: {'type': 'visit_alert', 'booking_id': bookingId},
+          data: {'type': 'booking_approved', 'booking_id': bookingId},
         );
-      } else {
-        debugPrint('Could not find booking $bookingId to notify guest');
       }
     } catch (e) {
       debugPrint('Approve request error: $e');

@@ -340,7 +340,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
       if (finalDate != null) {
         setState(() => _isLoading = true);
         try {
-          await BookingRepository.approveRequest(booking['id'], newCheckIn: finalDate);
+          await BookingRepository.approveVisitRequest(booking['id'], newCheckIn: finalDate);
           await _fetchBookings();
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -570,141 +570,189 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: Visitor Info + Status Badge + Delete Button
+          // Header: Visitor Info + Status Badge + Contact Buttons
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 12, 8, 8),
-            child: Row(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 10),
+            child: Column(
               children: [
-                GestureDetector(
-                  onTap: () {
-                    final guestId = booking['guest_id']?.toString() ?? '';
-                    if (guestId.isNotEmpty) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OwnerProfileScreen(
-                            ownerId: guestId,
-                            name: guest?['full_name'] ?? 'Visitor',
-                            avatar: guest?['avatar_url'] ?? '',
-                            location: guest?['area_name'] ?? 'Kathmandu, Nepal',
-                            totalListings: 0,
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 18,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        final guestId = booking['guest_id']?.toString() ?? '';
+                        if (guestId.isNotEmpty) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => OwnerProfileScreen(
+                                ownerId: guestId,
+                                name: guest?['full_name'] ?? 'Visitor',
+                                avatar: guest?['avatar_url'] ?? '',
+                                location: guest?['area_name'] ?? 'Kathmandu, Nepal',
+                                totalListings: 0,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      child: CircleAvatar(
+                        radius: 20,
                         backgroundImage: guest?['avatar_url'] != null
                             ? NetworkImage(guest!['avatar_url'])
                             : null,
                         backgroundColor: const Color(0xFFF1F5F9),
                         child: guest?['avatar_url'] == null
-                            ? const Icon(Icons.person_rounded, size: 20, color: Color(0xFF64748B))
+                            ? const Icon(Icons.person_rounded, size: 22, color: Color(0xFF64748B))
                             : null,
                       ),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () {
-                                final guestId = booking['guest_id']?.toString() ?? '';
-                                if (guestId.isNotEmpty) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => OwnerProfileScreen(
-                                        ownerId: guestId,
-                                        name: guest?['full_name'] ?? 'Visitor',
-                                        avatar: guest?['avatar_url'] ?? '',
-                                        location: guest?['area_name'] ?? 'Kathmandu, Nepal',
-                                        totalListings: 0,
-                                      ),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    final guestId = booking['guest_id']?.toString() ?? '';
+                                    if (guestId.isNotEmpty) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => OwnerProfileScreen(
+                                            ownerId: guestId,
+                                            name: guest?['full_name'] ?? 'Visitor',
+                                            avatar: guest?['avatar_url'] ?? '',
+                                            location: guest?['area_name'] ?? 'Kathmandu, Nepal',
+                                            totalListings: 0,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: Text(
+                                    guest?['full_name'] ?? 'Visitor',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14.5,
+                                      color: const Color(0xFF0F172A),
                                     ),
-                                  );
-                                }
-                              },
-                              child: Text(
-                                guest?['full_name'] ?? 'Visitor',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14,
-                                  color: const Color(0xFF0F172A),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
+                              if (guest?['kyc_status'] == 'verified') ...[
+                                const SizedBox(width: 4),
+                                const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 14),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            DateFormat('MMM dd, yyyy').format(DateTime.parse(booking['created_at'])),
+                            style: GoogleFonts.inter(
+                              fontSize: 11.5,
+                              color: const Color(0xFF94A3B8),
                             ),
                           ),
-                          if (guest?['kyc_status'] == 'verified') ...[
-                            const SizedBox(width: 4),
-                            const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 13),
-                          ],
-                          const SizedBox(width: 6),
-                          _buildStatusBadge(status),
                         ],
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        DateFormat('MMM dd, yyyy').format(DateTime.parse(booking['created_at'])),
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: const Color(0xFF94A3B8),
+                    ),
+                    const SizedBox(width: 8),
+                    _buildStatusBadge(status),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                // Action Buttons Row (Call, Chat, Delete)
+                Row(
+                  children: [
+                    if (guestPhone != null && guestPhone.isNotEmpty) ...[
+                      InkWell(
+                        onTap: () => _makePhoneCall(guestPhone),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFDCFCE7),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0xFF86EFAC)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.phone_rounded, size: 13, color: Color(0xFF15803D)),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Call',
+                                style: GoogleFonts.inter(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF15803D),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 8),
                     ],
-                  ),
-                ),
-                // Phone & Chat Icons
-                if (guestPhone != null && guestPhone.isNotEmpty) ...[
-                  IconButton(
-                    icon: const Icon(Icons.phone_rounded, size: 18, color: Color(0xFF16A34A)),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                    onPressed: () => _makePhoneCall(guestPhone),
-                    tooltip: 'Call visitor',
-                  ),
-                ],
-                IconButton(
-                  icon: SvgPicture.asset(
-                    'assets/icons/Message neww.svg',
-                    width: 18,
-                    height: 18,
-                    colorFilter: const ColorFilter.mode(AppTheme.brandColor, BlendMode.srcIn),
-                  ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => chat_page.ChatScreen(
-                          ownerId: booking['guest_id'],
-                          name: guest?['full_name'] ?? 'Visitor',
-                          avatar: guest?['avatar_url'] ?? '',
-                          online: true,
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => chat_page.ChatScreen(
+                              ownerId: booking['guest_id'],
+                              name: guest?['full_name'] ?? 'Visitor',
+                              avatar: guest?['avatar_url'] ?? '',
+                              online: true,
+                            ),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: AppTheme.brandColor.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppTheme.brandColor.withOpacity(0.25)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SvgPicture.asset(
+                              'assets/icons/Message neww.svg',
+                              width: 13,
+                              height: 13,
+                              colorFilter: const ColorFilter.mode(AppTheme.brandColor, BlendMode.srcIn),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Chat',
+                              style: GoogleFonts.inter(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.brandColor,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    );
-                  },
-                  tooltip: 'Chat with visitor',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFF94A3B8), size: 19),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                  onPressed: () => _confirmDeleteBooking(booking['id']),
-                  tooltip: 'Delete request',
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFF94A3B8), size: 19),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                      onPressed: () => _confirmDeleteBooking(booking['id']),
+                      tooltip: 'Delete request',
+                    ),
+                  ],
                 ),
               ],
             ),

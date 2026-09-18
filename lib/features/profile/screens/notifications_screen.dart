@@ -106,31 +106,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         final rawMsg = copy['message']?.toString() ?? '';
         final rawType = copy['type']?.toString() ?? '';
 
-        final isDeclined = rawTitle.contains('Declined') ||
-            rawTitle.contains('Denied') ||
-            rawTitle.contains('अस्वीकृत') ||
-            rawMsg.contains('declined') ||
-            rawMsg.contains('denied') ||
-            rawMsg.contains('re-upload');
+        final isDeclined = rawType == 'payment_declined' ||
+            ((rawTitle.contains('Declined') ||
+                rawTitle.contains('Denied') ||
+                rawTitle.contains('अस्वीकृत')) && !rawMsg.contains('request'));
 
-        final isVerified = rawTitle.contains('Verified') ||
-            rawTitle.contains('Confirmed') ||
-            rawTitle.contains('स्वीकृत') ||
-            rawMsg.contains('verified') ||
-            rawMsg.contains('confirmed');
+        final isVerified = rawType == 'payment_verified' ||
+            ((rawTitle.contains('Payment Verified') ||
+                rawTitle.contains('Payment Confirmed')) && rawType.contains('payment'));
 
         final isPayment = rawType == 'payment_received' ||
             rawType == 'payment' ||
-            rawTitle.contains('भुक्तानी') ||
-            rawMsg.contains('भुक्तानी') ||
-            rawTitle.contains('Payment') ||
-            rawMsg.contains('payment');
+            rawType == 'payment_submitted' ||
+            rawTitle.contains('Payment Received') ||
+            rawTitle.contains('Payment Verified') ||
+            rawTitle.contains('Payment Submitted') ||
+            rawTitle.contains('भुक्तानी प्राप्त');
 
         final isVisit = !isPayment &&
             (rawType == 'booking_request' ||
                 rawType == 'visit_request' ||
+                rawType == 'visit_accepted' ||
+                rawType == 'booking_approved' ||
                 rawTitle.contains('Visit') ||
-                rawMsg.contains('अनुरोध') ||
                 rawMsg.contains('visit') ||
                 rawMsg.contains('book') ||
                 rawTitle.contains('Khozna'));
@@ -143,7 +141,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           copy['is_guest_notification'] = true;
         } else if (isPayment) {
           copy['type'] = 'payment_received';
-        } else if (isVisit) {
+        } else if (isVisit && rawType.isEmpty) {
           copy['type'] = 'booking_request';
         }
 
