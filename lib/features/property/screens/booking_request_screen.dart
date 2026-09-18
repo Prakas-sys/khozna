@@ -11,8 +11,6 @@ import 'package:khozna/widgets/khozna_image.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 // Design Tokens
 // ─────────────────────────────────────────────────────────────────────────────
-const _bg    = Color(0xFFF8FAFC);
-const _card  = Colors.white;
 const _ink   = Color(0xFF0F172A);
 const _sub   = Color(0xFF64748B);
 const _bdr   = Color(0xFFE2E8F0);
@@ -557,7 +555,6 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
   // ─── STEP 1: REVIEW AND CONTINUE (MATCHING SCREENSHOT) ─────────────────────
 
   Widget _buildStep1ReviewAndContinue() {
-    final priceStr = NumberFormat('#,##0').format(widget.pricePerNight);
     final totalStr = NumberFormat('#,##0').format(_totalPrice);
 
     return Container(
