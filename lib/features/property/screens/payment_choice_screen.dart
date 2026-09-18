@@ -566,12 +566,12 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                     padding: const EdgeInsets.all(18),
                     child: Column(
                       children: [
-                        _priceRow('Stay ($nights ${nights == 1 ? "night" : "nights"})', total, _sub, _ink, FontWeight.w600, FontWeight.w800, 15.0, valueFontSize: 20.0, iconSize: 16.0),
+                        _priceRow('Stay ($nights ${nights == 1 ? "night" : "nights"})', total, _sub, _ink, FontWeight.w600, FontWeight.w700, 14.0, valueFontSize: 17.5, iconSize: 14.0),
                         const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 14),
+                          padding: EdgeInsets.symmetric(vertical: 12),
                           child: Divider(height: 1, color: _bdr),
                         ),
-                        _priceRow('Total rent', total, _ink, _ink, FontWeight.w800, FontWeight.w900, 16.5, valueFontSize: 26.0, iconSize: 20.0),
+                        _priceRow('Total rent', total, _ink, _ink, FontWeight.w800, FontWeight.w800, 15.5, valueFontSize: 21.0, iconSize: 16.5),
                       ],
                     ),
                   ),
@@ -596,34 +596,40 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     double? iconSize,
   }) {
     final effectiveValueFontSize = valueFontSize ?? fontSize;
-    final effectiveIconSize = iconSize ?? (fontSize - 0.5);
+    final effectiveIconSize = iconSize ?? (effectiveValueFontSize * 0.76);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(label, style: GoogleFonts.inter(fontSize: fontSize, color: labelColor, fontWeight: labelWeight)),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              'assets/icons/vector of ruppes.svg',
-              width: effectiveIconSize,
-              height: effectiveIconSize,
-              colorFilter: ColorFilter.mode(valueColor, BlendMode.srcIn),
-            ),
-            const SizedBox(width: 4),
-            Text(
-              amountStr,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: effectiveValueFontSize,
-                color: valueColor,
-                fontWeight: valueWeight,
-                letterSpacing: -0.5,
+        RichText(
+          text: TextSpan(
+            children: [
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: Transform.translate(
+                  offset: const Offset(0, -1.0),
+                  child: SvgPicture.asset(
+                    'assets/icons/vector of ruppes.svg',
+                    width: effectiveIconSize,
+                    height: effectiveIconSize,
+                    colorFilter: ColorFilter.mode(valueColor, BlendMode.srcIn),
+                  ),
+                ),
               ),
-            ),
-          ],
+              const WidgetSpan(child: SizedBox(width: 3.5)),
+              TextSpan(
+                text: amountStr,
+                style: GoogleFonts.spaceGrotesk(
+                  fontSize: effectiveValueFontSize,
+                  color: valueColor,
+                  fontWeight: valueWeight,
+                  letterSpacing: -0.5,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
