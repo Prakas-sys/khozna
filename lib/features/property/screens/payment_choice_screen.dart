@@ -625,6 +625,9 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   // ─── STEP 2: Select Payment Method (Airbnb Horizontal Single Line Rows) ───
 
   Widget _buildStep2PaymentMethod() {
+    final availableMethods = _PayMethod.values.where((m) => _getPaymentValue(m) != null).toList();
+    final methodsToShow = availableMethods.isNotEmpty ? availableMethods : _PayMethod.values;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -633,7 +636,29 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           style: GoogleFonts.inter(fontSize: 13.5, color: _sub, fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 14),
-        for (final method in _PayMethod.values) _buildMethodTile(method),
+        if (availableMethods.isEmpty)
+          Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF7ED),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFFED7AA)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.info_outline_rounded, color: Color(0xFFD97706), size: 18),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'No details provided for this wallet yet. Please contact the owner.',
+                    style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFFB45309), height: 1.4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        for (final method in methodsToShow) _buildMethodTile(method),
       ],
     );
   }
@@ -752,7 +777,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'No details provided by owner for $label. Please choose another method or contact the owner.',
+                'No details provided for this wallet. Please choose another method or contact the owner.',
                 style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFFB45309), height: 1.4),
               ),
             ),
