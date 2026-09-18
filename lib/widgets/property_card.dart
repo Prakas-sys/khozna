@@ -260,11 +260,11 @@ class PropertyCard extends StatelessWidget {
                                 if (!hidePriceSymbol) WidgetSpan(
                                   alignment: PlaceholderAlignment.middle,
                                   child: Transform.translate(
-                                    offset: const Offset(0, -1.5),
+                                    offset: const Offset(0, -0.5),
                                     child: SvgPicture.asset(
                                       'assets/icons/vector of ruppes.svg',
-                                      width: 14.5,
-                                      height: 14.5,
+                                      width: 12.5,
+                                      height: 12.5,
                                       colorFilter: const ColorFilter.mode(
                                         AppTheme.brandColor,
                                         BlendMode.srcIn,
@@ -286,11 +286,11 @@ class PropertyCard extends StatelessWidget {
                                     );
                                     return val;
                                   })(),
-                                  style: GoogleFonts.plusJakartaSans(
+                                  style: GoogleFonts.spaceGrotesk(
                                     fontSize: 19.0,
                                     fontWeight: FontWeight.w700,
                                     color: AppTheme.brandColor,
-                                    letterSpacing: -0.2,
+                                    letterSpacing: -0.4,
                                   ),
                                 ),
                                 WidgetSpan(

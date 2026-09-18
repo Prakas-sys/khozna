@@ -566,12 +566,12 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                     padding: const EdgeInsets.all(18),
                     child: Column(
                       children: [
-                        _priceRow('Stay ($nights ${nights == 1 ? "night" : "nights"})', total, _sub, _ink, FontWeight.w600, FontWeight.w700, 14.0, valueFontSize: 17.5, iconSize: 14.0),
+                        _priceRow('Stay ($nights ${nights == 1 ? "night" : "nights"})', total, _sub, _ink, FontWeight.w600, FontWeight.w700, 14.0, valueFontSize: 17.0, iconSize: 11.2),
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 12),
                           child: Divider(height: 1, color: _bdr),
                         ),
-                        _priceRow('Total Rent', total, _ink, _ink, FontWeight.w800, FontWeight.w800, 15.5, valueFontSize: 21.0, iconSize: 16.5),
+                        _priceRow('Total Rent', total, _ink, _ink, FontWeight.w800, FontWeight.w800, 15.5, valueFontSize: 21.0, iconSize: 13.5),
                       ],
                     ),
                   ),
@@ -596,7 +596,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     double? iconSize,
   }) {
     final effectiveValueFontSize = valueFontSize ?? fontSize;
-    final effectiveIconSize = iconSize ?? (effectiveValueFontSize * 0.76);
+    final effectiveIconSize = iconSize ?? (effectiveValueFontSize * 0.64);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -609,7 +609,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               WidgetSpan(
                 alignment: PlaceholderAlignment.middle,
                 child: Transform.translate(
-                  offset: const Offset(0, -1.0),
+                  offset: const Offset(0, -0.5),
                   child: SvgPicture.asset(
                     'assets/icons/vector of ruppes.svg',
                     width: effectiveIconSize,
