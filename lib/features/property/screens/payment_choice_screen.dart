@@ -515,14 +515,14 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.login_rounded, size: 12, color: _brand),
-                              const SizedBox(width: 4),
-                              Text('CHECK-IN', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
+                              const Icon(Icons.calendar_today_rounded, size: 13, color: _brand),
+                              const SizedBox(width: 5),
+                              Text('CHECK-IN', style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
                             ],
                           ),
                           const SizedBox(height: 4),
-                          Text(checkInStr, style: GoogleFonts.inter(fontSize: 13.5, fontWeight: FontWeight.w700, color: _ink)),
-                          Text('$nights ${nights == 1 ? "night" : "nights"}', style: GoogleFonts.inter(fontSize: 11.5, color: _sub)),
+                          Text(checkInStr, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: _ink)),
+                          Text('$nights ${nights == 1 ? "night" : "nights"}', style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w500)),
                         ],
                       ),
                     ),
@@ -535,14 +535,14 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.logout_rounded, size: 12, color: _sub),
-                                const SizedBox(width: 4),
-                                Text('CHECK-OUT', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
+                                const Icon(Icons.event_busy_rounded, size: 13, color: Color(0xFFE11D48)),
+                                const SizedBox(width: 5),
+                                Text('CHECK-OUT', style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
                               ],
                             ),
                             const SizedBox(height: 4),
-                            Text(checkOutStr, style: GoogleFonts.inter(fontSize: 13.5, fontWeight: FontWeight.w700, color: _ink)),
-                            Text('${widget.booking.guestCount} ${widget.booking.guestCount == 1 ? "guest" : "guests"}', style: GoogleFonts.inter(fontSize: 11.5, color: _sub)),
+                            Text(checkOutStr, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: _ink)),
+                            Text('${widget.booking.guestCount} ${widget.booking.guestCount == 1 ? "guest" : "guests"}', style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w500)),
                           ],
                         ),
                       ),
@@ -558,12 +558,12 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    _priceRow('Stay ($nights ${nights == 1 ? "night" : "nights"})', total, _sub, _ink, FontWeight.w500, FontWeight.w600, 13.5),
+                    _priceRow('Stay ($nights ${nights == 1 ? "night" : "nights"})', total, _sub, _ink, FontWeight.w600, FontWeight.w700, 14.0, valueFontSize: 16.5, iconSize: 13.5),
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Divider(height: 1, color: _bdr),
                     ),
-                    _priceRow('Total rent', total, _ink, _ink, FontWeight.w800, FontWeight.w900, 15.0, valueFontSize: 19.5, iconSize: 15.5),
+                    _priceRow('Total rent', total, _ink, _ink, FontWeight.w800, FontWeight.w800, 15.0, valueFontSize: 20.0, iconSize: 16.0),
                   ],
                 ),
               ),
