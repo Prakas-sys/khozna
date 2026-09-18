@@ -571,7 +571,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                           padding: EdgeInsets.symmetric(vertical: 12),
                           child: Divider(height: 1, color: _bdr),
                         ),
-                        _priceRow('Total rent', total, _ink, _ink, FontWeight.w800, FontWeight.w800, 15.5, valueFontSize: 21.0, iconSize: 16.5),
+                        _priceRow('Total Rent', total, _ink, _ink, FontWeight.w800, FontWeight.w800, 15.5, valueFontSize: 21.0, iconSize: 16.5),
                       ],
                     ),
                   ),
