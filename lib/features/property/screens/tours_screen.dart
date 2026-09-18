@@ -746,40 +746,53 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              SvgPicture.asset(
-                                'assets/icons/vector of ruppes.svg',
-                                width: 14.0, // 0.5 number smaller as requested
-                                height: 14.0,
-                                colorFilter: const ColorFilter.mode(
-                                  AppTheme.brandColor,
-                                  BlendMode.srcIn,
+                              RichText(
+                                text: TextSpan(
+                                  children: [
+                                    WidgetSpan(
+                                      alignment: PlaceholderAlignment.middle,
+                                      child: Transform.translate(
+                                        offset: const Offset(0, -1.0),
+                                        child: SvgPicture.asset(
+                                          'assets/icons/vector of ruppes.svg',
+                                          width: 14.5,
+                                          height: 14.5,
+                                          colorFilter: const ColorFilter.mode(
+                                            AppTheme.brandColor,
+                                            BlendMode.srcIn,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const WidgetSpan(child: SizedBox(width: 3)),
+                                    TextSpan(
+                                      text: PriceFormatter.format(
+                                        widget.property.priceMonth > 0
+                                            ? widget.property.priceMonth.toInt().toString()
+                                            : (widget.property.priceNight > 0
+                                                  ? widget.property.priceNight.toInt().toString()
+                                                  : (widget.property.price != '0' &&
+                                                          widget.property.price != '0.0' &&
+                                                          widget.property.price.isNotEmpty
+                                                      ? widget.property.price
+                                                      : 'Negotiable')),
+                                      ),
+                                      style: GoogleFonts.spaceGrotesk(
+                                        fontSize: 19,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white,
+                                        letterSpacing: -0.4,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                               const SizedBox(width: 3),
                               Text(
-                                PriceFormatter.format(
-                                  widget.property.priceMonth > 0
-                                      ? widget.property.priceMonth.toInt().toString()
-                                      : (widget.property.priceNight > 0
-                                            ? widget.property.priceNight.toInt().toString()
-                                            : (widget.property.price != '0' &&
-                                                    widget.property.price != '0.0' &&
-                                                    widget.property.price.isNotEmpty
-                                                ? widget.property.price
-                                                : 'Negotiable')),
-                                ),
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 19,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                              Text(
                                 widget.property.priceMonth > 0
                                     ? '/mo'
                                     : (widget.property.priceNight > 0 ? '/night' : ''),
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.inter(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white54,
