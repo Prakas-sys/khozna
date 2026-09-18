@@ -12,17 +12,18 @@ import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Design tokens
+// Design Tokens
 // ─────────────────────────────────────────────────────────────────────────────
-const _bg    = Color(0xFFF8FAFC);
-const _card  = Colors.white;
-const _ink   = Color(0xFF0F172A);
-const _sub   = Color(0xFF64748B);
-const _bdr   = Color(0xFFE2E8F0);
-const _brand = AppTheme.brandColor;
+const _bg        = Color(0xFFF8FAFC);
+const _card      = Colors.white;
+const _ink       = Color(0xFF0F172A);
+const _sub       = Color(0xFF64748B);
+const _bdr       = Color(0xFFE2E8F0);
+const _brand     = AppTheme.brandColor;
+const _brandSoft = Color(0xFFEFF6FF);
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Payment Method enum
+// Payment Method Enum
 // ─────────────────────────────────────────────────────────────────────────────
 
 enum _PayMethod { esewa, khalti, bankTransfer, qr }
@@ -30,28 +31,28 @@ enum _PayMethod { esewa, khalti, bankTransfer, qr }
 extension _PayMethodExt on _PayMethod {
   String get label {
     switch (this) {
-      case _PayMethod.esewa:       return 'eSewa';
-      case _PayMethod.khalti:      return 'Khalti';
-      case _PayMethod.bankTransfer: return 'Bank Transfer';
-      case _PayMethod.qr:          return 'QR Code';
+      case _PayMethod.esewa:        return 'eSewa';
+      case _PayMethod.khalti:       return 'Khalti';
+      case _PayMethod.bankTransfer: return 'Bank';
+      case _PayMethod.qr:           return 'QR Code';
     }
   }
 
   String get key {
     switch (this) {
-      case _PayMethod.esewa:       return 'esewa';
-      case _PayMethod.khalti:      return 'khalti';
+      case _PayMethod.esewa:        return 'esewa';
+      case _PayMethod.khalti:       return 'khalti';
       case _PayMethod.bankTransfer: return 'bank_transfer';
-      case _PayMethod.qr:          return 'qr';
+      case _PayMethod.qr:           return 'qr';
     }
   }
 
   IconData get icon {
     switch (this) {
-      case _PayMethod.esewa:       return Icons.payment_rounded;
-      case _PayMethod.khalti:      return Icons.account_balance_wallet_rounded;
+      case _PayMethod.esewa:        return Icons.account_balance_wallet_rounded;
+      case _PayMethod.khalti:       return Icons.account_balance_wallet_outlined;
       case _PayMethod.bankTransfer: return Icons.account_balance_rounded;
-      case _PayMethod.qr:          return Icons.qr_code_scanner_rounded;
+      case _PayMethod.qr:           return Icons.qr_code_scanner_rounded;
     }
   }
 
@@ -59,7 +60,7 @@ extension _PayMethodExt on _PayMethod {
     switch (this) {
       case _PayMethod.esewa:        return const Color(0xFF60B246);
       case _PayMethod.khalti:       return const Color(0xFF5C2D91);
-      case _PayMethod.bankTransfer: return const Color(0xFF1D4ED8);
+      case _PayMethod.bankTransfer: return const Color(0xFF2563EB);
       case _PayMethod.qr:           return _brand;
     }
   }
@@ -79,8 +80,8 @@ class PaymentChoiceScreen extends StatefulWidget {
 }
 
 class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
-  _PayMethod? _selectedMethod;
-  final _refCtrl  = TextEditingController();
+  _PayMethod _selectedMethod = _PayMethod.esewa;
+  final _refCtrl = TextEditingController();
   File? _proofImage;
   bool _isSubmitting = false;
   bool _isLoadingOwner = true;
@@ -101,13 +102,26 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   Future<void> _loadOwnerProfile() async {
     try {
       final p = await SupabaseService.getUserProfile(widget.booking.ownerId);
-      if (mounted) setState(() { _ownerProfile = p; _isLoadingOwner = false; });
+      if (mounted) {
+        setState(() {
+          _ownerProfile = p;
+          _isLoadingOwner = false;
+          // Pre-select first available method if present
+          if (p?.esewaNumber?.isNotEmpty == true) {
+            _selectedMethod = _PayMethod.esewa;
+          } else if (p?.khaltiNumber?.isNotEmpty == true) {
+            _selectedMethod = _PayMethod.khalti;
+          } else if (p?.accountHolderName?.isNotEmpty == true) {
+            _selectedMethod = _PayMethod.bankTransfer;
+          } else if (p?.qrCodeUrl?.isNotEmpty == true) {
+            _selectedMethod = _PayMethod.qr;
+          }
+        });
+      }
     } catch (_) {
       if (mounted) setState(() => _isLoadingOwner = false);
     }
   }
-
-  // ─── Actions ───────────────────────────────────────────────────────────────
 
   Future<void> _pickProofImage() async {
     final picker = ImagePicker();
@@ -116,10 +130,6 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   }
 
   Future<void> _submit() async {
-    if (_selectedMethod == null) {
-      _showSnack('Please select a payment method.', const Color(0xFFE11D48));
-      return;
-    }
     if (_refCtrl.text.trim().isEmpty) {
       _showSnack('Please enter a transaction reference or wallet number.', const Color(0xFFE11D48));
       return;
@@ -131,7 +141,6 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     try {
       String? proofUrl;
       if (_proofImage != null) {
-        // Upload proof screenshot to Supabase Storage
         final bytes = await _proofImage!.readAsBytes();
         final fileName = 'proof_${widget.booking.id}_${DateTime.now().millisecondsSinceEpoch}.jpg';
         final client = Supabase.instance.client;
@@ -141,7 +150,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
       await BookingRepository.submitPayment(
         bookingId: widget.booking.id,
-        method: _selectedMethod!.key,
+        method: _selectedMethod.key,
         amount: widget.booking.totalPrice,
         referenceId: _refCtrl.text.trim(),
         proofImageUrl: proofUrl,
@@ -183,8 +192,6 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     ));
   }
 
-  // ─── Build ────────────────────────────────────────────────────────────────
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -201,24 +208,20 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         title: Text(
           'Submit Payment',
           style: GoogleFonts.plusJakartaSans(
-              color: _ink, fontWeight: FontWeight.w800, fontSize: 17, letterSpacing: -0.3),
+            color: _ink, fontWeight: FontWeight.w800, fontSize: 17, letterSpacing: -0.3,
+          ),
         ),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildBookingSummary(),
-            const SizedBox(height: 16),
-            _buildOwnerPaymentDetails(),
-            const SizedBox(height: 16),
-            _buildMethodSelector(),
+            _buildBookingSummaryHeader(),
             const SizedBox(height: 14),
-            _buildReferenceField(),
-            const SizedBox(height: 14),
-            _buildProofUpload(),
+            _buildUnifiedPaymentCard(),
             const SizedBox(height: 14),
             _buildDisclaimerBox(),
           ],
@@ -228,314 +231,524 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     );
   }
 
-  // ─── Booking Summary ────────────────────────────────────────────────────────
+  // ─── Booking Summary Header ───────────────────────────────────────────────
 
-  Widget _buildBookingSummary() {
+  Widget _buildBookingSummaryHeader() {
     final nights = widget.booking.nights;
     final total  = NumberFormat('#,##0').format(widget.booking.totalPrice);
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: _card, borderRadius: BorderRadius.circular(18), border: Border.all(color: _bdr),
+        color: _card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _bdr),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 2)),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(children: [
-            Container(
-              width: 38, height: 38,
-              decoration: BoxDecoration(color: _brand.withOpacity(0.08), borderRadius: BorderRadius.circular(10)),
-              child: const Icon(Icons.home_work_rounded, color: _brand, size: 19),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: _brandSoft,
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(width: 12),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(widget.booking.propertyTitle ?? 'Booking',
+            child: const Icon(Icons.home_work_rounded, color: _brand, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.booking.propertyTitle ?? 'Property Booking',
                   style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _ink),
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
-              Text(widget.booking.formattedBookingId,
-                  style: GoogleFonts.inter(fontSize: 11, color: _sub, fontWeight: FontWeight.w600)),
-            ])),
-          ]),
-          const SizedBox(height: 12),
-          Container(height: 1, color: _bdr),
-          const SizedBox(height: 12),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            _infoChip(Icons.calendar_today_rounded, '$nights ${nights == 1 ? "night" : "nights"}'),
-            _infoChip(Icons.people_rounded, '${widget.booking.guestCount} ${widget.booking.guestCount == 1 ? "guest" : "guests"}'),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(color: _brand.withOpacity(0.08), borderRadius: BorderRadius.circular(10)),
-              child: Text('NPR $total',
-                  style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _brand)),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    Text(
+                      widget.booking.formattedBookingId,
+                      style: GoogleFonts.inter(fontSize: 11, color: _sub, fontWeight: FontWeight.w600),
+                    ),
+                    Text(' • ', style: TextStyle(color: _sub.withOpacity(0.5))),
+                    Text(
+                      '$nights ${nights == 1 ? "night" : "nights"}',
+                      style: GoogleFonts.inter(fontSize: 11, color: _sub, fontWeight: FontWeight.w500),
+                    ),
+                    Text(' • ', style: TextStyle(color: _sub.withOpacity(0.5))),
+                    Text(
+                      '${widget.booking.guestCount} ${widget.booking.guestCount == 1 ? "guest" : "guests"}',
+                      style: GoogleFonts.inter(fontSize: 11, color: _sub, fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ]),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            decoration: BoxDecoration(
+              color: _brandSoft,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              'NPR $total',
+              style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: _brand),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _infoChip(IconData icon, String label) {
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      Icon(icon, size: 13, color: _sub),
-      const SizedBox(width: 5),
-      Text(label, style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w600)),
-    ]);
+  // ─── Unified Payment Card (Single Screen / Low Cognitive Load) ──────────────
+
+  Widget _buildUnifiedPaymentCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: _card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _bdr),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 16, offset: const Offset(0, 4)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Step 1 Header & Method Selector
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 24, height: 24,
+                      decoration: const BoxDecoration(color: _brand, shape: BoxShape.circle),
+                      alignment: Alignment.center,
+                      child: Text('1', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Select Payment Method',
+                      style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _ink),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _buildMethodTabs(),
+              ],
+            ),
+          ),
+
+          const Divider(height: 1, color: _bdr),
+
+          // Owner Details Dynamic Display for selected method
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: _buildSelectedMethodOwnerDetails(),
+          ),
+
+          const Divider(height: 1, color: _bdr),
+
+          // Step 2 Input & Proof Upload
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 24, height: 24,
+                      decoration: const BoxDecoration(color: _brand, shape: BoxShape.circle),
+                      alignment: Alignment.center,
+                      child: Text('2', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Enter Reference & Screenshot',
+                      style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _ink),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _refCtrl,
+                  style: GoogleFonts.inter(fontSize: 14, color: _ink, fontWeight: FontWeight.w700),
+                  decoration: InputDecoration(
+                    hintText: 'Transaction ID / Wallet Number (Required)',
+                    hintStyle: GoogleFonts.inter(fontSize: 13, color: _sub.withOpacity(0.7), fontWeight: FontWeight.w500),
+                    prefixIcon: const Icon(Icons.receipt_long_rounded, color: _sub, size: 18),
+                    fillColor: _bg,
+                    filled: true,
+                    isDense: true,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _bdr)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _bdr)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _brand, width: 1.5)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildProofUploadTile(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  // ─── Owner Payment Details ─────────────────────────────────────────────────
+  // ─── Payment Method Tabs ──────────────────────────────────────────────────
 
-  Widget _buildOwnerPaymentDetails() {
+  Widget _buildMethodTabs() {
+    return Row(
+      children: _PayMethod.values.map((m) {
+        final selected = _selectedMethod == m;
+        return Expanded(
+          child: GestureDetector(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              setState(() => _selectedMethod = m);
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              margin: EdgeInsets.only(right: m == _PayMethod.values.last ? 0 : 6),
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              decoration: BoxDecoration(
+                color: selected ? m.color.withOpacity(0.12) : _bg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: selected ? m.color : _bdr, width: selected ? 1.5 : 1),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(m.icon, size: 18, color: selected ? m.color : _sub),
+                  const SizedBox(height: 4),
+                  Text(
+                    m.label,
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                      color: selected ? m.color : _sub,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // ─── Owner Details per Selected Method ────────────────────────────────────
+
+  Widget _buildSelectedMethodOwnerDetails() {
     if (_isLoadingOwner) {
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(color: _card, borderRadius: BorderRadius.circular(18), border: Border.all(color: _bdr)),
-        child: const Center(child: CircularProgressIndicator(color: _brand, strokeWidth: 2)),
+      return const SizedBox(
+        height: 60,
+        child: Center(child: CircularProgressIndicator(color: _brand, strokeWidth: 2)),
       );
     }
 
-    final hasEsewa   = _ownerProfile?.esewaNumber?.isNotEmpty == true;
-    final hasKhalti  = _ownerProfile?.khaltiNumber?.isNotEmpty == true;
-    final hasBank    = _ownerProfile?.accountHolderName?.isNotEmpty == true;
-    final hasQr      = _ownerProfile?.qrCodeUrl?.isNotEmpty == true;
-    final hasAny     = hasEsewa || hasKhalti || hasBank || hasQr;
+    String? value;
+    String label = _selectedMethod.label;
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: _card, borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFBAE6FD)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [
-            const Icon(Icons.account_circle_rounded, color: _brand, size: 20),
+    switch (_selectedMethod) {
+      case _PayMethod.esewa:
+        value = _ownerProfile?.esewaNumber;
+        break;
+      case _PayMethod.khalti:
+        value = _ownerProfile?.khaltiNumber;
+        break;
+      case _PayMethod.bankTransfer:
+        value = _ownerProfile?.accountHolderName;
+        break;
+      case _PayMethod.qr:
+        value = _ownerProfile?.qrCodeUrl;
+        break;
+    }
+
+    if (value == null || value.trim().isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF7ED),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFFED7AA)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.info_outline_rounded, color: Color(0xFFD97706), size: 18),
             const SizedBox(width: 8),
-            Text('Pay the Property Owner',
-                style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _ink)),
-          ]),
-          const SizedBox(height: 4),
-          Text('Transfer the amount to the owner using any of their payment methods below.',
-              style: GoogleFonts.inter(fontSize: 12, color: _sub, height: 1.4)),
-          const SizedBox(height: 14),
-          if (!hasAny)
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: const Color(0xFFFFF7ED), borderRadius: BorderRadius.circular(12)),
+            Expanded(
               child: Text(
-                'The owner hasn\'t added payment details yet. Please contact them via chat to arrange payment.',
-                style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFFD97706), height: 1.4),
+                'No $label payment details registered by owner. Please choose another method or contact owner directly.',
+                style: GoogleFonts.inter(fontSize: 11.5, color: const Color(0xFFB45309), height: 1.35),
               ),
-            )
-          else ...[ 
-            if (hasEsewa)  _ownerDetailRow('eSewa',    Icons.payment_rounded,                const Color(0xFF60B246), _ownerProfile!.esewaNumber!),
-            if (hasKhalti) _ownerDetailRow('Khalti',   Icons.account_balance_wallet_rounded, const Color(0xFF5C2D91), _ownerProfile!.khaltiNumber!),
-            if (hasBank)   _ownerDetailRow('Bank',     Icons.account_balance_rounded,        const Color(0xFF1D4ED8), _ownerProfile!.accountHolderName!),
-            if (hasQr) ...[
-              const SizedBox(height: 10),
-              Center(
-                child: Column(children: [
-                  Text('Scan QR Code', style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 8),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_selectedMethod == _PayMethod.qr) {
+      return Column(
+        children: [
+          Text(
+            'Scan Owner\'s Payment QR Code',
+            style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 10),
+          GestureDetector(
+            onTap: () => _showQrEnlarged(value!),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: _bdr),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2)),
+                ],
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.network(_ownerProfile!.qrCodeUrl!, width: 140, height: 140, fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.qr_code_rounded, size: 80, color: _sub)),
+                    child: Image.network(
+                      value,
+                      width: 140,
+                      height: 140,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.qr_code_rounded, size: 80, color: _sub),
+                    ),
                   ),
-                ]),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Tap QR to expand',
+            style: GoogleFonts.inter(fontSize: 11, color: _sub),
+          ),
+        ],
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: _selectedMethod.color.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _selectedMethod.color.withOpacity(0.2)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              color: _selectedMethod.color.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(_selectedMethod.icon, color: _selectedMethod.color, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Owner\'s $label Details',
+                  style: GoogleFonts.inter(fontSize: 10.5, color: _sub, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800, color: _ink),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {
+              Clipboard.setData(ClipboardData(text: value!));
+              _showSnack('$label details copied to clipboard!', _selectedMethod.color);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: _selectedMethod.color.withOpacity(0.3)),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 4, offset: const Offset(0, 1)),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.copy_rounded, size: 13, color: _selectedMethod.color),
+                  const SizedBox(width: 5),
+                  Text(
+                    'Copy',
+                    style: GoogleFonts.inter(fontSize: 11, color: _selectedMethod.color, fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showQrEnlarged(String qrUrl) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Owner Payment QR Code', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: _ink)),
+              const SizedBox(height: 16),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Image.network(qrUrl, width: 240, height: 240, fit: BoxFit.cover),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Close', style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: _brand)),
               ),
             ],
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _ownerDetailRow(String method, IconData icon, Color color, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(children: [
-        Container(
-          width: 34, height: 34,
-          decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(9)),
-          child: Icon(icon, color: color, size: 17),
-        ),
-        const SizedBox(width: 12),
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(method, style: GoogleFonts.inter(fontSize: 10.5, color: _sub, fontWeight: FontWeight.w600)),
-          Text(value, style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _ink)),
-        ]),
-        const Spacer(),
-        GestureDetector(
-          onTap: () {
-            Clipboard.setData(ClipboardData(text: value));
-            _showSnack('$method number copied!', _brand);
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: _brand.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: _brand.withOpacity(0.2)),
-            ),
-            child: Text('Copy', style: GoogleFonts.inter(fontSize: 11, color: _brand, fontWeight: FontWeight.w700)),
           ),
         ),
-      ]),
-    );
-  }
-
-  // ─── Method Selector ──────────────────────────────────────────────────────
-
-  Widget _buildMethodSelector() {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(color: _card, borderRadius: BorderRadius.circular(18), border: Border.all(color: _bdr)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('How did you pay?',
-              style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: _ink)),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 10, runSpacing: 10,
-            children: _PayMethod.values.map((m) {
-              final selected = _selectedMethod == m;
-              return GestureDetector(
-                onTap: () { HapticFeedback.lightImpact(); setState(() => _selectedMethod = m); },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: selected ? m.color.withOpacity(0.1) : _bg,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: selected ? m.color : _bdr, width: selected ? 1.5 : 1),
-                  ),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(m.icon, size: 16, color: selected ? m.color : _sub),
-                    const SizedBox(width: 7),
-                    Text(m.label,
-                        style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                            color: selected ? m.color : _ink)),
-                  ]),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
       ),
     );
   }
 
-  // ─── Reference Field ──────────────────────────────────────────────────────
+  // ─── Proof Upload Tile (No Right Overflow!) ───────────────────────────────
 
-  Widget _buildReferenceField() {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(color: _card, borderRadius: BorderRadius.circular(18), border: Border.all(color: _bdr)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Transaction Reference / ID',
-              style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: _ink)),
-          const SizedBox(height: 4),
-          Text('Enter the transaction ID, wallet number, or confirmation code from your payment.',
-              style: GoogleFonts.inter(fontSize: 11.5, color: _sub, height: 1.4)),
-          const SizedBox(height: 10),
-          TextField(
-            controller: _refCtrl,
-            style: GoogleFonts.inter(fontSize: 14, color: _ink, fontWeight: FontWeight.w700),
-            decoration: InputDecoration(
-              hintText: 'e.g. TXN123456789',
-              hintStyle: GoogleFonts.inter(fontSize: 13, color: _sub, fontWeight: FontWeight.w500),
-              prefixIcon: const Icon(Icons.receipt_long_rounded, color: _sub, size: 18),
-              fillColor: _bg,
-              filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _bdr)),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _bdr)),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _brand, width: 1.5)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─── Proof Upload ─────────────────────────────────────────────────────────
-
-  Widget _buildProofUpload() {
+  Widget _buildProofUploadTile() {
     return GestureDetector(
       onTap: _pickProofImage,
-      child: Container(
-        padding: const EdgeInsets.all(18),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: _card, borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: _proofImage != null ? _brand : _bdr, width: _proofImage != null ? 1.5 : 1),
+          color: _proofImage != null ? _brandSoft : _bg,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: _proofImage != null ? _brand : _bdr,
+            width: _proofImage != null ? 1.5 : 1,
+          ),
         ),
         child: _proofImage != null
-            ? Row(children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.file(_proofImage!, width: 60, height: 60, fit: BoxFit.cover),
-                ),
-                const SizedBox(width: 14),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('Screenshot Added ✓',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: _brand)),
-                  const SizedBox(height: 3),
-                  Text('Tap to change screenshot', style: GoogleFonts.inter(fontSize: 11.5, color: _sub)),
-                ])),
-                Icon(Icons.edit_rounded, color: _sub, size: 18),
-              ])
-            : Row(children: [
-                Container(
-                  width: 44, height: 44,
-                  decoration: BoxDecoration(color: _bdr.withOpacity(0.6), borderRadius: BorderRadius.circular(12)),
-                  child: const Icon(Icons.add_photo_alternate_rounded, color: _sub, size: 22),
-                ),
-                const SizedBox(width: 14),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('Attach Payment Screenshot',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: _ink)),
-                  const SizedBox(height: 2),
-                  Row(children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(color: _sub.withOpacity(0.1), borderRadius: BorderRadius.circular(5)),
-                      child: Text('Optional', style: GoogleFonts.inter(fontSize: 10, color: _sub, fontWeight: FontWeight.w600)),
+            ? Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(_proofImage!, width: 44, height: 44, fit: BoxFit.cover),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Screenshot Attached ✓',
+                          style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800, color: _brand),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Tap to replace payment proof',
+                          style: GoogleFonts.inter(fontSize: 11, color: _sub),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 6),
-                    Text('Recommended for faster verification', style: GoogleFonts.inter(fontSize: 11, color: _sub)),
-                  ]),
-                ])),
-              ]),
+                  ),
+                  const Icon(Icons.edit_rounded, color: _brand, size: 18),
+                ],
+              )
+            : Row(
+                children: [
+                  Container(
+                    width: 38, height: 38,
+                    decoration: BoxDecoration(
+                      color: _bdr.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.add_a_photo_rounded, color: _sub, size: 18),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Attach Payment Receipt',
+                          style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700, color: _ink),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Optional • Speeds up owner verification',
+                          style: GoogleFonts.inter(fontSize: 11, color: _sub),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right_rounded, color: _sub, size: 20),
+                ],
+              ),
       ),
     );
   }
 
-  // ─── Disclaimer ───────────────────────────────────────────────────────────
+  // ─── Disclaimer Box ───────────────────────────────────────────────────────
 
   Widget _buildDisclaimerBox() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: const Color(0xFFFFFBEB),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFFDE68A)),
       ),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFFD97706)),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            'By submitting, you confirm you\'ve paid the owner directly. KHOZNA does not process or hold payments. The owner will verify and confirm your booking.',
-            style: GoogleFonts.inter(fontSize: 11.5, color: Color(0xFF92400E), height: 1.45),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.shield_outlined, size: 16, color: Color(0xFFD97706)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Direct owner payment. Khozna helps facilitate booking details while the property owner verifies your transfer.',
+              style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF92400E), height: 1.4),
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 
@@ -543,34 +756,43 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
   Widget _buildBottomCTA() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 30),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
       decoration: BoxDecoration(
         color: _card,
         border: const Border(top: BorderSide(color: _bdr)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, -4))],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, -4)),
+        ],
       ),
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 54,
+          height: 52,
           child: ElevatedButton(
             onPressed: _isSubmitting ? null : _submit,
             style: ElevatedButton.styleFrom(
               backgroundColor: _brand,
               foregroundColor: Colors.white,
               elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
               disabledBackgroundColor: _brand.withOpacity(0.5),
             ),
             child: _isSubmitting
-                ? const SizedBox(width: 22, height: 22,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-                : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    const Icon(Icons.check_circle_rounded, size: 20),
-                    const SizedBox(width: 10),
-                    Text("I've Made Payment — Submit",
-                        style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800)),
-                  ]),
+                ? const SizedBox(
+                    width: 22, height: 22,
+                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.check_circle_rounded, size: 19),
+                      const SizedBox(width: 8),
+                      Text(
+                        'I\'ve Made Payment — Submit',
+                        style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800),
+                      ),
+                    ],
+                  ),
           ),
         ),
       ),
@@ -600,46 +822,61 @@ class _SuccessSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 72, height: 72,
-            decoration: BoxDecoration(color: const Color(0xFFF0FDF4), shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFBBF7D0), width: 2)),
-            child: const Icon(Icons.check_circle_rounded, color: Color(0xFF16A34A), size: 36),
+            width: 68, height: 68,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0FDF4),
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFFBBF7D0), width: 2),
+            ),
+            child: const Icon(Icons.check_circle_rounded, color: Color(0xFF16A34A), size: 34),
           ),
-          const SizedBox(height: 20),
-          Text('Payment Info Submitted!',
-              style: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w900, color: _ink, letterSpacing: -0.5),
-              textAlign: TextAlign.center),
+          const SizedBox(height: 18),
+          Text(
+            'Payment Details Submitted!',
+            style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.w900, color: _ink, letterSpacing: -0.4),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 8),
-          Text('The owner will verify your payment and confirm your booking.\nWe\'ll notify you once it\'s confirmed.',
-              style: GoogleFonts.inter(fontSize: 14, color: _sub, height: 1.55),
-              textAlign: TextAlign.center),
+          Text(
+            'The owner will verify your payment and confirm your booking.\nWe\'ll notify you as soon as it\'s confirmed.',
+            style: GoogleFonts.inter(fontSize: 13, color: _sub, height: 1.5),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 20),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             decoration: BoxDecoration(
-              color: _brand.withOpacity(0.07),
+              color: _brandSoft,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: _brand.withOpacity(0.2)),
             ),
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const Icon(Icons.confirmation_number_rounded, color: _brand, size: 18),
-              const SizedBox(width: 10),
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Booking Reference', style: GoogleFonts.inter(fontSize: 11, color: _sub, fontWeight: FontWeight.w600)),
-                Text(bookingId, style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w900, color: _brand, letterSpacing: 1)),
-              ]),
-            ]),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.confirmation_number_rounded, color: _brand, size: 18),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Booking Reference', style: GoogleFonts.inter(fontSize: 11, color: _sub, fontWeight: FontWeight.w600)),
+                    Text(bookingId, style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w900, color: _brand, letterSpacing: 0.8)),
+                  ],
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 24),
           SizedBox(
-            width: double.infinity, height: 52,
+            width: double.infinity, height: 50,
             child: ElevatedButton(
               onPressed: onDone,
               style: ElevatedButton.styleFrom(
-                backgroundColor: _brand, foregroundColor: Colors.white, elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                backgroundColor: _brand,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
               ),
-              child: Text('Done', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800)),
+              child: Text('Done', style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w800)),
             ),
           ),
         ],
