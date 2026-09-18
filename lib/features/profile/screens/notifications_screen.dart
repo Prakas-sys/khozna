@@ -365,51 +365,47 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       {'key': 'all', 'label': 'All'},
       {'key': 'visit_requests', 'label': 'Visit Requests'},
       {'key': 'bookings', 'label': 'Bookings'},
-      {'key': 'messages', 'label': 'Messages'},
     ];
 
     return Container(
-      height: 38,
+      height: 40,
       margin: const EdgeInsets.only(top: 4, bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: filters.map((item) {
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: filters.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final item = filters[index];
           final key = item['key']!;
           final label = item['label']!;
           final isSelected = _selectedFilter == key;
 
-          return Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: GestureDetector(
-                onTap: () => setState(() => _selectedFilter = key),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  padding: const EdgeInsets.symmetric(vertical: 7),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0),
-                      width: 1,
-                    ),
-                  ),
-                  child: Text(
-                    label,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                      color: isSelected ? Colors.white : const Color(0xFF475569),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+          return GestureDetector(
+            onTap: () => setState(() => _selectedFilter = key),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                label,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12.5,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                  color: isSelected ? Colors.white : const Color(0xFF475569),
                 ),
               ),
             ),
           );
-        }).toList(),
+        },
       ),
     );
   }
@@ -1293,7 +1289,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            'New Request to Book',
+                            (note['type'] == 'visit_request' ||
+                                    (note['title']?.toString().toLowerCase().contains('visit') ?? false) ||
+                                    (note['message']?.toString().toLowerCase().contains('visit') ?? false))
+                                ? 'New Visit Request'
+                                : 'New Booking Request',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
@@ -3194,14 +3194,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final msg = (message ?? '').toLowerCase();
     final t = (type ?? '').toLowerCase();
 
-    if (t == 'payment_received' || t == 'payment' || msg.contains('payment') || msg.contains('भुक्तानी') || input.contains('भुक्तानी')) {
+    if (t == 'payment_received' || t == 'payment' || msg.contains('payment') || input.toLowerCase().contains('payment')) {
       return 'Payment Received';
     }
-    if (t == 'booking_request' || t == 'visit_request' || msg.contains('visit') || msg.contains('अनुरोध') || msg.contains('book')) {
-      return 'Property Visit Request';
+    if (t == 'visit_request' || msg.contains('visit') || input.toLowerCase().contains('visit')) {
+      return 'New Visit Request';
+    }
+    if (t == 'booking_request' || msg.contains('book') || input.toLowerCase().contains('booking')) {
+      return 'New Booking Request';
     }
     if (input.trim() == 'Khozna app' || input.trim() == 'Khozna App' || input.isEmpty) {
-      return 'Property Visit Request';
+      return 'New Visit Request';
     }
 
     String cleaned = input
@@ -3209,19 +3212,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         .replaceAll('नयाँ भुक्तानी प्राप्त', 'Payment Received')
         .replaceAll('(New Payment Received!)', '')
         .replaceAll('New Payment Received!', 'Payment Received')
-        .replaceAll('New Property Visit', 'Property Visit Request')
-        .replaceAll('Booking Request Sent', 'Booking Request')
-        .replaceAll('Visit Approved!', 'Visit Approved')
+        .replaceAll('New Property Visit', 'New Visit Request')
+        .replaceAll('Property Visit Request', 'New Visit Request')
+        .replaceAll('Booking Request Sent', 'New Booking Request')
+        .replaceAll('Visit Approved!', 'Visit Request Accepted')
         .replaceAll('Booking Confirmed!', 'Booking Confirmed')
-        .replaceAll('Khozna app', 'Property Visit Request')
+        .replaceAll('Khozna app', 'New Visit Request')
         .replaceAll(RegExp(r'[\u0900-\u097F]+'), '')
         .trim();
 
-    return cleaned.isEmpty ? 'Property Visit Request' : cleaned;
+    return cleaned.isEmpty ? 'New Visit Request' : cleaned;
   }
 
   String _cleanMessage(String input) {
-    if (input.isEmpty) return 'Guest requested to book your property.';
+    if (input.isEmpty) return 'Guest requested a property visit.';
 
     String cleaned = input;
 
@@ -3234,7 +3238,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     // Pattern 2: Visit request with optional property title
     cleaned = cleaned.replaceAllMapped(
       RegExp(r'Khozna app\s*ले\s*तपाईँको\s*कोठा\s*(\([^)]+\))?\s*सीधा\s*बुक\s*गर्न\s*अनुरोध\s*गर्नुभएको\s*छ।?', caseSensitive: false),
-      (m) => 'Guest requested to book your property ${m.group(1) ?? ""}.',
+      (m) => 'Guest requested a visit for your property ${m.group(1) ?? ""}.',
     );
 
     // Individual phrase fallback replacements
@@ -3244,7 +3248,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         .replaceAll(RegExp(r'Khozna\s*app', caseSensitive: false), 'Guest')
         .replaceAll('तपाईँको कोठा', 'your property')
         .replaceAll('को लागि भुक्तानी पठाउनुभएको छ।', 'sent payment for your property.')
-        .replaceAll('सीधा बुक गर्न अनुरोध गर्नुभएको छ।', 'requested to book your property.')
+        .replaceAll('सीधा बुक गर्न अनुरोध गर्नुभएको छ।', 'requested a visit for your property.')
         .replaceAll('अनुरोध गर्नुभएको छ।', 'requested a visit.')
         .replaceAll('भुक्तानी पेस भयो', 'Payment proof submitted.')
         .replaceAll(RegExp(r'Hello[!.,]?\s*', caseSensitive: false), '')
@@ -3259,9 +3263,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     if (cleaned.isEmpty ||
         cleaned.toLowerCase() == 'guest' ||
-        cleaned.toLowerCase() == 'requested a room visit.' ||
-        cleaned.toLowerCase() == 'guest requested to book your property.') {
-      return 'Guest requested to book your property.';
+        cleaned.toLowerCase() == 'requested a room visit.') {
+      return 'Guest requested a property visit.';
     }
 
     return cleaned[0].toUpperCase() + cleaned.substring(1);

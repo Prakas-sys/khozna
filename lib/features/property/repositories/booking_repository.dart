@@ -104,8 +104,8 @@ class BookingRepository {
 
       // Notify owner about the NEW BOOKING REQUEST
       final String guestName = user?.userMetadata?['full_name'] ?? 'A Guest';
-      final String bTitle = 'नयाँ बुकिङ अनुरोध (New Booking Request! 🏠)';
-      final String bMessage = '$guestName ले तपाइँको कोठा सीधा बुक गर्न अनुरोध गर्नुभएको छ।';
+      final String bTitle = 'New Booking Request';
+      final String bMessage = '$guestName requested to book your property.';
 
       await _client.from('notifications').insert({
         'user_id': newBooking.ownerId,
@@ -154,7 +154,7 @@ class BookingRepository {
           .maybeSingle();
 
       if (existing != null) {
-        throw Exception('तपाइँले यस कोठाको लागि अघि नै अवलोकन अनुरोध पठाइसक्नुभएको छ। (You already have an active request for this property.)');
+        throw Exception('You already have an active request for this property.');
       }
 
       final cleanMessage = message != null
@@ -179,8 +179,8 @@ class BookingRepository {
 
       // Notify owner
       final String name = user.userMetadata?['full_name'] ?? 'A user';
-      final String vTitle = 'नयाँ अवलोकन तथा बुकिङ अनुरोध (New Booking Request!)';
-      final String vMessage = '$name ले तपाइँको कोठा बुक गर्ने अनुरोध गर्नुभएको छ। ${message ?? ""}';
+      final String vTitle = 'New Visit Request';
+      final String vMessage = '$name requested to schedule a property visit. ${message ?? ""}';
 
       await _client.from('notifications').insert({
         'user_id': ownerId,
@@ -228,8 +228,8 @@ class BookingRepository {
       final booking = await getBookingById(bookingId);
       if (booking != null) {
         debugPrint('Sending approval notification to guest: ${booking.guestId}');
-        const String title = 'बुकिङ अनुरोध स्वीकृत (Booking Request Accepted!)';
-        const String body = 'तपाइँको बुकिङ अनुरोध स्वीकृत भएको छ। कृपया घरधनीलाई सिधै भुक्तानी गर्नुहोस्।';
+        const String title = 'Booking Request Accepted';
+        const String body = 'Your booking request was accepted by the host. Please proceed to payment.';
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
@@ -398,8 +398,8 @@ class BookingRepository {
       if (booking != null) {
         final user = _client.auth.currentUser;
         final String name = user?.userMetadata?['full_name'] ?? 'Guest';
-        const String title = 'अवलोकन अनुरोध रद्द गरियो (Visit Request Cancelled)';
-        final String body = '$name ले अवलोकन अनुरोध रद्द गर्नुभयो।';
+        const String title = 'Visit Request Cancelled';
+        final String body = '$name cancelled the visit request.';
         await _client.from('notifications').insert({
           'user_id': booking.ownerId,
           'sender_id': user?.id,
@@ -444,8 +444,8 @@ class BookingRepository {
       final booking = await getBookingById(bookingId);
       if (booking != null) {
         debugPrint('Sending rejection notification to guest: ${booking.guestId}');
-        final String displayReason = reason != null ? 'कारण: $reason' : 'घरधनीले यो समयमा अवलोकन व्यवस्था गर्न सक्नुभएन।';
-        const String title = 'अवलोकन अस्वीकृत (Visit Rejected)';
+        final String displayReason = reason != null ? 'Reason: $reason' : 'Host is unable to schedule a visit at this time.';
+        const String title = 'Visit Request Declined';
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
@@ -478,8 +478,8 @@ class BookingRepository {
       if (booking != null) {
         final user = _client.auth.currentUser;
         final String name = user?.userMetadata?['full_name'] ?? 'Guest';
-        const String title = 'अवलोकन अनुरोध याद दिलाउँदै (Visit Reminder)';
-        final String body = '$name ले तपाइँको जवाफको लागि प्रतीक्षा गर्दैछ।';
+        const String title = 'Visit Request Reminder';
+        final String body = '$name is waiting for your response.';
         await _client.from('notifications').insert({
           'user_id': booking.ownerId,
           'sender_id': user?.id,
@@ -607,9 +607,9 @@ class BookingRepository {
       final guestName = user.userMetadata?['full_name'] ?? 'A Guest';
 
       // 3. Notify owner
-      const String pTitle = 'भुक्तानी विवरण प्राप्त भयो (Payment Info Submitted 💸)';
+      const String pTitle = 'Payment Submitted';
       final String refInfo = referenceId != null && referenceId.isNotEmpty ? ' (Ref: $referenceId)' : '';
-      final String pBody = '$guestName ले घरधनीको खातामा सिधै भुक्तानी पठाउनुभएको छ$refInfo। कृपया विवरण जाँच गरी स्वीकृत गर्नुहोस्।';
+      final String pBody = '$guestName submitted payment for your property$refInfo. Please review and confirm.';
       await _client.from('notifications').insert({
         'user_id': booking.ownerId,
         'sender_id': user.id,
@@ -662,8 +662,8 @@ class BookingRepository {
 
       // Notify confirmed guest
       if (guestId.isNotEmpty) {
-        const String confTitle = 'बुकिङ पक्का भयो! (Booking Confirmed! 🏠)';
-        const String confBody = 'घरधनीले भुक्तानी प्राप्त भएको पुष्टि गर्नुभयो। तपाइँको बुकिङ पक्का भएको छ!';
+        const String confTitle = 'Booking Confirmed';
+        const String confBody = 'Host confirmed your payment. Your booking is now confirmed!';
         await _client.from('notifications').insert({
           'user_id': guestId,
           'sender_id': _client.auth.currentUser?.id,
@@ -700,8 +700,8 @@ class BookingRepository {
 
       final booking = await getBookingById(bookingId);
       if (booking != null && booking.guestId.isNotEmpty) {
-        const String title = 'भुक्तानी प्रमाणीकरण हुन सकेन (Payment Issue ⚠️)';
-        final String body = 'घरधनीले तपाइँको भुक्तानी प्रमाणीकरण गर्न सक्नुभएन। ${reason ?? "कृपया पुनः विवरण वा प्रमाण पठाउनुहोस्।"}';
+        const String title = 'Payment Issue';
+        final String body = 'Host could not verify your payment. ${reason ?? "Please check payment details."}';
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
