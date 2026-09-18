@@ -1181,17 +1181,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final String bookingId = note['booking_id']?.toString() ?? id.replaceAll('synth_owner_', '');
     final String propTitle = note['property_title']?.toString() ?? note['properties']?['title']?.toString() ?? '';
 
+    // Check current status from in-memory cache or note object
+    Map<String, dynamic>? cachedB;
+    for (final b in BookingRepository.cachedOwnerBookings) {
+      if (b['id']?.toString() == bookingId) {
+        cachedB = b;
+        break;
+      }
+    }
+    final String status = cachedB?['status']?.toString() ?? note['status']?.toString() ?? 'pending_approval';
+
     final String? propImg = note['property_image']?.toString() ?? (note['properties']?['images'] is List && (note['properties']?['images'] as List).isNotEmpty ? note['properties']['images'][0] : null);
 
     // Try structured check_in field first, then parse from message text
-    final checkInRaw = note['check_in']?.toString();
+    final checkInRaw = note['check_in']?.toString() ?? cachedB?['check_in']?.toString();
     String scheduleLine = '';
     if (checkInRaw != null) {
       final dt = DateTime.tryParse(checkInRaw);
       if (dt != null) {
         final formattedDate = DateFormat('MMM dd').format(dt);
         final formattedTime = DateFormat('h:mm a').format(dt);
-        final visitors = note['guests']?.toString() ?? '2';
+        final visitors = note['guests']?.toString() ?? cachedB?['guests']?.toString() ?? '1';
         scheduleLine = '$formattedDate • $formattedTime • $visitors visitors';
       }
     }
@@ -1366,89 +1376,193 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () async {
-                              final reason = await _showRejectionReasonPicker(context);
-                              if (reason != null && bookingId.isNotEmpty) {
-                                try {
-                                  await BookingRepository.rejectWithReason(bookingId, reason: reason);
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Request declined')),
-                                    );
-                                  }
-                                  _fetchNotifications(showLoading: false);
-                                } catch (e) {
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Failed: $e')),
-                                    );
-                                  }
-                                }
-                              }
-                            },
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xFF0F172A),
-                              side: const BorderSide(color: Color(0xFFCBD5E1)),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                            ),
-                            child: Text(
-                              'Decline',
+                    // Dynamic Action / Status Section
+                    if (status == 'visit_accepted') ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDCFCE7),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFF86EFAC)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.check_circle_rounded, color: Color(0xFF15803D), size: 16),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Visit Accepted',
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
+                                color: const Color(0xFF15803D),
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              if (bookingId.isNotEmpty) {
-                                try {
-                                  await BookingRepository.approveRequest(bookingId);
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Request accepted & confirmed!')),
-                                    );
-                                  }
-                                  _fetchNotifications(showLoading: false);
-                                } catch (e) {
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Failed: $e')),
-                                    );
-                                  }
-                                }
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF0F172A),
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                      ),
+                    ] else if (status == 'awaiting_payment') ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEFF6FF),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFFBFDBFE)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.check_circle_rounded, color: Color(0xFF1D4ED8), size: 16),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Approved (Awaiting Payment)',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF1D4ED8),
                               ),
-                              padding: const EdgeInsets.symmetric(vertical: 8),
                             ),
-                            child: Text(
-                              'Accept',
+                          ],
+                        ),
+                      ),
+                    ] else if (status == 'rejected') ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF2F2),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFFFCA5A5)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.cancel_rounded, color: Color(0xFFB91C1C), size: 16),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Request Declined',
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
+                                color: const Color(0xFFB91C1C),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ] else if (status == 'confirmed') ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDCFCE7),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFF86EFAC)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.verified_rounded, color: Color(0xFF15803D), size: 16),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Booking Confirmed',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF15803D),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ] else ...[
+                      // Pending approval action buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () async {
+                                final reason = await _showRejectionReasonPicker(context);
+                                if (reason != null && bookingId.isNotEmpty) {
+                                  try {
+                                    await BookingRepository.rejectWithReason(bookingId, reason: reason);
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Request declined')),
+                                      );
+                                    }
+                                    _fetchNotifications(showLoading: false);
+                                  } catch (e) {
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Failed: $e')),
+                                      );
+                                    }
+                                  }
+                                }
+                              },
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color(0xFFDC2626),
+                                side: const BorderSide(color: Color(0xFFFECDD3)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                              ),
+                              child: Text(
+                                'Decline',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                if (bookingId.isNotEmpty) {
+                                  try {
+                                    await BookingRepository.approveVisitRequest(bookingId);
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Visit request accepted!')),
+                                      );
+                                    }
+                                    _fetchNotifications(showLoading: false);
+                                  } catch (e) {
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Failed: $e')),
+                                      );
+                                    }
+                                  }
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.brandColor,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                              ),
+                              child: Text(
+                                'Accept Visit',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),

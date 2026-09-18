@@ -228,7 +228,7 @@ class BookingRepository {
       final booking = await getBookingById(bookingId);
       if (booking != null) {
         debugPrint('Sending visit approval notification to guest: ${booking.guestId}');
-        final DateTime scheduledDt = newCheckIn ?? DateTime.tryParse(booking.checkIn) ?? DateTime.now();
+        final DateTime scheduledDt = newCheckIn ?? booking.checkIn;
         final String dateStr = DateFormat('MMM dd, yyyy • hh:mm a').format(scheduledDt);
         const String title = 'Visit Request Approved 🎉';
         final String body = 'The host accepted your visit request for "${booking.propertyTitle}". Scheduled for $dateStr.';
