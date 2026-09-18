@@ -2824,6 +2824,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           : (double.tryParse(widget.property.price) ?? 0),
                       propertyImageUrl: widget.property.imageUrl,
                       propertyLocation: widget.property.location,
+                      category: widget.property.category,
+                      cancellationPolicy: widget.property.cancellationPolicy,
+                      isVerified: widget.property.isVerified,
                     ),
                   ),
                 ).then((v) => v == true ? _updateBookingStatus() : null);

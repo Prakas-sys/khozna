@@ -3,12 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:khozna/core/theme/app_theme.dart';
+import 'package:khozna/core/models/review_model.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/features/property/screens/booking_status_screen.dart';
 import 'package:khozna/widgets/khozna_image.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Design tokens
+// Design Tokens
 // ─────────────────────────────────────────────────────────────────────────────
 const _bg    = Color(0xFFF8FAFC);
 const _card  = Colors.white;
@@ -16,6 +17,7 @@ const _ink   = Color(0xFF0F172A);
 const _sub   = Color(0xFF64748B);
 const _bdr   = Color(0xFFE2E8F0);
 const _brand = AppTheme.brandColor;
+const _pillBg = Color(0xFFF1F5F9);
 
 class BookingRequestScreen extends StatefulWidget {
   final String propertyId;
@@ -25,6 +27,9 @@ class BookingRequestScreen extends StatefulWidget {
   final double pricePerNight;
   final String? propertyImageUrl;
   final String? propertyLocation;
+  final String category;
+  final String cancellationPolicy;
+  final bool isVerified;
 
   const BookingRequestScreen({
     super.key,
@@ -35,6 +40,9 @@ class BookingRequestScreen extends StatefulWidget {
     this.pricePerNight = 0,
     this.propertyImageUrl,
     this.propertyLocation,
+    this.category = 'Room',
+    this.cancellationPolicy = 'standard',
+    this.isVerified = false,
   });
 
   @override
@@ -43,12 +51,17 @@ class BookingRequestScreen extends StatefulWidget {
 
 class _BookingRequestScreenState extends State<BookingRequestScreen>
     with SingleTickerProviderStateMixin {
-  int _currentStep = 0; // 0: Dates & Guests, 1: Bill Summary & Request
+  int _currentStep = 0; // 0: Review & continue, 1: Message the host, 2: Confirm & request
+
   DateTime _checkIn  = DateTime.now().add(const Duration(days: 1));
   DateTime _checkOut = DateTime.now().add(const Duration(days: 3));
   int _guestCount = 1;
   final TextEditingController _messageCtrl = TextEditingController();
   bool _isSubmitting = false;
+
+  // Real review data state
+  List<ReviewModel> _reviews = [];
+  bool _isLoadingReviews = true;
 
   late AnimationController _fadeCtrl;
   late Animation<double> _fadeAnim;
@@ -56,9 +69,14 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
   @override
   void initState() {
     super.initState();
-    _fadeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 350));
-    _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
+    _fadeCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeInOut);
     _fadeCtrl.forward();
+
+    _loadRealReviews();
   }
 
   @override
@@ -68,65 +86,348 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
     super.dispose();
   }
 
+  Future<void> _loadRealReviews() async {
+    try {
+      final reviews = await BookingRepository.fetchReviewsForProperty(widget.propertyId);
+      if (mounted) {
+        setState(() {
+          _reviews = reviews;
+          _isLoadingReviews = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoadingReviews = false);
+    }
+  }
+
+  double? get _avgRating => _reviews.isNotEmpty
+      ? (_reviews.map((e) => e.rating).reduce((a, b) => a + b) / _reviews.length)
+      : null;
+
   int get _nights => _checkOut.difference(_checkIn).inDays.clamp(1, 999);
   double get _totalPrice => widget.pricePerNight > 0 ? widget.pricePerNight * _nights : 0;
 
-  void _nextStep() {
-    HapticFeedback.mediumImpact();
+  void _goToStep(int step) {
+    if (step == _currentStep) return;
+    HapticFeedback.selectionClick();
     _fadeCtrl.reset();
-    setState(() => _currentStep = 1);
+    setState(() => _currentStep = step);
     _fadeCtrl.forward();
+  }
+
+  void _nextStep() {
+    if (_currentStep < 2) {
+      _goToStep(_currentStep + 1);
+    } else {
+      _submit();
+    }
   }
 
   void _prevStep() {
-    HapticFeedback.lightImpact();
-    _fadeCtrl.reset();
-    setState(() => _currentStep = 0);
-    _fadeCtrl.forward();
+    if (_currentStep > 0) {
+      _goToStep(_currentStep - 1);
+    } else {
+      Navigator.pop(context);
+    }
   }
 
-  // ─── DATE PICKERS ────────────────────────────────────────────────────────
+  // ─── INTERACTIVE MODALS (CHANGE DATES, CHANGE GUESTS, PRICE DETAILS) ──────
 
-  Future<void> _pickCheckIn() async {
-    final picked = await showDatePicker(
+  Future<void> _changeDates() async {
+    HapticFeedback.lightImpact();
+    final pickedRange = await showDateRangePicker(
       context: context,
-      initialDate: _checkIn,
+      initialDateRange: DateTimeRange(start: _checkIn, end: _checkOut),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
-      builder: _datePickerTheme,
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: _ink,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: _ink,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
-    if (picked != null) {
+
+    if (pickedRange != null) {
       setState(() {
-        _checkIn = picked;
-        if (_checkOut.isBefore(_checkIn.add(const Duration(days: 1)))) {
-          _checkOut = _checkIn.add(const Duration(days: 1));
-        }
+        _checkIn = pickedRange.start;
+        _checkOut = pickedRange.end;
       });
     }
   }
 
-  Future<void> _pickCheckOut() async {
-    final picked = await showDatePicker(
+  void _changeGuests() {
+    HapticFeedback.lightImpact();
+    showModalBottomSheet(
       context: context,
-      initialDate: _checkOut,
-      firstDate: _checkIn.add(const Duration(days: 1)),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-      builder: _datePickerTheme,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 38,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: _bdr,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Guests',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: _ink,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Select the number of guests staying at this property.',
+                    style: GoogleFonts.inter(fontSize: 13, color: _sub),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Adults & Children',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: _ink,
+                            ),
+                          ),
+                          Text(
+                            'Ages 13 or above',
+                            style: GoogleFonts.inter(fontSize: 12, color: _sub),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          _counterCircleButton(
+                            icon: Icons.remove,
+                            onTap: _guestCount > 1
+                                ? () {
+                                    setSheetState(() => _guestCount--);
+                                    setState(() {});
+                                  }
+                                : null,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              '$_guestCount',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: _ink,
+                              ),
+                            ),
+                          ),
+                          _counterCircleButton(
+                            icon: Icons.add,
+                            onTap: _guestCount < 20
+                                ? () {
+                                    setSheetState(() => _guestCount++);
+                                    setState(() {});
+                                  }
+                                : null,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _ink,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        'Save Guests',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
-    if (picked != null) setState(() => _checkOut = picked);
   }
 
-  Widget _datePickerTheme(BuildContext ctx, Widget? child) {
-    return Theme(
-      data: ThemeData.light().copyWith(
-        colorScheme: const ColorScheme.light(primary: _brand),
-        dialogBackgroundColor: _card,
-      ),
-      child: child!,
+  void _showPriceDetails() {
+    HapticFeedback.lightImpact();
+    final priceStr = NumberFormat('#,##0').format(widget.pricePerNight);
+    final totalStr = NumberFormat('#,##0').format(_totalPrice);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 38,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: _bdr,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Price details',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: _ink,
+                ),
+              ),
+              const SizedBox(height: 20),
+              if (widget.pricePerNight > 0) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'NPR $priceStr × $_nights ${_nights == 1 ? "night" : "nights"}',
+                      style: GoogleFonts.inter(fontSize: 14, color: _ink),
+                    ),
+                    Text(
+                      'NPR $totalStr',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: _ink,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Service fee',
+                      style: GoogleFonts.inter(fontSize: 14, color: _ink),
+                    ),
+                    Text(
+                      'NPR 0 (FREE)',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF16A34A),
+                      ),
+                    ),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Divider(color: _bdr, height: 1),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Total (NPR)',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: _ink,
+                      ),
+                    ),
+                    Text(
+                      'NPR $totalStr',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        color: _ink,
+                      ),
+                    ),
+                  ],
+                ),
+              ] else ...[
+                Text(
+                  'Price upon request with the host directly.',
+                  style: GoogleFonts.inter(fontSize: 14, color: _sub),
+                ),
+              ],
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _ink,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Done',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  // ─── SUBMIT ───────────────────────────────────────────────────────────────
+  // ─── SUBMIT REQUEST ───────────────────────────────────────────────────────
 
   Future<void> _submit() async {
     HapticFeedback.mediumImpact();
@@ -180,228 +481,113 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
     ));
   }
 
-  // ─── BUILD ────────────────────────────────────────────────────────────────
+  // ─── BUILD SCREEN ─────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
+    String stepTitle = 'Review and continue';
+    if (_currentStep == 1) stepTitle = 'Message the host';
+    if (_currentStep == 2) stepTitle = 'Confirm and request';
+
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: _card,
+        backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: _ink, size: 18),
-          onPressed: () {
-            if (_currentStep > 0) {
-              _prevStep();
-            } else {
-              Navigator.pop(context);
-            }
-          },
-        ),
-        title: Text(
-          _currentStep == 0 ? 'Select Dates & Guests' : 'Booking Summary',
-          style: GoogleFonts.plusJakartaSans(
-            color: _ink, fontWeight: FontWeight.w800, fontSize: 17, letterSpacing: -0.3,
+          icon: Icon(
+            _currentStep > 0
+                ? Icons.arrow_back_ios_new_rounded
+                : Icons.arrow_back_rounded,
+            color: _ink,
+            size: 20,
           ),
+          onPressed: _prevStep,
         ),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          _buildStepperHeader(),
-          Expanded(
-            child: FadeTransition(
-              opacity: _fadeAnim,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
-                child: _currentStep == 0 ? _buildStepOneContent() : _buildStepTwoContent(),
-              ),
-            ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.close_rounded, color: _ink, size: 24),
+            onPressed: () => Navigator.pop(context),
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomCTA(),
-    );
-  }
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: FadeTransition(
+                opacity: _fadeAnim,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Screen Title
+                      Text(
+                        stepTitle,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          color: _ink,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
 
-  // ─── STEPPER HEADER ────────────────────────────────────────────────────────
-
-  Widget _buildStepperHeader() {
-    return Container(
-      color: _card,
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-      child: Row(
-        children: [
-          _stepperBadge(0, '1', 'Dates & Guests'),
-          Expanded(
-            child: Container(
-              height: 2,
-              margin: const EdgeInsets.symmetric(horizontal: 10),
-              color: _currentStep > 0 ? _brand : _bdr,
-            ),
-          ),
-          _stepperBadge(1, '2', 'Bill & Request'),
-        ],
-      ),
-    );
-  }
-
-  Widget _stepperBadge(int stepIndex, String number, String label) {
-    final bool active = _currentStep == stepIndex;
-    final bool done = _currentStep > stepIndex;
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          width: 26,
-          height: 26,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: done ? _brand : (active ? _brand : Colors.transparent),
-            border: Border.all(color: active || done ? _brand : _sub.withOpacity(0.4), width: 1.5),
-          ),
-          alignment: Alignment.center,
-          child: done
-              ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
-              : Text(
-                  number,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: active ? Colors.white : _sub,
+                      // Step View Builder
+                      if (_currentStep == 0) _buildStep1ReviewAndContinue(),
+                      if (_currentStep == 1) _buildStep2MessageHost(),
+                      if (_currentStep == 2) _buildStep3ConfirmAndRequest(),
+                    ],
                   ),
                 ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: active || done ? FontWeight.w700 : FontWeight.w500,
-            color: active || done ? _ink : _sub,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ─── STEP 1 CONTENT: DATES & GUESTS ────────────────────────────────────────
-
-  Widget _buildStepOneContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _buildPropertyCard(),
-        const SizedBox(height: 16),
-        _buildDatesCard(),
-        const SizedBox(height: 16),
-        _buildGuestCounter(),
-        const SizedBox(height: 16),
-        _buildStepOnePreviewBanner(),
-      ],
-    );
-  }
-
-  Widget _buildStepOnePreviewBanner() {
-    final priceStr = NumberFormat('#,##0').format(widget.pricePerNight);
-    final totalStr = NumberFormat('#,##0').format(_totalPrice);
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _brand.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _brand.withOpacity(0.18)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: _brand.withOpacity(0.12), shape: BoxShape.circle),
-            child: const Icon(Icons.receipt_long_rounded, color: _brand, size: 20),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Estimated Total',
-                  style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600, color: _sub),
-                ),
-                Text(
-                  widget.pricePerNight > 0 ? 'NPR $totalStr' : 'Price upon request',
-                  style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w800, color: _ink),
-                ),
-              ],
+              ),
             ),
-          ),
-          Text(
-            '$_nights ${_nights == 1 ? "night" : "nights"}',
-            style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: _brand),
-          ),
-        ],
+
+            // Bottom Sticky Progress & Next Button
+            _buildBottomStickyBar(),
+          ],
+        ),
       ),
     );
   }
 
-  // ─── STEP 2 CONTENT: BILL CARD SUMMARY & REQUEST ───────────────────────────
+  // ─── STEP 1: REVIEW AND CONTINUE (MATCHING SCREENSHOT) ─────────────────────
 
-  Widget _buildStepTwoContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _buildDigitalReceiptCard(),
-        const SizedBox(height: 16),
-        _buildDirectPaymentNotice(),
-        const SizedBox(height: 16),
-        _buildMessageField(),
-      ],
-    );
-  }
-
-  // ─── BEAUTIFUL DIGITAL RECEIPT / BILL CARD ─────────────────────────────────
-
-  Widget _buildDigitalReceiptCard() {
+  Widget _buildStep1ReviewAndContinue() {
     final priceStr = NumberFormat('#,##0').format(widget.pricePerNight);
     final totalStr = NumberFormat('#,##0').format(_totalPrice);
 
     return Container(
       decoration: BoxDecoration(
-        color: _card,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: _bdr),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _bdr, width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         children: [
-          // Bill Header
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: const Color(0xFF0F172A),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(21)),
-            ),
+          // Top Property Header (Image + Title + Rating)
+          Padding(
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.12),
-                    shape: BoxShape.circle,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: KhoznaImage(
+                    imageUrl: widget.propertyImageUrl ?? '',
+                    width: 72,
+                    height: 72,
+                    fit: BoxFit.cover,
                   ),
-                  child: const Icon(Icons.receipt_rounded, color: Colors.white, size: 20),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -409,137 +595,124 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'BOOKING RECEIPT SUMMARY',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF94A3B8),
-                          letterSpacing: 1.1,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
                         widget.propertyTitle,
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 15,
+                          fontSize: 16,
                           fontWeight: FontWeight.w800,
-                          color: Colors.white,
+                          color: _ink,
+                          height: 1.25,
                         ),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(Icons.star_rounded, size: 15, color: _ink),
+                          const SizedBox(width: 4),
+                          Text(
+                            _avgRating != null
+                                ? '${_avgRating!.toStringAsFixed(2)} (${_reviews.length})'
+                                : (_isLoadingReviews ? '...' : 'New'),
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: _ink,
+                            ),
+                          ),
+                          if (_avgRating != null && _avgRating! >= 4.5) ...[
+                            const SizedBox(width: 8),
+                            const Icon(
+                              Icons.verified_user_rounded,
+                              size: 14,
+                              color: _brand,
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              'Guest favorite',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: _ink,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppTheme.brandColor,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    'KHOZNA',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      letterSpacing: 0.8,
-                    ),
                   ),
                 ),
               ],
             ),
           ),
 
-          // Bill Body
+          const Divider(height: 1, color: _bdr),
+
+          // Dates Row
+          _buildReviewRow(
+            title: 'Dates',
+            subtitle: '${DateFormat('MMM d').format(_checkIn)} – ${DateFormat('d, yyyy').format(_checkOut)}',
+            buttonLabel: 'Change',
+            onTap: _changeDates,
+          ),
+
+          const Divider(height: 1, color: _bdr),
+
+          // Guests Row
+          _buildReviewRow(
+            title: 'Guests',
+            subtitle: '$_guestCount ${_guestCount == 1 ? "guest" : "guests"}',
+            buttonLabel: 'Change',
+            onTap: _changeGuests,
+          ),
+
+          const Divider(height: 1, color: _bdr),
+
+          // Total Price Row
+          _buildReviewRow(
+            title: 'Total price',
+            subtitle: widget.pricePerNight > 0
+                ? 'NPR $totalStr including fees'
+                : 'Price upon request',
+            buttonLabel: 'Details',
+            onTap: _showPriceDetails,
+          ),
+
+          const Divider(height: 1, color: _bdr),
+
+          // Free Cancellation Row
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Check-in & Check-out Summary
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('CHECK-IN', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.8)),
-                          const SizedBox(height: 4),
-                          Text(DateFormat('MMM d, yyyy').format(_checkIn),
-                              style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _ink)),
-                          Text(DateFormat('EEEE').format(_checkIn), style: GoogleFonts.inter(fontSize: 11, color: _sub)),
-                        ],
-                      ),
-                    ),
-                    Container(width: 1, height: 36, color: _bdr),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('CHECK-OUT', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.8)),
-                            const SizedBox(height: 4),
-                            Text(DateFormat('MMM d, yyyy').format(_checkOut),
-                                style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _ink)),
-                            Text(DateFormat('EEEE').format(_checkOut), style: GoogleFonts.inter(fontSize: 11, color: _sub)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 16),
-                _dashedDivider(),
-                const SizedBox(height: 16),
-
-                // Details Rows
-                _billDetailRow('Host Name', widget.ownerName, icon: Icons.person_outline_rounded),
-                const SizedBox(height: 10),
-                _billDetailRow('Total Stay Duration', '$_nights ${_nights == 1 ? "Night" : "Nights"}', icon: Icons.nights_stay_outlined),
-                const SizedBox(height: 10),
-                _billDetailRow('Guests Count', '$_guestCount ${_guestCount == 1 ? "Guest" : "Guests"}', icon: Icons.people_outline_rounded),
-
-                if (widget.pricePerNight > 0) ...[
-                  const SizedBox(height: 16),
-                  _dashedDivider(),
-                  const SizedBox(height: 16),
-
-                  _billDetailRow('Rate per night', 'NPR $priceStr'),
-                  const SizedBox(height: 8),
-                  _billDetailRow('Subtotal (NPR $priceStr × $_nights)', 'NPR $totalStr'),
-                  const SizedBox(height: 8),
-                  _billDetailRow('Platform Service Fee', 'NPR 0 (FREE)', isHighlight: true),
-
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 14),
-                    child: Divider(height: 1, color: _bdr),
+                Text(
+                  'Free cancellation',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: _ink,
                   ),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                ),
+                const SizedBox(height: 4),
+                RichText(
+                  text: TextSpan(
+                    style: GoogleFonts.inter(fontSize: 13, color: _sub, height: 1.4),
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('TOTAL DUE',
-                              style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w800, color: _ink, letterSpacing: 0.8)),
-                          Text('Pay directly to owner',
-                              style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF16A34A), fontWeight: FontWeight.w600)),
-                        ],
+                      TextSpan(
+                        text: 'Cancel before ${DateFormat('MMM d').format(_checkIn.subtract(const Duration(days: 1)))} for a full refund. ',
                       ),
-                      Text(
-                        'NPR $totalStr',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                          color: _brand,
+                      TextSpan(
+                        text: 'Full policy',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w700,
+                          color: _ink,
+                          decoration: TextDecoration.underline,
                         ),
                       ),
                     ],
                   ),
-                ],
+                ),
               ],
             ),
           ),
@@ -548,377 +721,385 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
     );
   }
 
-  Widget _billDetailRow(String label, String value, {IconData? icon, bool isHighlight = false}) {
-    return Row(
-      children: [
-        if (icon != null) ...[
-          Icon(icon, size: 15, color: _sub),
-          const SizedBox(width: 8),
+  Widget _buildReviewRow({
+    required String title,
+    required String subtitle,
+    required String buttonLabel,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: _ink,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.inter(fontSize: 13.5, color: _sub),
+                ),
+              ],
+            ),
+          ),
+          InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: _pillBg,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                buttonLabel,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: _ink,
+                ),
+              ),
+            ),
+          ),
         ],
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 12.5,
-            color: isHighlight ? const Color(0xFF16A34A) : _sub,
-            fontWeight: isHighlight ? FontWeight.w700 : FontWeight.w500,
+      ),
+    );
+  }
+
+  // ─── STEP 2: MESSAGE THE HOST ─────────────────────────────────────────────
+
+  Widget _buildStep2MessageHost() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Host Info Header
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: _bdr),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: const BoxDecoration(
+                  color: _pillBg,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  widget.ownerName.isNotEmpty ? widget.ownerName[0].toUpperCase() : 'H',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: _ink,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Host: ${widget.ownerName}',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: _ink,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Response time: usually within a few hours',
+                      style: GoogleFonts.inter(fontSize: 12, color: _sub),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-        const Spacer(),
+
+        const SizedBox(height: 20),
+
+        // Message Box
         Text(
-          value,
+          'Say hello to your host',
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 13,
-            color: isHighlight ? const Color(0xFF16A34A) : _ink,
-            fontWeight: FontWeight.w700,
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: _ink,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Share why you are visiting and who is coming with you to help the host approve your stay.',
+          style: GoogleFonts.inter(fontSize: 13, color: _sub, height: 1.4),
+        ),
+        const SizedBox(height: 14),
+
+        TextField(
+          controller: _messageCtrl,
+          maxLines: 4,
+          maxLength: 500,
+          style: GoogleFonts.inter(fontSize: 14, color: _ink),
+          decoration: InputDecoration(
+            hintText: 'Hi ${widget.ownerName}, I am visiting for...',
+            hintStyle: GoogleFonts.inter(fontSize: 13.5, color: _sub),
+            fillColor: Colors.white,
+            filled: true,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: _bdr),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: _bdr),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: _ink, width: 1.5),
+            ),
+            contentPadding: const EdgeInsets.all(16),
+          ),
+        ),
+
+        const SizedBox(height: 14),
+        Text(
+          'Quick details (tap to add):',
+          style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: _sub),
+        ),
+        const SizedBox(height: 8),
+
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _chipOption('Visiting for work'),
+            _chipOption('Vacation stay'),
+            _chipOption('Family trip'),
+            _chipOption('Quiet & respectful guest'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _chipOption(String label) {
+    return InkWell(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        if (_messageCtrl.text.isEmpty) {
+          _messageCtrl.text = label;
+        } else {
+          _messageCtrl.text += '. $label';
+        }
+        setState(() {});
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        decoration: BoxDecoration(
+          color: _pillBg,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: _bdr),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(fontSize: 12.5, fontWeight: FontWeight.w600, color: _ink),
+        ),
+      ),
+    );
+  }
+
+  // ─── STEP 3: CONFIRM AND REQUEST ──────────────────────────────────────────
+
+  Widget _buildStep3ConfirmAndRequest() {
+    final totalStr = NumberFormat('#,##0').format(_totalPrice);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Summary Card
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: _bdr),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Trip Summary',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: _ink,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _summaryRow('Property', widget.propertyTitle),
+              const SizedBox(height: 8),
+              _summaryRow('Dates', '${DateFormat('MMM d').format(_checkIn)} – ${DateFormat('MMM d, yyyy').format(_checkOut)} ($_nights ${_nights == 1 ? "night" : "nights"})'),
+              const SizedBox(height: 8),
+              _summaryRow('Guests', '$_guestCount ${_guestCount == 1 ? "guest" : "guests"}'),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Divider(height: 1, color: _bdr),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total Due',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: _ink,
+                    ),
+                  ),
+                  Text(
+                    widget.pricePerNight > 0 ? 'NPR $totalStr' : 'Price upon request',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w900,
+                      color: _brand,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // Direct Payment Notice Card
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF0FDF4),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFBBF7D0)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFDCFCE7),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.verified_user_rounded,
+                  color: Color(0xFF16A34A),
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Direct Payment to Owner',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF15803D),
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'Once ${widget.ownerName} approves your request, you will pay them directly in person or via digital transfer. Khozna charges NPR 0 fees.',
+                      style: GoogleFonts.inter(
+                        fontSize: 12.5,
+                        color: const Color(0xFF166534),
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        // Ground Rules
+        Text(
+          'Ground rules',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: _ink,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'We ask every guest to remember a few simple things about what makes a great guest.',
+          style: GoogleFonts.inter(fontSize: 13, color: _sub),
+        ),
+        const SizedBox(height: 12),
+        _groundRuleItem('Follow the house rules and check-in guidelines.'),
+        _groundRuleItem('Treat your host’s home like your own.'),
+        _groundRuleItem('Keep noise levels respectful during night hours.'),
+      ],
+    );
+  }
+
+  Widget _summaryRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: GoogleFonts.inter(fontSize: 13, color: _sub)),
+        Flexible(
+          child: Text(
+            value,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w700,
+              color: _ink,
+            ),
+            textAlign: TextAlign.end,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
     );
   }
 
-  Widget _dashedDivider() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final boxWidth = constraints.maxWidth;
-        const dashWidth = 5.0;
-        const dashHeight = 1.0;
-        final dashCount = (boxWidth / (2 * dashWidth)).floor();
-        return Flex(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          direction: Axis.horizontal,
-          children: List.generate(dashCount, (_) {
-            return SizedBox(
-              width: dashWidth,
-              height: dashHeight,
-              child: const DecoratedBox(
-                decoration: BoxDecoration(color: Color(0xFFCBD5E1)),
-              ),
-            );
-          }),
-        );
-      },
-    );
-  }
-
-  // ─── PROPERTY CARD ────────────────────────────────────────────────────────
-
-  Widget _buildPropertyCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _card,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _bdr),
-      ),
+  Widget _groundRuleItem(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: KhoznaImage(
-              imageUrl: widget.propertyImageUrl ?? '',
-              width: 64,
-              height: 64,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.propertyTitle,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 15, fontWeight: FontWeight.w800, color: _ink, letterSpacing: -0.2,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (widget.propertyLocation != null) ...[
-                  const SizedBox(height: 3),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on_rounded, size: 12, color: _sub),
-                      const SizedBox(width: 3),
-                      Flexible(
-                        child: Text(
-                          widget.propertyLocation!,
-                          style: GoogleFonts.inter(fontSize: 12, color: _sub),
-                          maxLines: 1, overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-                const SizedBox(height: 3),
-                Text(
-                  'Host: ${widget.ownerName}',
-                  style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─── DIRECT PAYMENT NOTICE ────────────────────────────────────────────────
-
-  Widget _buildDirectPaymentNotice() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0FDF4),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFBBF7D0)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 34, height: 34,
-            decoration: BoxDecoration(
-              color: const Color(0xFF16A34A).withOpacity(0.12),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.verified_user_rounded, color: Color(0xFF16A34A), size: 17),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Direct Payment to Owner',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13, fontWeight: FontWeight.w800, color: const Color(0xFF15803D),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'After the owner accepts, you\'ll pay them directly. KHOZNA does not collect any payment.',
-                  style: GoogleFonts.inter(fontSize: 11.5, color: const Color(0xFF166534), height: 1.4),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─── DATES CARD ────────────────────────────────────────────────────────────
-
-  Widget _buildDatesCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: _card,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _bdr),
-      ),
-      child: Column(
-        children: [
-          _buildDateRow(
-            label: 'CHECK-IN',
-            date: _checkIn,
-            icon: Icons.login_rounded,
-            onTap: _pickCheckIn,
-            isTop: true,
-          ),
-          Container(height: 1, color: _bdr, margin: const EdgeInsets.symmetric(horizontal: 16)),
-          _buildDateRow(
-            label: 'CHECK-OUT',
-            date: _checkOut,
-            icon: Icons.logout_rounded,
-            onTap: _pickCheckOut,
-            isTop: false,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDateRow({
-    required String label,
-    required DateTime date,
-    required IconData icon,
-    required VoidCallback onTap,
-    required bool isTop,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.vertical(
-        top: isTop ? const Radius.circular(18) : Radius.zero,
-        bottom: isTop ? Radius.zero : const Radius.circular(18),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-        child: Row(
-          children: [
-            Container(
-              width: 38, height: 38,
-              decoration: BoxDecoration(
-                color: _brand.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: _brand, size: 19),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label,
-                      style: GoogleFonts.inter(
-                          fontSize: 10.5, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.8)),
-                  const SizedBox(height: 3),
-                  Text(
-                    DateFormat('EEE, MMM d, yyyy').format(date),
-                    style: GoogleFonts.plusJakartaSans(
-                        fontSize: 15, fontWeight: FontWeight.w800, color: _ink),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: _brand.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                isTop
-                    ? DateFormat('MMM d').format(date)
-                    : '$_nights ${_nights == 1 ? "night" : "nights"}',
-                style: GoogleFonts.inter(
-                    fontSize: 11, fontWeight: FontWeight.w700, color: _brand),
-              ),
-            ),
-            const SizedBox(width: 6),
-            const Icon(Icons.chevron_right_rounded, color: _sub, size: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ─── GUEST COUNTER ────────────────────────────────────────────────────────
-
-  Widget _buildGuestCounter() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-      decoration: BoxDecoration(
-        color: _card,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _bdr),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 38, height: 38,
-            decoration: BoxDecoration(
-              color: _brand.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.people_rounded, color: _brand, size: 19),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('GUESTS',
-                    style: GoogleFonts.inter(
-                        fontSize: 10.5, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.8)),
-                const SizedBox(height: 2),
-                Text(
-                  '$_guestCount ${_guestCount == 1 ? "Guest" : "Guests"}',
-                  style: GoogleFonts.plusJakartaSans(
-                      fontSize: 15, fontWeight: FontWeight.w800, color: _ink),
-                ),
-              ],
-            ),
-          ),
-          Row(
-            children: [
-              _CounterBtn(
-                icon: Icons.remove_rounded,
-                onTap: _guestCount > 1 ? () => setState(() => _guestCount--) : null,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Text(
-                  '$_guestCount',
-                  style: GoogleFonts.plusJakartaSans(
-                      fontSize: 18, fontWeight: FontWeight.w900, color: _ink),
-                ),
-              ),
-              _CounterBtn(
-                icon: Icons.add_rounded,
-                onTap: _guestCount < 20 ? () => setState(() => _guestCount++) : null,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─── MESSAGE FIELD ────────────────────────────────────────────────────────
-
-  Widget _buildMessageField() {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: _card,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _bdr),
-      ),
-      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text('Message to Owner',
-                  style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13, fontWeight: FontWeight.w800, color: _ink)),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                decoration: BoxDecoration(
-                  color: _sub.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text('Optional',
-                    style: GoogleFonts.inter(fontSize: 10, color: _sub, fontWeight: FontWeight.w600)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: _messageCtrl,
-            maxLines: 3,
-            maxLength: 500,
-            style: GoogleFonts.inter(fontSize: 14, color: _ink),
-            decoration: InputDecoration(
-              hintText: 'Introduce yourself and mention your purpose of stay...',
-              hintStyle: GoogleFonts.inter(fontSize: 13, color: _sub),
-              fillColor: _bg,
-              filled: true,
-              counterStyle: GoogleFonts.inter(fontSize: 11, color: _sub),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: _bdr),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: _bdr),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: _brand, width: 1.5),
-              ),
-              contentPadding: const EdgeInsets.all(14),
+          const Icon(Icons.circle, size: 6, color: _ink),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.inter(fontSize: 13, color: _ink, height: 1.3),
             ),
           ),
         ],
@@ -926,104 +1107,100 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
     );
   }
 
-  // ─── BOTTOM CTA ───────────────────────────────────────────────────────────
+  // ─── BOTTOM STICKY BAR (PROGRESS INDICATOR + NEXT BUTTON) ─────────────────
 
-  Widget _buildBottomCTA() {
-    final total = _totalPrice > 0
-        ? 'NPR ${NumberFormat('#,##0').format(_totalPrice)}'
-        : 'Price TBD';
-
+  Widget _buildBottomStickyBar() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 30),
+      padding: EdgeInsets.fromLTRB(20, 12, 20, 16 + MediaQuery.of(context).padding.bottom),
       decoration: BoxDecoration(
-        color: _card,
-        border: Border(top: BorderSide(color: _bdr)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, -4))],
+        color: Colors.white,
+        border: const Border(top: BorderSide(color: _bdr, width: 1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
+          ),
+        ],
       ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('$_nights ${_nights == 1 ? "night" : "nights"} · $_guestCount ${_guestCount == 1 ? "guest" : "guests"}',
-                        style: GoogleFonts.inter(fontSize: 11.5, color: _sub, fontWeight: FontWeight.w600)),
-                    Text(total,
-                        style: GoogleFonts.plusJakartaSans(
-                            fontSize: 16, fontWeight: FontWeight.w900, color: _ink)),
-                  ],
-                ),
-                SizedBox(
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: _isSubmitting
-                        ? null
-                        : (_currentStep == 0 ? _nextStep : _submit),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _brand,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                      disabledBackgroundColor: _brand.withOpacity(0.5),
-                    ),
-                    child: _isSubmitting
-                        ? const SizedBox(
-                            width: 20, height: 20,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-                        : Row(
-                            children: [
-                              Text(
-                                _currentStep == 0 ? 'Review Summary' : 'Confirm & Request',
-                                style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 15, fontWeight: FontWeight.w800),
-                              ),
-                              const SizedBox(width: 6),
-                              const Icon(Icons.arrow_forward_rounded, size: 17),
-                            ],
-                          ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 3 Segmented Progress Bar
+          Row(
+            children: List.generate(3, (index) {
+              final active = index <= _currentStep;
+              return Expanded(
+                child: Container(
+                  height: 4,
+                  margin: EdgeInsets.only(right: index < 2 ? 8 : 0),
+                  decoration: BoxDecoration(
+                    color: active ? _ink : const Color(0xFFE2E8F0),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-              ],
+              );
+            }),
+          ),
+          const SizedBox(height: 14),
+
+          // Next / Request to Book Button
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton(
+              onPressed: _isSubmitting ? null : _nextStep,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _ink,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                disabledBackgroundColor: _ink.withOpacity(0.5),
+              ),
+              child: _isSubmitting
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2.5,
+                      ),
+                    )
+                  : Text(
+                      _currentStep == 2 ? 'Request to book' : 'Next',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
-}
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Counter Button
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _CounterBtn extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback? onTap;
-
-  const _CounterBtn({required this.icon, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _counterCircleButton({required IconData icon, VoidCallback? onTap}) {
     final enabled = onTap != null;
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        width: 34, height: 34,
+      child: Container(
+        width: 36,
+        height: 36,
         decoration: BoxDecoration(
-          color: enabled ? _brand.withOpacity(0.1) : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(10),
+          shape: BoxShape.circle,
           border: Border.all(
-            color: enabled ? _brand.withOpacity(0.25) : Colors.grey.shade200,
+            color: enabled ? _ink : _bdr,
+            width: 1.5,
           ),
         ),
-        child: Icon(icon, size: 17, color: enabled ? _brand : Colors.grey.shade400),
+        child: Icon(
+          icon,
+          size: 18,
+          color: enabled ? _ink : _sub.withOpacity(0.4),
+        ),
       ),
     );
   }
