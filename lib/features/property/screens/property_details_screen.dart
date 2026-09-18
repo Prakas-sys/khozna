@@ -2470,44 +2470,55 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Rupee icon perfectly balanced with price text
-                      Transform.translate(
-                        offset: const Offset(0, 2.8),
-                        child: SvgPicture.asset(
-                          'assets/icons/vector of ruppes.svg',
-                          width: 19,
-                          height: 19,
-                          colorFilter: const ColorFilter.mode(
-                            Colors.black,
-                            BlendMode.srcIn,
+                      if (!isNegotiable) ...[
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              WidgetSpan(
+                                alignment: PlaceholderAlignment.middle,
+                                child: Transform.translate(
+                                  offset: const Offset(0, -0.5),
+                                  child: SvgPicture.asset(
+                                    'assets/icons/vector of ruppes.svg',
+                                    width: 13.5,
+                                    height: 13.5,
+                                    colorFilter: const ColorFilter.mode(
+                                      Colors.black,
+                                      BlendMode.srcIn,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const WidgetSpan(child: SizedBox(width: 3)),
+                              TextSpan(
+                                text: PriceFormatter.format(price.toStringAsFixed(0)),
+                                style: GoogleFonts.spaceGrotesk(
+                                  fontSize: 21,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.black,
+                                  letterSpacing: -0.5,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: Colors.black,
+                                  decorationThickness: 1.5,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 2),
-                      Flexible(
-                        child: Text(
-                          isNegotiable
-                              ? 'Negotiable'
-                              : PriceFormatter.format(price.toStringAsFixed(0)),
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: isNegotiable ? 17 : 21,
+                      ] else ...[
+                        Text(
+                          'Negotiable',
+                          style: GoogleFonts.spaceGrotesk(
+                            fontSize: 17,
                             fontWeight: FontWeight.w800,
                             color: Colors.black,
-                            letterSpacing: -0.6,
-                            decoration: isNegotiable
-                                ? TextDecoration.none
-                                : TextDecoration.underline,
-                            decorationColor: Colors.black,
-                            decorationThickness: 1.5,
                           ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
                         ),
-                      ),
+                      ],
                       if (!isNegotiable) ...[
-                        const SizedBox(width: 2),
+                        const SizedBox(width: 3),
                         Transform.translate(
-                          offset: const Offset(0, 3),
+                          offset: const Offset(0, 2),
                           child: Text(
                             '/$unit',
                             style: GoogleFonts.inter(
