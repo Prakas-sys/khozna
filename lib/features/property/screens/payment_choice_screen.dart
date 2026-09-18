@@ -243,7 +243,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: _bdr),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 2)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 2)),
         ],
       ),
       child: Row(
@@ -275,12 +275,12 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                       widget.booking.formattedBookingId,
                       style: GoogleFonts.inter(fontSize: 11, color: _sub, fontWeight: FontWeight.w600),
                     ),
-                    Text(' • ', style: TextStyle(color: _sub.withOpacity(0.5))),
+                    Text(' • ', style: TextStyle(color: _sub.withValues(alpha: 0.5))),
                     Text(
                       '$nights ${nights == 1 ? "night" : "nights"}',
                       style: GoogleFonts.inter(fontSize: 11, color: _sub, fontWeight: FontWeight.w500),
                     ),
-                    Text(' • ', style: TextStyle(color: _sub.withOpacity(0.5))),
+                    Text(' • ', style: TextStyle(color: _sub.withValues(alpha: 0.5))),
                     Text(
                       '${widget.booking.guestCount} ${widget.booking.guestCount == 1 ? "guest" : "guests"}',
                       style: GoogleFonts.inter(fontSize: 11, color: _sub, fontWeight: FontWeight.w500),
@@ -316,7 +316,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: _bdr),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 16, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 16, offset: const Offset(0, 4)),
         ],
       ),
       child: Column(
@@ -386,7 +386,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                   style: GoogleFonts.inter(fontSize: 14, color: _ink, fontWeight: FontWeight.w700),
                   decoration: InputDecoration(
                     hintText: 'Transaction ID / Wallet Number (Required)',
-                    hintStyle: GoogleFonts.inter(fontSize: 13, color: _sub.withOpacity(0.7), fontWeight: FontWeight.w500),
+                    hintStyle: GoogleFonts.inter(fontSize: 13, color: _sub.withValues(alpha: 0.7), fontWeight: FontWeight.w500),
                     prefixIcon: const Icon(Icons.receipt_long_rounded, color: _sub, size: 18),
                     fillColor: _bg,
                     filled: true,
@@ -424,7 +424,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               margin: EdgeInsets.only(right: m == _PayMethod.values.last ? 0 : 6),
               padding: const EdgeInsets.symmetric(vertical: 10),
               decoration: BoxDecoration(
-                color: selected ? m.color.withOpacity(0.12) : _bg,
+                color: selected ? m.color.withValues(alpha: 0.12) : _bg,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: selected ? m.color : _bdr, width: selected ? 1.5 : 1),
               ),
@@ -520,7 +520,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: _bdr),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2)),
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2)),
                 ],
               ),
               child: Stack(
@@ -533,7 +533,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                       width: 140,
                       height: 140,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Icon(Icons.qr_code_rounded, size: 80, color: _sub),
+                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.qr_code_rounded, size: 80, color: _sub),
                     ),
                   ),
                 ],
@@ -552,16 +552,16 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: _selectedMethod.color.withOpacity(0.06),
+        color: _selectedMethod.color.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _selectedMethod.color.withOpacity(0.2)),
+        border: Border.all(color: _selectedMethod.color.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: _selectedMethod.color.withOpacity(0.15),
+              color: _selectedMethod.color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(_selectedMethod.icon, color: _selectedMethod.color, size: 18),
@@ -596,9 +596,9 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: _selectedMethod.color.withOpacity(0.3)),
+                border: Border.all(color: _selectedMethod.color.withValues(alpha: 0.3)),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 4, offset: const Offset(0, 1)),
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 4, offset: const Offset(0, 1)),
                 ],
               ),
               child: Row(
@@ -695,7 +695,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                   Container(
                     width: 38, height: 38,
                     decoration: BoxDecoration(
-                      color: _bdr.withOpacity(0.5),
+                      color: _bdr.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(Icons.add_a_photo_rounded, color: _sub, size: 18),
@@ -761,7 +761,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         color: _card,
         border: const Border(top: BorderSide(color: _bdr)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, -4)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 16, offset: const Offset(0, -4)),
         ],
       ),
       child: SafeArea(
@@ -775,7 +775,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               foregroundColor: Colors.white,
               elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
-              disabledBackgroundColor: _brand.withOpacity(0.5),
+              disabledBackgroundColor: _brand.withValues(alpha: 0.5),
             ),
             child: _isSubmitting
                 ? const SizedBox(
@@ -848,7 +848,7 @@ class _SuccessSheet extends StatelessWidget {
             decoration: BoxDecoration(
               color: _brandSoft,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: _brand.withOpacity(0.2)),
+              border: Border.all(color: _brand.withValues(alpha: 0.2)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
