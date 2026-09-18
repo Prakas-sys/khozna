@@ -260,11 +260,11 @@ class PropertyCard extends StatelessWidget {
                                 if (!hidePriceSymbol) WidgetSpan(
                                   alignment: PlaceholderAlignment.middle,
                                   child: Transform.translate(
-                                    offset: const Offset(0, -0.5),
+                                    offset: const Offset(0, -1.0),
                                     child: SvgPicture.asset(
                                       'assets/icons/vector of ruppes.svg',
-                                      width: 12.5,
-                                      height: 12.5,
+                                      width: 14.5,
+                                      height: 14.5,
                                       colorFilter: const ColorFilter.mode(
                                         AppTheme.brandColor,
                                         BlendMode.srcIn,

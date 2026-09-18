@@ -1,4 +1,6 @@
 
+import 'package:intl/intl.dart';
+
 class PriceFormatter {
   static String format(String priceStr) {
     try {
@@ -17,8 +19,8 @@ class PriceFormatter {
         double formatted = price / 100000;
         return '${formatted.toStringAsFixed(formatted.truncateToDouble() == formatted ? 0 : 1)} Lakh';
       } else {
-        // Thousands / Normal
-        return price.toInt().toString();
+        // Thousands / Normal — format with comma (e.g. 11,111)
+        return NumberFormat('#,##0').format(price.toInt());
       }
     } catch (e) {
       return priceStr;

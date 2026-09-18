@@ -2477,11 +2477,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                               WidgetSpan(
                                 alignment: PlaceholderAlignment.middle,
                                 child: Transform.translate(
-                                  offset: const Offset(0, -0.5),
+                                  offset: const Offset(0, -1.0),
                                   child: SvgPicture.asset(
                                     'assets/icons/vector of ruppes.svg',
-                                    width: 13.5,
-                                    height: 13.5,
+                                    width: 16.5,
+                                    height: 16.5,
                                     colorFilter: const ColorFilter.mode(
                                       Colors.black,
                                       BlendMode.srcIn,
@@ -2489,7 +2489,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                   ),
                                 ),
                               ),
-                              const WidgetSpan(child: SizedBox(width: 3)),
+                              const WidgetSpan(child: SizedBox(width: 3.5)),
                               TextSpan(
                                 text: PriceFormatter.format(price.toStringAsFixed(0)),
                                 style: GoogleFonts.spaceGrotesk(
