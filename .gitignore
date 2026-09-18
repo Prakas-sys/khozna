@@ -56,6 +56,11 @@ GoogleService-Info.plist
 *.jks
 key.properties
 
+# Binaries / App Bundles / APKs
+*.apk
+*.aab
+*.ipa
+
 # Project specific
 debug_logs/
 *.txt
