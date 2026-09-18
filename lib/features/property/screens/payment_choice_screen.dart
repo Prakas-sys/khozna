@@ -762,6 +762,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
       );
     }
 
+    final nonNullVal = value;
+
     if (_selectedMethod == _PayMethod.qr) {
       return Container(
         padding: const EdgeInsets.all(16),
@@ -778,7 +780,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             ),
             const SizedBox(height: 12),
             GestureDetector(
-              onTap: () => _showQrEnlarged(value!),
+              onTap: () => _showQrEnlarged(nonNullVal),
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
@@ -792,7 +794,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.network(
-                    value,
+                    nonNullVal,
                     width: 150,
                     height: 150,
                     fit: BoxFit.cover,
@@ -832,13 +834,13 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(label, style: GoogleFonts.inter(fontSize: 11, color: _sub, fontWeight: FontWeight.w500)),
-                    Text(value, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w800, color: _ink)),
+                    Text(nonNullVal, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w800, color: _ink)),
                   ],
                 ),
               ),
               GestureDetector(
                 onTap: () {
-                  Clipboard.setData(ClipboardData(text: value!));
+                  Clipboard.setData(ClipboardData(text: nonNullVal));
                   _showSnack('$label details copied!', _airbnbDark);
                 },
                 child: Container(
