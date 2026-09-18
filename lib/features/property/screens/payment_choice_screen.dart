@@ -566,12 +566,12 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                     padding: const EdgeInsets.all(18),
                     child: Column(
                       children: [
-                        _priceRow('Stay ($nights ${nights == 1 ? "night" : "nights"})', total, _sub, _ink, FontWeight.w600, FontWeight.w700, 14.5, valueFontSize: 17.5, iconSize: 14.5),
+                        _priceRow('Stay ($nights ${nights == 1 ? "night" : "nights"})', total, _sub, _ink, FontWeight.w600, FontWeight.w800, 15.0, valueFontSize: 20.0, iconSize: 16.0),
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 14),
                           child: Divider(height: 1, color: _bdr),
                         ),
-                        _priceRow('Total rent', total, _ink, _ink, FontWeight.w800, FontWeight.w800, 16.0, valueFontSize: 21.5, iconSize: 17.0),
+                        _priceRow('Total rent', total, _ink, _ink, FontWeight.w800, FontWeight.w900, 16.5, valueFontSize: 26.0, iconSize: 20.0),
                       ],
                     ),
                   ),
@@ -613,14 +613,14 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               height: effectiveIconSize,
               colorFilter: ColorFilter.mode(valueColor, BlendMode.srcIn),
             ),
-            const SizedBox(width: 3.5),
+            const SizedBox(width: 4),
             Text(
               amountStr,
-              style: GoogleFonts.inter(
+              style: GoogleFonts.plusJakartaSans(
                 fontSize: effectiveValueFontSize,
                 color: valueColor,
                 fontWeight: valueWeight,
-                letterSpacing: -0.3,
+                letterSpacing: -0.5,
               ),
             ),
           ],
