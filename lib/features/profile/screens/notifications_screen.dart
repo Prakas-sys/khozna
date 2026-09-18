@@ -1367,6 +1367,90 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () async {
+                              final reason = await _showRejectionReasonPicker(context);
+                              if (reason != null && bookingId.isNotEmpty) {
+                                try {
+                                  await BookingRepository.rejectWithReason(bookingId, reason: reason);
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Request declined')),
+                                    );
+                                  }
+                                  _fetchNotifications(showLoading: false);
+                                } catch (e) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Failed: $e')),
+                                    );
+                                  }
+                                }
+                              }
+                            },
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF0F172A),
+                              side: const BorderSide(color: Color(0xFFCBD5E1)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                            ),
+                            child: Text(
+                              'Decline',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (bookingId.isNotEmpty) {
+                                try {
+                                  await BookingRepository.approveRequest(bookingId);
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Request accepted & confirmed!')),
+                                    );
+                                  }
+                                  _fetchNotifications(showLoading: false);
+                                } catch (e) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Failed: $e')),
+                                    );
+                                  }
+                                }
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0F172A),
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                            ),
+                            child: Text(
+                              'Accept',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -1626,50 +1710,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () async {
-                  final String bookingId = note['booking_id']?.toString() ?? '';
-                  if (bookingId.isNotEmpty) {
-                    final booking = await SupabaseService.getVisitById(bookingId);
-                    if (booking != null && mounted) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PaymentChoiceScreen(
-                            booking: booking,
-                          ),
-                        ),
-                      );
-                      return;
-                    }
-                  }
-                  final propertyId = note['property_id'];
-                  if (propertyId != null) {
-                    final bookings = await SupabaseService.getMyVisits();
-                    final filtered = bookings.where((b) => b.propertyId == propertyId).toList();
-                    if (filtered.isNotEmpty && mounted) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PaymentChoiceScreen(
-                            booking: filtered.first,
-                          ),
-                        ),
-                      );
-                      return;
-                    }
-                  }
+                onPressed: () {
                   if (mounted) Navigator.pop(context);
                 },
-                icon: const Icon(Icons.upload_file_rounded, size: 18),
+                icon: const Icon(Icons.search_rounded, size: 18),
                 label: Text(
-                  'Dismiss Alert',
+                  'Explore Homes',
                   style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w700,
                     fontSize: 13.5,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF475569),
+                  backgroundColor: const Color(0xFF0F172A),
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
