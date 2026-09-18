@@ -2497,9 +2497,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                   fontWeight: FontWeight.w800,
                                   color: Colors.black,
                                   letterSpacing: -0.5,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: Colors.black,
-                                  decorationThickness: 1.5,
                                 ),
                               ),
                             ],
@@ -2609,7 +2606,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         btnColor = Colors.amber.shade700;
         icon = Icons.hourglass_empty_rounded;
       } else if (_pendingBookingStatus == 'awaiting_payment') {
-        label = 'Complete Payment';
+        label = 'Payment';
         btnColor = const Color(0xFF22C55E);
         icon = Icons.account_balance_wallet_outlined;
       } else if (_pendingBookingStatus == 'paid' || _pendingBookingStatus == 'payment_under_review') {
@@ -2627,9 +2624,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         icon = Icons.upload_file_rounded;
       }
 
+      final bool showTrailingArrow = (_pendingBookingStatus == 'awaiting_payment');
+
       return SizedBox(
         height: 46,
-        child: ElevatedButton.icon(
+        child: ElevatedButton(
           onPressed: () async {
             if (_pendingBookingId == null) return;
             if (_pendingBookingStatus == 'awaiting_payment' ||
@@ -2657,13 +2656,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               ).then((_) => _updateBookingStatus());
             }
           },
-          icon: Icon(icon, size: 16),
-          label: Text(
-            label,
-            style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
           style: ElevatedButton.styleFrom(
             backgroundColor: btnColor,
             foregroundColor: Colors.white,
@@ -2672,6 +2664,23 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
             elevation: 0,
             padding: const EdgeInsets.symmetric(horizontal: 16),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (showTrailingArrow) ...[
+                const SizedBox(width: 4),
+                const Icon(Icons.arrow_forward_rounded, size: 15),
+              ],
+            ],
           ),
         ),
       );
