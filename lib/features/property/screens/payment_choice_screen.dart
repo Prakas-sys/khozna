@@ -457,47 +457,47 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
                   // ── Property header ──────────────────────────────────────────
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+                    padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
                     child: Row(
                       children: [
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(16),
                           child: Container(
-                            width: 58,
-                            height: 58,
+                            width: 76,
+                            height: 76,
                             decoration: BoxDecoration(
                               color: _brand.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(16),
                             ),
                             child: (_propertyImageUrl != null && _propertyImageUrl!.isNotEmpty)
                                 ? KhoznaImage(
                                     imageUrl: _propertyImageUrl!,
-                                    width: 58,
-                                    height: 58,
+                                    width: 76,
+                                    height: 76,
                                     fit: BoxFit.cover,
                                   )
-                                : const Icon(Icons.home_work_rounded, color: _brand, size: 28),
+                                : const Icon(Icons.home_work_rounded, color: _brand, size: 34),
                           ),
                         ),
-                        const SizedBox(width: 14),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 widget.booking.propertyTitle ?? 'Property Booking',
-                                style: GoogleFonts.inter(fontSize: 15.5, fontWeight: FontWeight.w700, color: _ink),
-                                maxLines: 1,
+                                style: GoogleFonts.inter(fontSize: 17.5, fontWeight: FontWeight.w800, color: _ink),
+                                maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 6),
                               Row(
                                 children: [
-                                  const Icon(Icons.confirmation_number_outlined, size: 13, color: _sub),
-                                  const SizedBox(width: 4),
+                                  const Icon(Icons.confirmation_number_outlined, size: 14, color: _sub),
+                                  const SizedBox(width: 5),
                                   Text(
                                     widget.booking.formattedBookingId,
-                                    style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w600),
+                                    style: GoogleFonts.inter(fontSize: 13, color: _sub, fontWeight: FontWeight.w600),
                                   ),
                                 ],
                               ),
@@ -512,7 +512,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
                   // ── Dates + Guests row ────────────────────────────────────────
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
                     child: Row(
                       children: [
                         Expanded(
@@ -521,34 +521,36 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.calendar_today_rounded, size: 13, color: _brand),
-                                  const SizedBox(width: 5),
-                                  Text('CHECK-IN', style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
+                                  const Icon(Icons.calendar_today_rounded, size: 14, color: _brand),
+                                  const SizedBox(width: 6),
+                                  Text('CHECK-IN', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.7)),
                                 ],
                               ),
-                              const SizedBox(height: 4),
-                              Text(checkInStr, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: _ink)),
-                              Text('$nights ${nights == 1 ? "night" : "nights"}', style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w500)),
+                              const SizedBox(height: 5),
+                              Text(checkInStr, style: GoogleFonts.inter(fontSize: 14.5, fontWeight: FontWeight.w700, color: _ink)),
+                              const SizedBox(height: 2),
+                              Text('$nights ${nights == 1 ? "night" : "nights"}', style: GoogleFonts.inter(fontSize: 12.5, color: _sub, fontWeight: FontWeight.w500)),
                             ],
                           ),
                         ),
-                        Container(width: 1, height: 44, color: _bdr),
+                        Container(width: 1, height: 48, color: _bdr),
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 16),
+                            padding: const EdgeInsets.only(left: 18),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
-                                    const Icon(Icons.event_busy_rounded, size: 13, color: Color(0xFFE11D48)),
-                                    const SizedBox(width: 5),
-                                    Text('CHECK-OUT', style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
+                                    const Icon(Icons.event_busy_rounded, size: 14, color: Color(0xFFE11D48)),
+                                    const SizedBox(width: 6),
+                                    Text('CHECK-OUT', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.7)),
                                   ],
                                 ),
-                                const SizedBox(height: 4),
-                                Text(checkOutStr, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: _ink)),
-                                Text('${widget.booking.guestCount} ${widget.booking.guestCount == 1 ? "guest" : "guests"}', style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w500)),
+                                const SizedBox(height: 5),
+                                Text(checkOutStr, style: GoogleFonts.inter(fontSize: 14.5, fontWeight: FontWeight.w700, color: _ink)),
+                                const SizedBox(height: 2),
+                                Text('${widget.booking.guestCount} ${widget.booking.guestCount == 1 ? "guest" : "guests"}', style: GoogleFonts.inter(fontSize: 12.5, color: _sub, fontWeight: FontWeight.w500)),
                               ],
                             ),
                           ),
@@ -561,15 +563,15 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
                   // ── Price breakdown ───────────────────────────────────────────
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(18),
                     child: Column(
                       children: [
-                        _priceRow('Stay ($nights ${nights == 1 ? "night" : "nights"})', total, _sub, _ink, FontWeight.w600, FontWeight.w700, 14.0, valueFontSize: 16.5, iconSize: 13.5),
+                        _priceRow('Stay ($nights ${nights == 1 ? "night" : "nights"})', total, _sub, _ink, FontWeight.w600, FontWeight.w700, 14.5, valueFontSize: 17.5, iconSize: 14.5),
                         const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12),
+                          padding: EdgeInsets.symmetric(vertical: 14),
                           child: Divider(height: 1, color: _bdr),
                         ),
-                        _priceRow('Total rent', total, _ink, _ink, FontWeight.w800, FontWeight.w800, 15.0, valueFontSize: 20.0, iconSize: 16.0),
+                        _priceRow('Total rent', total, _ink, _ink, FontWeight.w800, FontWeight.w800, 16.0, valueFontSize: 21.5, iconSize: 17.0),
                       ],
                     ),
                   ),
