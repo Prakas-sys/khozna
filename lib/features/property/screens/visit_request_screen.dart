@@ -759,6 +759,8 @@ class _VisitRequestScreenState extends State<VisitRequestScreen>
           userFriendlyError = 'Please log in to schedule a room visit.';
         } else if (errStr.contains('already have an active request') || errStr.contains('पठाइसक्नुभएको छ')) {
           userFriendlyError = e.toString().replaceAll('Exception: ', '');
+        } else {
+          userFriendlyError = e.toString().replaceAll('Exception: ', '');
         }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

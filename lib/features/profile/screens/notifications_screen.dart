@@ -511,7 +511,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         final bool isGuestNote = (note['is_guest_notification'] == true || id.startsWith('synth_')) && !id.startsWith('synth_owner_');
 
                         // 1. Owner Booking Request — with inline Accept/Reject
-                        if (isOwnerNote && (type == 'booking_request' || id.startsWith('synth_owner_'))) {
+                        if (type == 'booking_request' || id.startsWith('synth_owner_') ||
+                            (isOwnerNote && (titleStr.contains('Visit Request') || titleStr.contains('Property Visit')))) {
                           return GestureDetector(
                             onLongPress: () => _confirmDelete(id, index),
                             child: Padding(
@@ -1175,20 +1176,44 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     int index,
     dynamic sender,
   ) {
-    String guestName = sender?['full_name']?.toString() ?? 'Guest';
-    if (guestName == 'Khozna app' || guestName.trim().isEmpty) guestName = 'Guest';
+    String guestName = sender?['full_name']?.toString() ?? '';
+    if (guestName == 'Khozna app' || guestName.trim().isEmpty) {
+      // Try to extract guest name from message: "Prakash Balayar requested a visit..."
+      final msg = note['message']?.toString() ?? '';
+      final reqMatch = RegExp(r'^(.+?)\s+requested a visit').firstMatch(msg);
+      if (reqMatch != null) guestName = reqMatch.group(1)!.trim();
+      if (guestName.isEmpty) guestName = 'Guest';
+    }
     final String bookingId = note['booking_id']?.toString() ?? id.replaceAll('synth_owner_', '');
-    final String propTitle = note['property_title']?.toString() ?? note['properties']?['title']?.toString() ?? 'Mountain View Villa';
+    final String propTitle = note['property_title']?.toString() ?? note['properties']?['title']?.toString() ?? '';
+
     final String? propImg = note['property_image']?.toString() ?? (note['properties']?['images'] is List && (note['properties']?['images'] as List).isNotEmpty ? note['properties']['images'][0] : null);
 
+    // Try structured check_in field first, then parse from message text
     final checkInRaw = note['check_in']?.toString();
-    String scheduleLine = 'Sept 20 • 2:00 PM • 2 visitors';
+    String scheduleLine = '';
     if (checkInRaw != null) {
       final dt = DateTime.tryParse(checkInRaw);
       if (dt != null) {
         final formattedDate = DateFormat('MMM dd').format(dt);
         final formattedTime = DateFormat('h:mm a').format(dt);
-        scheduleLine = '$formattedDate • $formattedTime • 2 visitors';
+        final visitors = note['guests']?.toString() ?? '2';
+        scheduleLine = '$formattedDate • $formattedTime • $visitors visitors';
+      }
+    }
+    if (scheduleLine.isEmpty) {
+      // Parse from old message format: "...Visit date: 2026-09-19 09:00, Visitors: 2"
+      final msg = note['message']?.toString() ?? '';
+      final dateMatch = RegExp(r'Visit date:\s*(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})').firstMatch(msg);
+      final visitorMatch = RegExp(r'Visitors:\s*(\d+)').firstMatch(msg);
+      if (dateMatch != null) {
+        final dt = DateTime.tryParse('${dateMatch.group(1)} ${dateMatch.group(2)}');
+        if (dt != null) {
+          final formattedDate = DateFormat('MMM dd').format(dt);
+          final formattedTime = DateFormat('h:mm a').format(dt);
+          final visitors = visitorMatch?.group(1) ?? '2';
+          scheduleLine = '$formattedDate • $formattedTime • $visitors visitors';
+        }
       }
     }
 

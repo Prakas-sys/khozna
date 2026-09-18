@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/features/property/screens/booking_status_screen.dart';
+import 'package:khozna/widgets/khozna_image.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Design tokens
@@ -42,6 +43,7 @@ class BookingRequestScreen extends StatefulWidget {
 
 class _BookingRequestScreenState extends State<BookingRequestScreen>
     with SingleTickerProviderStateMixin {
+  int _currentStep = 0; // 0: Dates & Guests, 1: Bill Summary & Request
   DateTime _checkIn  = DateTime.now().add(const Duration(days: 1));
   DateTime _checkOut = DateTime.now().add(const Duration(days: 3));
   int _guestCount = 1;
@@ -54,7 +56,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
   @override
   void initState() {
     super.initState();
-    _fadeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+    _fadeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 350));
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
     _fadeCtrl.forward();
   }
@@ -68,6 +70,20 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
 
   int get _nights => _checkOut.difference(_checkIn).inDays.clamp(1, 999);
   double get _totalPrice => widget.pricePerNight > 0 ? widget.pricePerNight * _nights : 0;
+
+  void _nextStep() {
+    HapticFeedback.mediumImpact();
+    _fadeCtrl.reset();
+    setState(() => _currentStep = 1);
+    _fadeCtrl.forward();
+  }
+
+  void _prevStep() {
+    HapticFeedback.lightImpact();
+    _fadeCtrl.reset();
+    setState(() => _currentStep = 0);
+    _fadeCtrl.forward();
+  }
 
   // ─── DATE PICKERS ────────────────────────────────────────────────────────
 
@@ -127,7 +143,6 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
 
       if (!mounted) return;
 
-      // Fetch the created booking and navigate to status screen
       final booking = await BookingRepository.getBookingById(bookingId);
       if (!mounted) return;
 
@@ -143,12 +158,12 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
       }
     } catch (e) {
       if (!mounted) return;
-      final msg = e.toString().contains('पठाइसक्नुभएको')
+      final msg = e.toString().contains('पठाइसक्नुभएको') || e.toString().contains('active request')
           ? e.toString().replaceAll('Exception: ', '')
           : e.toString().toLowerCase().contains('network') ||
                   e.toString().toLowerCase().contains('socket')
               ? 'Network error. Check your connection and try again.'
-              : 'Could not send request. Please try again.';
+              : e.toString().replaceAll('Exception: ', '');
       _showSnack(msg, const Color(0xFFE11D48));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -178,39 +193,410 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: _ink, size: 18),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            if (_currentStep > 0) {
+              _prevStep();
+            } else {
+              Navigator.pop(context);
+            }
+          },
         ),
         title: Text(
-          'Request to Book',
+          _currentStep == 0 ? 'Select Dates & Guests' : 'Booking Summary',
           style: GoogleFonts.plusJakartaSans(
             color: _ink, fontWeight: FontWeight.w800, fontSize: 17, letterSpacing: -0.3,
           ),
         ),
         centerTitle: true,
       ),
-      body: FadeTransition(
-        opacity: _fadeAnim,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildPropertyCard(),
-              const SizedBox(height: 16),
-              _buildDirectPaymentNotice(),
-              const SizedBox(height: 16),
-              _buildDatesCard(),
-              const SizedBox(height: 14),
-              _buildGuestCounter(),
-              const SizedBox(height: 14),
-              if (widget.pricePerNight > 0) _buildPriceBreakdown(),
-              if (widget.pricePerNight > 0) const SizedBox(height: 14),
-              _buildMessageField(),
-            ],
+      body: Column(
+        children: [
+          _buildStepperHeader(),
+          Expanded(
+            child: FadeTransition(
+              opacity: _fadeAnim,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+                child: _currentStep == 0 ? _buildStepOneContent() : _buildStepTwoContent(),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
       bottomNavigationBar: _buildBottomCTA(),
+    );
+  }
+
+  // ─── STEPPER HEADER ────────────────────────────────────────────────────────
+
+  Widget _buildStepperHeader() {
+    return Container(
+      color: _card,
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+      child: Row(
+        children: [
+          _stepperBadge(0, '1', 'Dates & Guests'),
+          Expanded(
+            child: Container(
+              height: 2,
+              margin: const EdgeInsets.symmetric(horizontal: 10),
+              color: _currentStep > 0 ? _brand : _bdr,
+            ),
+          ),
+          _stepperBadge(1, '2', 'Bill & Request'),
+        ],
+      ),
+    );
+  }
+
+  Widget _stepperBadge(int stepIndex, String number, String label) {
+    final bool active = _currentStep == stepIndex;
+    final bool done = _currentStep > stepIndex;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          width: 26,
+          height: 26,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: done ? _brand : (active ? _brand : Colors.transparent),
+            border: Border.all(color: active || done ? _brand : _sub.withOpacity(0.4), width: 1.5),
+          ),
+          alignment: Alignment.center,
+          child: done
+              ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
+              : Text(
+                  number,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: active ? Colors.white : _sub,
+                  ),
+                ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: active || done ? FontWeight.w700 : FontWeight.w500,
+            color: active || done ? _ink : _sub,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ─── STEP 1 CONTENT: DATES & GUESTS ────────────────────────────────────────
+
+  Widget _buildStepOneContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildPropertyCard(),
+        const SizedBox(height: 16),
+        _buildDatesCard(),
+        const SizedBox(height: 16),
+        _buildGuestCounter(),
+        const SizedBox(height: 16),
+        _buildStepOnePreviewBanner(),
+      ],
+    );
+  }
+
+  Widget _buildStepOnePreviewBanner() {
+    final priceStr = NumberFormat('#,##0').format(widget.pricePerNight);
+    final totalStr = NumberFormat('#,##0').format(_totalPrice);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: _brand.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _brand.withOpacity(0.18)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(color: _brand.withOpacity(0.12), shape: BoxShape.circle),
+            child: const Icon(Icons.receipt_long_rounded, color: _brand, size: 20),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Estimated Total',
+                  style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600, color: _sub),
+                ),
+                Text(
+                  widget.pricePerNight > 0 ? 'NPR $totalStr' : 'Price upon request',
+                  style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w800, color: _ink),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '$_nights ${_nights == 1 ? "night" : "nights"}',
+            style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: _brand),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── STEP 2 CONTENT: BILL CARD SUMMARY & REQUEST ───────────────────────────
+
+  Widget _buildStepTwoContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildDigitalReceiptCard(),
+        const SizedBox(height: 16),
+        _buildDirectPaymentNotice(),
+        const SizedBox(height: 16),
+        _buildMessageField(),
+      ],
+    );
+  }
+
+  // ─── BEAUTIFUL DIGITAL RECEIPT / BILL CARD ─────────────────────────────────
+
+  Widget _buildDigitalReceiptCard() {
+    final priceStr = NumberFormat('#,##0').format(widget.pricePerNight);
+    final totalStr = NumberFormat('#,##0').format(_totalPrice);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: _card,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: _bdr),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Bill Header
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0F172A),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(21)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.receipt_rounded, color: Colors.white, size: 20),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'BOOKING RECEIPT SUMMARY',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF94A3B8),
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        widget.propertyTitle,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.brandColor,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'KHOZNA',
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Bill Body
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                // Check-in & Check-out Summary
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('CHECK-IN', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.8)),
+                          const SizedBox(height: 4),
+                          Text(DateFormat('MMM d, yyyy').format(_checkIn),
+                              style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _ink)),
+                          Text(DateFormat('EEEE').format(_checkIn), style: GoogleFonts.inter(fontSize: 11, color: _sub)),
+                        ],
+                      ),
+                    ),
+                    Container(width: 1, height: 36, color: _bdr),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('CHECK-OUT', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.8)),
+                            const SizedBox(height: 4),
+                            Text(DateFormat('MMM d, yyyy').format(_checkOut),
+                                style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: _ink)),
+                            Text(DateFormat('EEEE').format(_checkOut), style: GoogleFonts.inter(fontSize: 11, color: _sub)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+                _dashedDivider(),
+                const SizedBox(height: 16),
+
+                // Details Rows
+                _billDetailRow('Host Name', widget.ownerName, icon: Icons.person_outline_rounded),
+                const SizedBox(height: 10),
+                _billDetailRow('Total Stay Duration', '$_nights ${_nights == 1 ? "Night" : "Nights"}', icon: Icons.nights_stay_outlined),
+                const SizedBox(height: 10),
+                _billDetailRow('Guests Count', '$_guestCount ${_guestCount == 1 ? "Guest" : "Guests"}', icon: Icons.people_outline_rounded),
+
+                if (widget.pricePerNight > 0) ...[
+                  const SizedBox(height: 16),
+                  _dashedDivider(),
+                  const SizedBox(height: 16),
+
+                  _billDetailRow('Rate per night', 'NPR $priceStr'),
+                  const SizedBox(height: 8),
+                  _billDetailRow('Subtotal (NPR $priceStr × $_nights)', 'NPR $totalStr'),
+                  const SizedBox(height: 8),
+                  _billDetailRow('Platform Service Fee', 'NPR 0 (FREE)', isHighlight: true),
+
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    child: Divider(height: 1, color: _bdr),
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('TOTAL DUE',
+                              style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w800, color: _ink, letterSpacing: 0.8)),
+                          Text('Pay directly to owner',
+                              style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF16A34A), fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                      Text(
+                        'NPR $totalStr',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          color: _brand,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _billDetailRow(String label, String value, {IconData? icon, bool isHighlight = false}) {
+    return Row(
+      children: [
+        if (icon != null) ...[
+          Icon(icon, size: 15, color: _sub),
+          const SizedBox(width: 8),
+        ],
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12.5,
+            color: isHighlight ? const Color(0xFF16A34A) : _sub,
+            fontWeight: isHighlight ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
+        const Spacer(),
+        Text(
+          value,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 13,
+            color: isHighlight ? const Color(0xFF16A34A) : _ink,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _dashedDivider() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final boxWidth = constraints.maxWidth;
+        const dashWidth = 5.0;
+        const dashHeight = 1.0;
+        final dashCount = (boxWidth / (2 * dashWidth)).floor();
+        return Flex(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          direction: Axis.horizontal,
+          children: List.generate(dashCount, (_) {
+            return SizedBox(
+              width: dashWidth,
+              height: dashHeight,
+              child: const DecoratedBox(
+                decoration: BoxDecoration(color: Color(0xFFCBD5E1)),
+              ),
+            );
+          }),
+        );
+      },
     );
   }
 
@@ -226,13 +612,14 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
       ),
       child: Row(
         children: [
-          Container(
-            width: 64, height: 64,
-            decoration: BoxDecoration(
-              color: _brand.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(14),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: KhoznaImage(
+              imageUrl: widget.propertyImageUrl ?? '',
+              width: 64,
+              height: 64,
+              fit: BoxFit.cover,
             ),
-            child: const Icon(Icons.home_work_rounded, color: _brand, size: 28),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -265,8 +652,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
                 ],
                 const SizedBox(height: 3),
                 Text(
-                  'Owner: ${widget.ownerName}',
-                  style: GoogleFonts.inter(fontSize: 12, color: _sub),
+                  'Host: ${widget.ownerName}',
+                  style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -304,13 +691,13 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
                 Text(
                   'Direct Payment to Owner',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF15803D),
+                    fontSize: 13, fontWeight: FontWeight.w800, color: const Color(0xFF15803D),
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'After the owner accepts, you\'ll pay them directly. KHOZNA does not collect any payment.',
-                  style: GoogleFonts.inter(fontSize: 11.5, color: Color(0xFF166534), height: 1.4),
+                  style: GoogleFonts.inter(fontSize: 11.5, color: const Color(0xFF166534), height: 1.4),
                 ),
               ],
             ),
@@ -477,68 +864,6 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
     );
   }
 
-  // ─── PRICE BREAKDOWN ──────────────────────────────────────────────────────
-
-  Widget _buildPriceBreakdown() {
-    final priceStr = NumberFormat('#,##0').format(widget.pricePerNight);
-    final totalStr = NumberFormat('#,##0').format(_totalPrice);
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: _card,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _bdr),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Price Breakdown',
-              style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13, fontWeight: FontWeight.w800, color: _ink)),
-          const SizedBox(height: 12),
-          _priceRow('NPR $priceStr × $_nights ${_nights == 1 ? "night" : "nights"}',
-              'NPR $totalStr', isBold: false),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Divider(height: 1, color: _bdr),
-          ),
-          _priceRow('Total (pay to owner)', 'NPR $totalStr', isBold: true),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(Icons.info_outline_rounded, size: 13, color: _sub),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  'Paid directly to property owner. KHOZNA charges no fees.',
-                  style: GoogleFonts.inter(fontSize: 11, color: _sub, height: 1.4),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _priceRow(String label, String value, {required bool isBold}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label,
-            style: GoogleFonts.inter(
-                fontSize: 13,
-                color: isBold ? _ink : _sub,
-                fontWeight: isBold ? FontWeight.w700 : FontWeight.w500)),
-        Text(value,
-            style: GoogleFonts.plusJakartaSans(
-                fontSize: 13,
-                color: isBold ? _brand : _ink,
-                fontWeight: isBold ? FontWeight.w800 : FontWeight.w600)),
-      ],
-    );
-  }
-
   // ─── MESSAGE FIELD ────────────────────────────────────────────────────────
 
   Widget _buildMessageField() {
@@ -636,12 +961,14 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
                 SizedBox(
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: _isSubmitting ? null : _submit,
+                    onPressed: _isSubmitting
+                        ? null
+                        : (_currentStep == 0 ? _nextStep : _submit),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _brand,
                       foregroundColor: Colors.white,
                       elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 28),
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                       disabledBackgroundColor: _brand.withOpacity(0.5),
                     ),
@@ -651,9 +978,11 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
                             child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
                         : Row(
                             children: [
-                              Text('Request to Book',
-                                  style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 15, fontWeight: FontWeight.w800)),
+                              Text(
+                                _currentStep == 0 ? 'Review Summary' : 'Confirm & Request',
+                                style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 15, fontWeight: FontWeight.w800),
+                              ),
                               const SizedBox(width: 6),
                               const Icon(Icons.arrow_forward_rounded, size: 17),
                             ],
@@ -670,7 +999,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Small counter button widget
+// Counter Button
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _CounterBtn extends StatelessWidget {

@@ -16,6 +16,7 @@ import 'package:khozna/core/utils/formatters.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:khozna/features/property/screens/booking_request_screen.dart';
+import 'package:khozna/features/property/screens/visit_request_screen.dart';
 import 'package:khozna/features/property/screens/booking_status_screen.dart';
 import 'package:khozna/features/property/screens/payment_choice_screen.dart';
 import 'package:share_plus/share_plus.dart';
@@ -2705,21 +2706,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
-        padding: EdgeInsets.fromLTRB(
-          24,
-          16,
-          24,
-          MediaQuery.of(context).padding.bottom + 28,
-        ),
+        padding: EdgeInsets.fromLTRB(24, 16, 24, MediaQuery.of(context).padding.bottom + 28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Drag handle
             Center(
               child: Container(
-                width: 40,
-                height: 4,
+                width: 40, height: 4,
                 decoration: BoxDecoration(
                   color: const Color(0xFFE5E7EB),
                   borderRadius: BorderRadius.circular(10),
@@ -2727,47 +2721,28 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               ),
             ),
             const SizedBox(height: 22),
-
-            // Header
             Text(
               'How would you like to proceed?',
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF111827),
-                letterSpacing: -0.4,
+                fontSize: 18, fontWeight: FontWeight.w800,
+                color: const Color(0xFF111827), letterSpacing: -0.4,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               'Choose an option to get started with this property.',
-              style: GoogleFonts.inter(
-                fontSize: 12.5,
-                color: const Color(0xFF9CA3AF),
-                height: 1.4,
-              ),
+              style: GoogleFonts.inter(fontSize: 12.5, color: const Color(0xFF9CA3AF), height: 1.4),
             ),
             const SizedBox(height: 20),
 
-            // ── OPTION 1: Schedule Visit ────────────────────────────
+            // Option 1: Schedule a Visit
             InkWell(
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) =>
-                        BookingRequestScreen(
-                          propertyId: widget.property.id,
-                          propertyTitle: widget.property.title,
-                          ownerId: widget.property.ownerId,
-                          ownerName: _ownerName,
-                          pricePerNight: widget.property.priceNight > 0
-                              ? widget.property.priceNight
-                              : (double.tryParse(widget.property.price) ?? 0),
-                          propertyImageUrl: widget.property.imageUrl,
-                          propertyLocation: widget.property.location,
-                        ),
+                    builder: (_) => VisitRequestScreen(property: widget.property),
                   ),
                 ).then((v) => v == true ? _updateBookingStatus() : null);
               },
@@ -2777,27 +2752,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFFBF2),
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: const Color(0xFFFDE68A),
-                    width: 1.5,
-                  ),
+                  border: Border.all(color: const Color(0xFFFDE68A), width: 1.5),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(11),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFEF3C7),
-                        shape: BoxShape.circle,
-                      ),
+                      decoration: const BoxDecoration(color: Color(0xFFFEF3C7), shape: BoxShape.circle),
                       child: SvgPicture.asset(
                         'assets/images/schedule visit.svg',
-                        width: 22,
-                        height: 22,
-                        colorFilter: const ColorFilter.mode(
-                          Color(0xFFD97706),
-                          BlendMode.srcIn,
-                        ),
+                        width: 22, height: 22,
+                        colorFilter: const ColorFilter.mode(Color(0xFFD97706), BlendMode.srcIn),
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -2805,179 +2770,99 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                'Schedule a Visit',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: const Color(0xFF111827),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFEF3C7),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  'FREE',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w800,
-                                    color: const Color(0xFFD97706),
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            'Inspect the property in person before committing.',
-                            style: GoogleFonts.inter(
-                              fontSize: 11.5,
-                              color: const Color(0xFF9CA3AF),
-                              height: 1.4,
+                          Row(children: [
+                            Text('Schedule a Visit',
+                                style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w700, color: const Color(0xFF111827))),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                              decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(6)),
+                              child: Text('FREE', style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w800, color: const Color(0xFFD97706), letterSpacing: 0.5)),
                             ),
-                          ),
+                          ]),
+                          const SizedBox(height: 3),
+                          Text('Inspect the property in person before committing.',
+                              style: GoogleFonts.inter(fontSize: 11.5, color: const Color(0xFF9CA3AF), height: 1.4)),
                         ],
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: Color(0xFFD97706),
-                      size: 13,
-                    ),
+                    const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFD97706), size: 13),
                   ],
                 ),
               ),
             ),
 
-            // ── OR divider ──────────────────────────────────────────
+            // OR divider
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 14),
-              child: Row(
-                children: [
-                  Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Text(
-                      'OR',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.grey.shade400,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                  ),
-                  Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1)),
-                ],
-              ),
+              child: Row(children: [
+                Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Text('OR', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey.shade400, letterSpacing: 1.0)),
+                ),
+                Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1)),
+              ]),
             ),
 
-            // ── OPTION 2: Instant Booking ───────────────────────────
+            // Option 2: Request to Book
             InkWell(
               onTap: () {
                 Navigator.pop(context);
-                HapticFeedback.heavyImpact();
+                HapticFeedback.mediumImpact();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) =>
-                        BookingRequestScreen(
-                          propertyId: widget.property.id,
-                          propertyTitle: widget.property.title,
-                          ownerId: widget.property.ownerId,
-                          ownerName: _ownerName,
-                          pricePerNight: widget.property.priceNight > 0
-                              ? widget.property.priceNight
-                              : (double.tryParse(widget.property.price) ?? 0),
-                          propertyImageUrl: widget.property.imageUrl,
-                          propertyLocation: widget.property.location,
-                        ),
+                    builder: (_) => BookingRequestScreen(
+                      propertyId: widget.property.id,
+                      propertyTitle: widget.property.title,
+                      ownerId: widget.property.ownerId,
+                      ownerName: _ownerName,
+                      pricePerNight: widget.property.priceMonth > 0
+                          ? widget.property.priceMonth
+                          : (double.tryParse(widget.property.price) ?? 0),
+                      propertyImageUrl: widget.property.imageUrl,
+                      propertyLocation: widget.property.location,
+                    ),
                   ),
-                );
+                ).then((v) => v == true ? _updateBookingStatus() : null);
               },
               borderRadius: BorderRadius.circular(18),
               child: Container(
                 padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: AppTheme.brandColor,
-                  borderRadius: BorderRadius.circular(18),
-                ),
+                decoration: BoxDecoration(color: AppTheme.brandColor, borderRadius: BorderRadius.circular(18)),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(11),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.18),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.bolt_rounded,
-                        color: Colors.white,
-                        size: 22,
-                      ),
+                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.18), shape: BoxShape.circle),
+                      child: const Icon(Icons.calendar_month_rounded, color: Colors.white, size: 22),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                'Instant Booking',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.22),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  'QUICK PAY',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.white,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            'Rs. ${PriceFormatter.format(widget.property.priceMonth > 0 ? widget.property.priceMonth.toStringAsFixed(0) : (double.tryParse(widget.property.price) ?? 0).toStringAsFixed(0))} to reserve instantly.',
-                            style: GoogleFonts.inter(
-                              fontSize: 11.5,
-                              color: Colors.white.withOpacity(0.85),
-                              height: 1.4,
+                          Row(children: [
+                            Text('Request to Book',
+                                style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                              decoration: BoxDecoration(color: Colors.white.withOpacity(0.22), borderRadius: BorderRadius.circular(6)),
+                              child: Text('BOOK NOW', style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 0.5)),
                             ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
+                          ]),
+                          const SizedBox(height: 3),
+                          Text('Pick dates, guests & send request to the owner.',
+                              style: GoogleFonts.inter(fontSize: 11.5, color: Colors.white.withOpacity(0.85), height: 1.4),
+                              overflow: TextOverflow.ellipsis, maxLines: 1),
                         ],
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: Colors.white,
-                      size: 13,
-                    ),
+                    const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 13),
                   ],
                 ),
               ),
