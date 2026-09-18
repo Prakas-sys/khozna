@@ -664,7 +664,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       MaterialPageRoute(
                                         builder: (context) => PaymentChoiceScreen(
                                           booking: booking,
-                                          propertyTitle: booking.propertyTitle ?? 'Your Property',
                                         ),
                                       ),
                                     );
@@ -1469,7 +1468,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       MaterialPageRoute(
                         builder: (context) => PaymentChoiceScreen(
                           booking: booking,
-                          propertyTitle: booking.propertyTitle ?? 'Your Property',
                         ),
                       ),
                     );
@@ -1613,7 +1611,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         MaterialPageRoute(
                           builder: (context) => PaymentChoiceScreen(
                             booking: booking,
-                            propertyTitle: booking.propertyTitle ?? '',
                           ),
                         ),
                       );
@@ -1630,7 +1627,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         MaterialPageRoute(
                           builder: (context) => PaymentChoiceScreen(
                             booking: filtered.first,
-                            propertyTitle: filtered.first.propertyTitle ?? '',
                           ),
                         ),
                       );
@@ -2076,7 +2072,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         MaterialPageRoute(
                           builder: (context) => PaymentChoiceScreen(
                             booking: booking!,
-                            propertyTitle: booking.propertyTitle ?? 'Property',
                           ),
                         ),
                       );
