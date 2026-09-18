@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +10,7 @@ import 'package:khozna/core/models/user_model.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
+import 'package:khozna/widgets/khozna_image.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -131,6 +133,9 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   bool _isSubmitting = false;
   bool _isLoadingOwner = true;
   UserModel? _ownerProfile;
+  String? _propertyImageUrl;
+  Map<String, dynamic>? _ownerDataMap;
+  Map<String, dynamic>? _propertyDataMap;
 
   @override
   void initState() {
@@ -146,25 +151,96 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
   Future<void> _loadOwnerProfile() async {
     try {
-      final p = await SupabaseService.getUserProfile(widget.booking.ownerId);
+      final ownerRes = await Supabase.instance.client
+          .from('profiles')
+          .select()
+          .eq('id', widget.booking.ownerId)
+          .maybeSingle();
+
+      final propRes = await Supabase.instance.client
+          .from('properties')
+          .select()
+          .eq('id', widget.booking.propertyId)
+          .maybeSingle();
+
       if (mounted) {
         setState(() {
-          _ownerProfile = p;
+          _ownerDataMap = ownerRes;
+          _propertyDataMap = propRes;
+          if (ownerRes != null) {
+            _ownerProfile = UserModel.fromMap(ownerRes);
+          }
           _isLoadingOwner = false;
-          if (p?.esewaNumber?.isNotEmpty == true) {
+
+          if (propRes != null) {
+            final imageUrl = propRes['image_url'] as String?;
+            final imagesList = propRes['images'];
+            final images = imagesList is List ? imagesList.map((e) => e.toString()).toList() : <String>[];
+            _propertyImageUrl = (imageUrl != null && imageUrl.isNotEmpty)
+                ? imageUrl
+                : (images.isNotEmpty ? images.first : null);
+          }
+
+          final esewa = _getPaymentValue(_PayMethod.esewa);
+          final khalti = _getPaymentValue(_PayMethod.khalti);
+          final bank = _getPaymentValue(_PayMethod.bankTransfer);
+          final qr = _getPaymentValue(_PayMethod.qr);
+
+          if (esewa != null && esewa.isNotEmpty) {
             _selectedMethod = _PayMethod.esewa;
-          } else if (p?.khaltiNumber?.isNotEmpty == true) {
+          } else if (khalti != null && khalti.isNotEmpty) {
             _selectedMethod = _PayMethod.khalti;
-          } else if (p?.accountHolderName?.isNotEmpty == true) {
+          } else if (bank != null && bank.isNotEmpty) {
             _selectedMethod = _PayMethod.bankTransfer;
-          } else if (p?.qrCodeUrl?.isNotEmpty == true) {
+          } else if (qr != null && qr.isNotEmpty) {
             _selectedMethod = _PayMethod.qr;
           }
         });
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Error loading owner details: $e');
       if (mounted) setState(() => _isLoadingOwner = false);
     }
+  }
+
+  String? _getPaymentValue(_PayMethod method) {
+    String? checkKeys(Map<String, dynamic>? map, List<String> keys) {
+      if (map == null) return null;
+      for (final k in keys) {
+        final v = map[k];
+        if (v != null && v.toString().trim().isNotEmpty) {
+          return v.toString().trim();
+        }
+      }
+      return null;
+    }
+
+    String? val;
+    switch (method) {
+      case _PayMethod.esewa:
+        val = checkKeys(_ownerDataMap, ['esewa_number', 'esewa', 'esewa_id']) ??
+              checkKeys(_propertyDataMap, ['esewa_number', 'esewa', 'esewa_id']) ??
+              _ownerProfile?.esewaNumber;
+        // Fallback to phone number if owner profile phone number exists
+        val ??= checkKeys(_ownerDataMap, ['phone_number', 'phone']) ?? _ownerProfile?.phoneNumber;
+        break;
+      case _PayMethod.khalti:
+        val = checkKeys(_ownerDataMap, ['khalti_number', 'khalti', 'khalti_id']) ??
+              checkKeys(_propertyDataMap, ['khalti_number', 'khalti', 'khalti_id']) ??
+              _ownerProfile?.khaltiNumber;
+        break;
+      case _PayMethod.bankTransfer:
+        val = checkKeys(_ownerDataMap, ['account_holder_name', 'bank_details', 'bank_name', 'account_number']) ??
+              checkKeys(_propertyDataMap, ['account_holder_name', 'bank_details', 'bank_name', 'account_number']) ??
+              _ownerProfile?.accountHolderName;
+        break;
+      case _PayMethod.qr:
+        val = checkKeys(_ownerDataMap, ['qr_code_url', 'qr_url', 'qr_code', 'payment_qr']) ??
+              checkKeys(_propertyDataMap, ['qr_code_url', 'qr_url', 'qr_code', 'payment_qr']) ??
+              _ownerProfile?.qrCodeUrl;
+        break;
+    }
+    return (val != null && val.isNotEmpty) ? val : null;
   }
 
   Future<void> _pickProofImage() async {
@@ -350,10 +426,13 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   // ─── STEP 1: Review Booking Details ───────────────────────────────────────
 
   Widget _buildStep1Review() {
-    final nights = widget.booking.nights;
+    final rawNights = widget.booking.nights;
+    final nights = (rawNights == 30) ? 1 : rawNights;
+    final checkIn = widget.booking.checkIn;
+    final checkOut = (rawNights == 30) ? checkIn.add(const Duration(days: 1)) : widget.booking.checkOut;
     final total = NumberFormat('#,##0').format(widget.booking.totalPrice);
-    final checkInStr = DateFormat('MMM d, yyyy').format(widget.booking.checkIn);
-    final checkOutStr = DateFormat('MMM d, yyyy').format(widget.booking.checkOut);
+    final checkInStr = DateFormat('MMM d, yyyy').format(checkIn);
+    final checkOutStr = DateFormat('MMM d, yyyy').format(checkOut);
 
     return Column(
       children: [
@@ -376,29 +455,46 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
                 child: Row(
                   children: [
-                    Container(
-                      width: 48, height: 48,
-                      decoration: BoxDecoration(
-                        color: _brand.withValues(alpha: 0.09),
-                        borderRadius: BorderRadius.circular(12),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        width: 58,
+                        height: 58,
+                        decoration: BoxDecoration(
+                          color: _brand.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: (_propertyImageUrl != null && _propertyImageUrl!.isNotEmpty)
+                            ? KhoznaImage(
+                                imageUrl: _propertyImageUrl!,
+                                width: 58,
+                                height: 58,
+                                fit: BoxFit.cover,
+                              )
+                            : const Icon(Icons.home_work_rounded, color: _brand, size: 28),
                       ),
-                      child: const Icon(Icons.home_work_rounded, color: _brand, size: 24),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             widget.booking.propertyTitle ?? 'Property Booking',
-                            style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: _ink),
+                            style: GoogleFonts.inter(fontSize: 15.5, fontWeight: FontWeight.w700, color: _ink),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            widget.booking.formattedBookingId,
-                            style: GoogleFonts.inter(fontSize: 11.5, color: _sub, fontWeight: FontWeight.w500),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(Icons.confirmation_number_outlined, size: 13, color: _sub),
+                              const SizedBox(width: 4),
+                              Text(
+                                widget.booking.formattedBookingId,
+                                style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w600),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -414,86 +510,45 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 child: Row(
                   children: [
-                    // Check-in
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('CHECK-IN', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
-                          const SizedBox(height: 4),
-                          Text(
-                            checkInStr,
-                            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: _ink),
+                          Row(
+                            children: [
+                              const Icon(Icons.login_rounded, size: 12, color: _brand),
+                              const SizedBox(width: 4),
+                              Text('CHECK-IN', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
+                            ],
                           ),
+                          const SizedBox(height: 4),
+                          Text(checkInStr, style: GoogleFonts.inter(fontSize: 13.5, fontWeight: FontWeight.w700, color: _ink)),
+                          Text('$nights ${nights == 1 ? "night" : "nights"}', style: GoogleFonts.inter(fontSize: 11.5, color: _sub)),
                         ],
                       ),
                     ),
-
-                    // Arrow divider
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 14),
-                          Icon(Icons.arrow_forward_rounded, size: 16, color: _sub.withValues(alpha: 0.6)),
-                        ],
-                      ),
-                    ),
-
-                    // Check-out
+                    Container(width: 1, height: 44, color: _bdr),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('CHECK-OUT', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
-                          const SizedBox(height: 4),
-                          Text(
-                            checkOutStr,
-                            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: _ink),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Vertical divider
-                    Container(width: 1, height: 32, color: _bdr, margin: const EdgeInsets.symmetric(horizontal: 12)),
-
-                    // Guests
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('GUESTS', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${widget.booking.guestCount}',
-                          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: _ink),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.logout_rounded, size: 12, color: _sub),
+                                const SizedBox(width: 4),
+                                Text('CHECK-OUT', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(checkOutStr, style: GoogleFonts.inter(fontSize: 13.5, fontWeight: FontWeight.w700, color: _ink)),
+                            Text('${widget.booking.guestCount} ${widget.booking.guestCount == 1 ? "guest" : "guests"}', style: GoogleFonts.inter(fontSize: 11.5, color: _sub)),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ],
-                ),
-              ),
-
-              // ── Duration pill ─────────────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF3F4F6),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.nights_stay_outlined, size: 14, color: _sub),
-                      const SizedBox(width: 5),
-                      Text(
-                        '$nights ${nights == 1 ? "night" : "nights"} · ${widget.booking.guestCount} ${widget.booking.guestCount == 1 ? "guest" : "guests"}',
-                        style: GoogleFonts.inter(fontSize: 12.5, fontWeight: FontWeight.w600, color: _sub),
-                      ),
-                    ],
-                  ),
                 ),
               ),
 
@@ -504,14 +559,12 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    _priceRow('Stay ($nights ${nights == 1 ? "night" : "nights"})', 'NPR $total', _sub, _ink, FontWeight.w500, FontWeight.w600, 13.5),
-                    const SizedBox(height: 10),
-                    _priceRow('Service fee', 'Included', _sub, const Color(0xFF16A34A), FontWeight.w500, FontWeight.w600, 13.5),
+                    _priceRow('Stay ($nights ${nights == 1 ? "night" : "nights"})', total, _sub, _ink, FontWeight.w500, FontWeight.w600, 13.5),
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Divider(height: 1, color: _bdr),
                     ),
-                    _priceRow('Total', 'NPR $total', _ink, _ink, FontWeight.w800, FontWeight.w800, 15.5),
+                    _priceRow('Total rent', total, _ink, _ink, FontWeight.w800, FontWeight.w900, 15.0, valueFontSize: 19.5, iconSize: 15.5),
                   ],
                 ),
               ),
@@ -522,36 +575,53 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     );
   }
 
-  Widget _priceRow(String label, String value, Color labelColor, Color valueColor,
-      FontWeight labelWeight, FontWeight valueWeight, double fontSize) {
+  Widget _priceRow(
+    String label,
+    String amountStr,
+    Color labelColor,
+    Color valueColor,
+    FontWeight labelWeight,
+    FontWeight valueWeight,
+    double fontSize, {
+    double? valueFontSize,
+    double? iconSize,
+  }) {
+    final effectiveValueFontSize = valueFontSize ?? fontSize;
+    final effectiveIconSize = iconSize ?? (fontSize - 0.5);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(label, style: GoogleFonts.inter(fontSize: fontSize, color: labelColor, fontWeight: labelWeight)),
-        Text(value, style: GoogleFonts.inter(fontSize: fontSize, color: valueColor, fontWeight: valueWeight)),
-      ],
-    );
-  }
-
-  Widget _buildDetailRow({required IconData icon, required String title, required String value}) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 18, color: _sub),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w500)),
-              const SizedBox(height: 2),
-              Text(value, style: GoogleFonts.inter(fontSize: 13.5, fontWeight: FontWeight.w600, color: _ink)),
-            ],
-          ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              'assets/icons/vector of ruppes.svg',
+              width: effectiveIconSize,
+              height: effectiveIconSize,
+              colorFilter: ColorFilter.mode(valueColor, BlendMode.srcIn),
+            ),
+            const SizedBox(width: 3.5),
+            Text(
+              amountStr,
+              style: GoogleFonts.inter(
+                fontSize: effectiveValueFontSize,
+                color: valueColor,
+                fontWeight: valueWeight,
+                letterSpacing: -0.3,
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
+
+
+
 
   // ─── STEP 2: Select Payment Method (Airbnb Horizontal Single Line Rows) ───
 
@@ -666,23 +736,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
       );
     }
 
-    String? value;
-    String label = _selectedMethod.title;
-
-    switch (_selectedMethod) {
-      case _PayMethod.esewa:
-        value = _ownerProfile?.esewaNumber;
-        break;
-      case _PayMethod.khalti:
-        value = _ownerProfile?.khaltiNumber;
-        break;
-      case _PayMethod.bankTransfer:
-        value = _ownerProfile?.accountHolderName;
-        break;
-      case _PayMethod.qr:
-        value = _ownerProfile?.qrCodeUrl;
-        break;
-    }
+    final value = _getPaymentValue(_selectedMethod);
+    final label = _selectedMethod.title;
 
     if (value == null || value.trim().isEmpty) {
       return Container(
