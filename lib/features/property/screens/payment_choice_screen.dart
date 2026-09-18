@@ -435,139 +435,147 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
     return Column(
       children: [
-        // ── Unified Review Card ──────────────────────────────────────────────
-        Container(
-          decoration: BoxDecoration(
-            color: _card,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: _bdr),
-            boxShadow: [
-              BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 14, offset: const Offset(0, 3)),
-            ],
+        // ── Unified Spiked Receipt Review Card ────────────────────────────────
+        CustomPaint(
+          painter: ReceiptTicketBorderPainter(
+            borderColor: _bdr,
+            spikeHeight: 7.0,
+            spikeWidth: 10.0,
+            radius: 18.0,
           ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
+          child: ClipPath(
+            clipper: ReceiptTicketClipper(
+              spikeHeight: 7.0,
+              spikeWidth: 10.0,
+              radius: 18.0,
+            ),
+            child: Container(
+              color: _card,
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Column(
+                children: [
 
-              // ── Property header ──────────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        width: 58,
-                        height: 58,
-                        decoration: BoxDecoration(
-                          color: _brand.withValues(alpha: 0.08),
+                  // ── Property header ──────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+                    child: Row(
+                      children: [
+                        ClipRRect(
                           borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: (_propertyImageUrl != null && _propertyImageUrl!.isNotEmpty)
-                            ? KhoznaImage(
-                                imageUrl: _propertyImageUrl!,
-                                width: 58,
-                                height: 58,
-                                fit: BoxFit.cover,
-                              )
-                            : const Icon(Icons.home_work_rounded, color: _brand, size: 28),
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.booking.propertyTitle ?? 'Property Booking',
-                            style: GoogleFonts.inter(fontSize: 15.5, fontWeight: FontWeight.w700, color: _ink),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          child: Container(
+                            width: 58,
+                            height: 58,
+                            decoration: BoxDecoration(
+                              color: _brand.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: (_propertyImageUrl != null && _propertyImageUrl!.isNotEmpty)
+                                ? KhoznaImage(
+                                    imageUrl: _propertyImageUrl!,
+                                    width: 58,
+                                    height: 58,
+                                    fit: BoxFit.cover,
+                                  )
+                                : const Icon(Icons.home_work_rounded, color: _brand, size: 28),
                           ),
-                          const SizedBox(height: 4),
-                          Row(
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.confirmation_number_outlined, size: 13, color: _sub),
-                              const SizedBox(width: 4),
                               Text(
-                                widget.booking.formattedBookingId,
-                                style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w600),
+                                widget.booking.propertyTitle ?? 'Property Booking',
+                                style: GoogleFonts.inter(fontSize: 15.5, fontWeight: FontWeight.w700, color: _ink),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  const Icon(Icons.confirmation_number_outlined, size: 13, color: _sub),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    widget.booking.formattedBookingId,
+                                    style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w600),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
 
-              Container(height: 1, color: _bdr),
+                  Container(height: 1, color: _bdr),
 
-              // ── Dates + Guests row ────────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                  // ── Dates + Guests row ────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.calendar_today_rounded, size: 13, color: _brand),
-                              const SizedBox(width: 5),
-                              Text('CHECK-IN', style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
+                              Row(
+                                children: [
+                                  const Icon(Icons.calendar_today_rounded, size: 13, color: _brand),
+                                  const SizedBox(width: 5),
+                                  Text('CHECK-IN', style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(checkInStr, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: _ink)),
+                              Text('$nights ${nights == 1 ? "night" : "nights"}', style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w500)),
                             ],
                           ),
-                          const SizedBox(height: 4),
-                          Text(checkInStr, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: _ink)),
-                          Text('$nights ${nights == 1 ? "night" : "nights"}', style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w500)),
-                        ],
-                      ),
-                    ),
-                    Container(width: 1, height: 44, color: _bdr),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                        ),
+                        Container(width: 1, height: 44, color: _bdr),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(Icons.event_busy_rounded, size: 13, color: Color(0xFFE11D48)),
-                                const SizedBox(width: 5),
-                                Text('CHECK-OUT', style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.event_busy_rounded, size: 13, color: Color(0xFFE11D48)),
+                                    const SizedBox(width: 5),
+                                    Text('CHECK-OUT', style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(checkOutStr, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: _ink)),
+                                Text('${widget.booking.guestCount} ${widget.booking.guestCount == 1 ? "guest" : "guests"}', style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w500)),
                               ],
                             ),
-                            const SizedBox(height: 4),
-                            Text(checkOutStr, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: _ink)),
-                            Text('${widget.booking.guestCount} ${widget.booking.guestCount == 1 ? "guest" : "guests"}', style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w500)),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
 
-              Container(height: 1, color: _bdr),
+                  Container(height: 1, color: _bdr),
 
-              // ── Price breakdown ───────────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    _priceRow('Stay ($nights ${nights == 1 ? "night" : "nights"})', total, _sub, _ink, FontWeight.w600, FontWeight.w700, 14.0, valueFontSize: 16.5, iconSize: 13.5),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Divider(height: 1, color: _bdr),
+                  // ── Price breakdown ───────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        _priceRow('Stay ($nights ${nights == 1 ? "night" : "nights"})', total, _sub, _ink, FontWeight.w600, FontWeight.w700, 14.0, valueFontSize: 16.5, iconSize: 13.5),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          child: Divider(height: 1, color: _bdr),
+                        ),
+                        _priceRow('Total rent', total, _ink, _ink, FontWeight.w800, FontWeight.w800, 15.0, valueFontSize: 20.0, iconSize: 16.0),
+                      ],
                     ),
-                    _priceRow('Total rent', total, _ink, _ink, FontWeight.w800, FontWeight.w800, 15.0, valueFontSize: 20.0, iconSize: 16.0),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ],
@@ -1203,4 +1211,93 @@ class _SuccessSheet extends StatelessWidget {
       ),
     );
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Spiked / Sawtooth Receipt Clipper & Painter
+// ─────────────────────────────────────────────────────────────────────────────
+class ReceiptTicketClipper extends CustomClipper<Path> {
+  final double spikeHeight;
+  final double spikeWidth;
+  final double radius;
+
+  ReceiptTicketClipper({
+    this.spikeHeight = 7.0,
+    this.spikeWidth = 10.0,
+    this.radius = 18.0,
+  });
+
+  @override
+  Path getClip(Size size) {
+    return _createReceiptPath(size, spikeHeight, spikeWidth, radius);
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
+class ReceiptTicketBorderPainter extends CustomPainter {
+  final double spikeHeight;
+  final double spikeWidth;
+  final double radius;
+  final Color borderColor;
+  final double borderWidth;
+
+  ReceiptTicketBorderPainter({
+    this.spikeHeight = 7.0,
+    this.spikeWidth = 10.0,
+    this.radius = 18.0,
+    required this.borderColor,
+    this.borderWidth = 1.0,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = borderWidth
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final path = _createReceiptPath(size, spikeHeight, spikeWidth, radius);
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
+Path _createReceiptPath(Size size, double spikeHeight, double spikeWidth, double radius) {
+  final path = Path();
+  // Top-left rounded corner
+  path.moveTo(0, radius);
+  path.quadraticBezierTo(0, 0, radius, 0);
+
+  // Top edge
+  path.lineTo(size.width - radius, 0);
+
+  // Top-right rounded corner
+  path.quadraticBezierTo(size.width, 0, size.width, radius);
+
+  // Right edge down to spikes
+  path.lineTo(size.width, size.height - spikeHeight);
+
+  // Bottom spiked receipt edge (right to left)
+  final count = (size.width / spikeWidth).floor();
+  final step = size.width / count;
+  double x = size.width;
+
+  for (int i = 0; i < count; i++) {
+    final midX = x - step / 2;
+    path.lineTo(midX, size.height);
+    final nextX = x - step;
+    path.lineTo(nextX, size.height - spikeHeight);
+    x = nextX;
+  }
+
+  // Left edge back up to top-left corner
+  path.lineTo(0, radius);
+  path.close();
+  return path;
 }
