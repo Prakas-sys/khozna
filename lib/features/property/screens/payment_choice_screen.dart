@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:khozna/core/models/booking_model.dart';
 import 'package:khozna/core/models/user_model.dart';
 import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/widgets/khozna_image.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
