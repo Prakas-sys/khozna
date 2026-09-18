@@ -171,8 +171,6 @@ class BookingRepository {
             'check_out': checkOut.toIso8601String(),
             'total_price': totalPrice,
             'status': 'pending_approval',
-            'booking_status': 'pending',
-            'payment_status': 'not_required',
           })
           .select()
           .single();
@@ -214,8 +212,6 @@ class BookingRepository {
     try {
       final updates = <String, dynamic>{
         'status': 'awaiting_payment',
-        'booking_status': 'accepted',
-        'payment_status': 'payment_pending',
         'updated_at': DateTime.now().toUtc().toIso8601String(),
       };
       
@@ -571,8 +567,6 @@ class BookingRepository {
         'payment_type': 'direct',
         'khozna_fee': 0.0,
         'status': 'paid',
-        'booking_status': 'accepted',
-        'payment_status': 'payment_submitted',
         'payment_proof_url': proofImageUrl,
         'payment_reference': referenceId,
         'updated_at': DateTime.now().toUtc().toIso8601String(),
@@ -590,8 +584,6 @@ class BookingRepository {
             .update({
               'payment_type': 'direct',
               'status': 'paid',
-              'booking_status': 'accepted',
-              'payment_status': 'payment_submitted',
               'updated_at': DateTime.now().toUtc().toIso8601String(),
             })
             .eq('id', bookingId);
@@ -657,8 +649,6 @@ class BookingRepository {
           .from('bookings')
           .update({
             'status': 'confirmed',
-            'booking_status': 'confirmed',
-            'payment_status': 'payment_confirmed',
             'updated_at': DateTime.now().toUtc().toIso8601String(),
           })
           .eq('id', bookingId);
@@ -703,7 +693,6 @@ class BookingRepository {
           .from('bookings')
           .update({
             'status': 'payment_issue',
-            'payment_status': 'payment_issue',
             'rejection_reason': reason ?? 'Payment verification failed',
             'updated_at': DateTime.now().toUtc().toIso8601String(),
           })

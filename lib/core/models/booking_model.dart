@@ -159,8 +159,6 @@ class BookingModel {
       'payment_proof_url': paymentProofUrl,
       'payment_reference': paymentReference,
       'status': status,
-      'booking_status': bookingStatus,
-      'payment_status': paymentStatus,
       'guests': guestCount,
     };
   }
