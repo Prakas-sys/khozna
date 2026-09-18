@@ -2629,7 +2629,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => PaymentChoiceScreen(booking: booking, property: widget.property),
+                    builder: (_) => PaymentChoiceScreen(booking: booking),
                   ),
                 ).then((_) => _updateBookingStatus());
                 return;
