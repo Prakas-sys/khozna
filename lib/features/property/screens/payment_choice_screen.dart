@@ -357,132 +357,178 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
     return Column(
       children: [
-        // Property Main Card (No Overflow)
+        // ── Unified Review Card ──────────────────────────────────────────────
         Container(
-          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: _card,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(color: _bdr),
             boxShadow: [
-              BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 2)),
+              BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 14, offset: const Offset(0, 3)),
             ],
           ),
-          child: Row(
+          clipBehavior: Clip.antiAlias,
+          child: Column(
             children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: _brand.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.home_work_rounded, color: _brand, size: 26),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+
+              // ── Property header ──────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+                child: Row(
                   children: [
-                    Text(
-                      widget.booking.propertyTitle ?? 'Property Booking',
-                      style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: _ink),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Container(
+                      width: 48, height: 48,
+                      decoration: BoxDecoration(
+                        color: _brand.withValues(alpha: 0.09),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.home_work_rounded, color: _brand, size: 24),
                     ),
-                    const SizedBox(height: 3),
-                    Text(
-                      'Booking Reference: ${widget.booking.formattedBookingId}',
-                      style: GoogleFonts.inter(fontSize: 12, color: _sub, fontWeight: FontWeight.w500),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.booking.propertyTitle ?? 'Property Booking',
+                            style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: _ink),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.booking.formattedBookingId,
+                            style: GoogleFonts.inter(fontSize: 11.5, color: _sub, fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
                     ),
+                  ],
+                ),
+              ),
+
+              Container(height: 1, color: _bdr),
+
+              // ── Dates + Guests row ────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: Row(
+                  children: [
+                    // Check-in
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('CHECK-IN', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
+                          const SizedBox(height: 4),
+                          Text(
+                            checkInStr,
+                            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: _ink),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Arrow divider
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 14),
+                          Icon(Icons.arrow_forward_rounded, size: 16, color: _sub.withValues(alpha: 0.6)),
+                        ],
+                      ),
+                    ),
+
+                    // Check-out
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('CHECK-OUT', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
+                          const SizedBox(height: 4),
+                          Text(
+                            checkOutStr,
+                            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: _ink),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Vertical divider
+                    Container(width: 1, height: 32, color: _bdr, margin: const EdgeInsets.symmetric(horizontal: 12)),
+
+                    // Guests
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('GUESTS', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: _sub, letterSpacing: 0.6)),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${widget.booking.guestCount}',
+                          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: _ink),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // ── Duration pill ─────────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.nights_stay_outlined, size: 14, color: _sub),
+                      const SizedBox(width: 5),
+                      Text(
+                        '$nights ${nights == 1 ? "night" : "nights"} · ${widget.booking.guestCount} ${widget.booking.guestCount == 1 ? "guest" : "guests"}',
+                        style: GoogleFonts.inter(fontSize: 12.5, fontWeight: FontWeight.w600, color: _sub),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              Container(height: 1, color: _bdr),
+
+              // ── Price breakdown ───────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _priceRow('Stay ($nights ${nights == 1 ? "night" : "nights"})', 'NPR $total', _sub, _ink, FontWeight.w500, FontWeight.w600, 13.5),
+                    const SizedBox(height: 10),
+                    _priceRow('Service fee', 'Included', _sub, const Color(0xFF16A34A), FontWeight.w500, FontWeight.w600, 13.5),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Divider(height: 1, color: _bdr),
+                    ),
+                    _priceRow('Total', 'NPR $total', _ink, _ink, FontWeight.w800, FontWeight.w800, 15.5),
                   ],
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 14),
+      ],
+    );
+  }
 
-        // Stay Details Card
-        Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: _card,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _bdr),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Your trip details',
-                style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: _ink),
-              ),
-              const SizedBox(height: 14),
-              _buildDetailRow(
-                icon: Icons.calendar_today_rounded,
-                title: 'Dates',
-                value: '$checkInStr - $checkOutStr ($nights ${nights == 1 ? "night" : "nights"})',
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: Divider(height: 1, color: _bdr),
-              ),
-              _buildDetailRow(
-                icon: Icons.people_outline_rounded,
-                title: 'Guests',
-                value: '${widget.booking.guestCount} ${widget.booking.guestCount == 1 ? "guest" : "guests"}',
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 14),
-
-        // Price Breakdown Card
-        Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: _card,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _bdr),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Price details',
-                style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: _ink),
-              ),
-              const SizedBox(height: 14),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Total stay ($nights nights)', style: GoogleFonts.inter(fontSize: 13.5, color: _sub)),
-                  Text('NPR $total', style: GoogleFonts.inter(fontSize: 13.5, fontWeight: FontWeight.w600, color: _ink)),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Service fee', style: GoogleFonts.inter(fontSize: 13.5, color: _sub)),
-                  Text('NPR 0 (Included)', style: GoogleFonts.inter(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.green.shade700)),
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: Divider(height: 1, color: _bdr),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Total (NPR)', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w800, color: _ink)),
-                  Text('NPR $total', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w800, color: _ink)),
-                ],
-              ),
-            ],
-          ),
-        ),
+  Widget _priceRow(String label, String value, Color labelColor, Color valueColor,
+      FontWeight labelWeight, FontWeight valueWeight, double fontSize) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: GoogleFonts.inter(fontSize: fontSize, color: labelColor, fontWeight: labelWeight)),
+        Text(value, style: GoogleFonts.inter(fontSize: fontSize, color: valueColor, fontWeight: valueWeight)),
       ],
     );
   }
